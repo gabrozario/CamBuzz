@@ -1,3 +1,4 @@
+import { UserMinus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Checkbox } from '../../components/Checkbox';
 import { colors, fonts, radius, tint } from '../../theme';
@@ -7,10 +8,12 @@ interface Props {
   day: PersonDay;
   checked: boolean;
   onToggle: () => void;
+  /** Se presente, mostra o botão de remover amigo (não aparece para "You"). */
+  onRemove?: () => void;
 }
 
 /** Linha da lista People: checkbox na cor da pessoa, nome, status e "Next: ..." (Figma). */
-export function PersonRow({ day, checked, onToggle }: Props) {
+export function PersonRow({ day, checked, onToggle, onRemove }: Props) {
   const { person, status, next } = day;
   return (
     <Pressable
@@ -38,6 +41,17 @@ export function PersonRow({ day, checked, onToggle }: Props) {
           {status}
         </Text>
       </View>
+      {onRemove && (
+        <Pressable
+          onPress={onRemove}
+          hitSlop={10}
+          style={({ pressed }) => [styles.removeBtn, pressed && styles.pressed]}
+          accessibilityRole="button"
+          accessibilityLabel={`Remove ${person.name} from friends`}
+        >
+          <UserMinus size={20} color={colors.muted} strokeWidth={1.8} />
+        </Pressable>
+      )}
     </Pressable>
   );
 }
@@ -59,4 +73,5 @@ const styles = StyleSheet.create({
   next: { flexShrink: 1, fontFamily: fonts.medium, fontSize: 11, textAlign: 'right' },
   swatch: { width: 26, height: 4, borderRadius: 2, marginRight: 4 },
   status: { fontFamily: fonts.regular, fontSize: 13, color: colors.muted },
+  removeBtn: { padding: 6, marginLeft: -4 },
 });

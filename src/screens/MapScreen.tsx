@@ -11,7 +11,7 @@ import { FilterBar } from '../components/FilterBar';
 import { InfoChip } from '../components/InfoChip';
 import { MapTopBar } from '../components/MapTopBar';
 import { RouteLegend, type LegendEntry } from '../components/RouteLegend';
-import { SHEET_COLLAPSED_HEIGHT, SHEET_HALF } from '../components/sheet/FilterSheet';
+import { SHEET_COLLAPSED_HEIGHT, SHEET_MID, SHEET_MID_FRACTION } from '../components/sheet/FilterSheet';
 import { EventsLayer } from '../filters/events/EventsLayer';
 import { EventsSheet } from '../filters/events/EventsSheet';
 import type { Companion } from '../filters/events/eventsWithFriends';
@@ -87,7 +87,7 @@ export function MapScreen() {
   );
 
   useEffect(() => {
-    setSheetIndex(sheetFilter ? SHEET_HALF : -1);
+    setSheetIndex(sheetFilter ? SHEET_MID : -1);
   }, [sheetFilter]);
 
   // Ao desligar o filtro de Eventos, esquece o evento selecionado.
@@ -98,7 +98,7 @@ export function MapScreen() {
 
   // Espaço que a aba ocupa embaixo do mapa — o Google Maps centraliza o conteúdo acima dela.
   const sheetHeight =
-    sheetIndex < 0 ? 0 : sheetIndex === 0 ? SHEET_COLLAPSED_HEIGHT : Math.round(mapHeight * 0.5);
+    sheetIndex < 0 ? 0 : sheetIndex === 0 ? SHEET_COLLAPSED_HEIGHT : Math.round(mapHeight * SHEET_MID_FRACTION);
   const paddingBottom = sheetIndex < 0 ? 90 : sheetHeight + (sheetFilter === 'people' ? 80 : 0);
   const mapPadding = useMemo(
     () => ({ top: insets.top + 130, bottom: paddingBottom, left: 16, right: 16 }),

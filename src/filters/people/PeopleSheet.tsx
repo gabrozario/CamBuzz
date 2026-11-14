@@ -1,7 +1,7 @@
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Clock, UserPlus } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { FilterSheet } from '../../components/sheet/FilterSheet';
+import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { useFriends } from '../../services/friends/FriendsProvider';
 import { colors, fonts } from '../../theme';
 import { PersonRow } from './PersonRow';
@@ -16,20 +16,29 @@ interface Props {
 
 /** A aba do filtro People: você + amigos, cada um com checkbox para mostrar/esconder o caminho. */
 export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Props) {
-  const { pendingRequests } = useFriends();
+  const { pendingRequests, removeFriend } = useFriends();
   const { days, visibleIds, toggle } = state;
   const n = visibleIds.size;
   const subtitle = `${n} selected · ${n > 1 ? 'Compare your day' : "Today's schedule"}`;
 
+  // Pede confirmação antes de remover (evita remover alguém sem querer).
+  const confirmRemove = (id: string, name: string) => {
+    Alert.alert(`Remove ${name}?`, "You'll stop seeing each other's schedules. You can add them again later.", [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Remove', style: 'destructive', onPress: () => removeFriend(id) },
+    ]);
+  };
+
   return (
     <FilterSheet title="People" subtitle={subtitle} onClose={onClose} onIndexChange={onIndexChange}>
-      <BottomSheetScrollView contentContainerStyle={styles.content}>
+      <SheetScrollView contentContainerStyle={styles.content}>
         {days.map((day) => (
           <PersonRow
             key={day.person.id}
             day={day}
             checked={visibleIds.has(day.person.id)}
             onToggle={() => toggle(day.person.id)}
+            onRemove={day.person.isMe ? undefined : () => confirmRemove(day.person.id, day.person.name)}
           />
         ))}
 
@@ -52,7 +61,7 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
         </Pressable>
 
         <Text style={styles.footnote}>Example schedules · Walking routes are illustrative</Text>
-      </BottomSheetScrollView>
+      </SheetScrollView>
     </FilterSheet>
   );
 }

@@ -17,12 +17,17 @@ export function usePeopleFilter(now: TimeOfDay) {
     [friends, now],
   );
 
-  // Amigo recém-adicionado (pelo popup) já aparece selecionado.
+  // Amigo recém-adicionado (pelo popup) já aparece selecionado; amigo removido sai da seleção.
   const knownIds = useRef(new Set(friends.map((f) => f.id)));
   useEffect(() => {
-    const added = friends.filter((f) => !knownIds.current.has(f.id));
-    friends.forEach((f) => knownIds.current.add(f.id));
-    if (added.length) setVisibleIds((prev) => new Set([...prev, ...added.map((f) => f.id)]));
+    const currentIds = new Set(friends.map((f) => f.id));
+    const added = friends.filter((f) => !knownIds.current.has(f.id)).map((f) => f.id);
+    knownIds.current = currentIds;
+    setVisibleIds((prev) => {
+      const next = new Set([...prev].filter((id) => id === 'me' || currentIds.has(id)));
+      added.forEach((id) => next.add(id));
+      return next.size === prev.size && [...next].every((id) => prev.has(id)) ? prev : next;
+    });
   }, [friends]);
 
   const toggle = useCallback((id: string) => {

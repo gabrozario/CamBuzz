@@ -1,9 +1,9 @@
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { FilterSheet, SHEET_HALF, type FilterSheetHandle } from '../../components/sheet/FilterSheet';
+import { FilterSheet, SHEET_MID, type FilterSheetHandle } from '../../components/sheet/FilterSheet';
+import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { colors, fonts } from '../../theme';
-import { EventDetails } from './EventDetails';
+import { EventDetails, EventDetailsHeader } from './EventDetails';
 import { EventListItem } from './EventListItem';
 import type { EventsFilterState } from './useEventsFilter';
 
@@ -19,9 +19,9 @@ export function EventsSheet({ state, onClose, onIndexChange }: Props) {
   const { sections, selected, select, showAll, setShowAll, matchCount, upcomingCount, withFriendsCount, hasCompanions } =
     state;
 
-  // Ao escolher um evento (na lista ou no pino do mapa), a aba vai para a metade da tela.
+  // Ao escolher um evento (na lista ou no pino do mapa), a aba vai para a altura do meio (30%).
   useEffect(() => {
-    if (selected) sheetRef.current?.snapTo(SHEET_HALF);
+    if (selected) sheetRef.current?.snapTo(SHEET_MID);
   }, [selected?.event.id]);
 
   const base = showAll ? `Today · ${upcomingCount} events` : `Today · ${matchCount} on your route`;
@@ -34,14 +34,14 @@ export function EventsSheet({ state, onClose, onIndexChange }: Props) {
       title="Events"
       subtitle={subtitle}
       note="Sample events"
-      hideHeader={!!selected}
+      customHeader={selected ? <EventDetailsHeader entry={selected} onBack={state.clearSelection} /> : undefined}
       onClose={onClose}
       onIndexChange={onIndexChange}
     >
       {selected ? (
-        <EventDetails entry={selected} onClose={onClose} />
+        <EventDetails entry={selected} />
       ) : (
-        <BottomSheetScrollView contentContainerStyle={styles.content}>
+        <SheetScrollView contentContainerStyle={styles.content}>
           {sections.length === 0 && (
             <Text style={styles.empty}>No events fit between your classes right now.</Text>
           )}
@@ -68,7 +68,7 @@ export function EventsSheet({ state, onClose, onIndexChange }: Props) {
               {showAll ? 'Only show events on my route' : `Show all ${upcomingCount} events today`}
             </Text>
           </Pressable>
-        </BottomSheetScrollView>
+        </SheetScrollView>
       )}
     </FilterSheet>
   );
