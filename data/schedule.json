@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-16",
+  "classes": [
+    { "id": "u1", "course": "PHYS 2211", "title": "Intro Physics I", "kind": "Lecture", "buildingId": "howey", "room": "L1", "start": "09:00", "end": "09:50" },
+    { "id": "u2", "course": "MATH 1554", "title": "Linear Algebra", "kind": "Lecture", "buildingId": "skiles", "room": "249", "start": "10:00", "end": "10:50" },
+    { "id": "u3", "course": "CS 1332", "title": "Data Structures & Algorithms", "kind": "Lecture", "buildingId": "culc", "room": "152", "start": "11:00", "end": "12:15" },
+    { "id": "u4", "course": "CS 2110", "title": "Computer Organization", "kind": "Lecture", "buildingId": "klaus", "room": "1443", "start": "14:00", "end": "15:15" },
+    { "id": "u5", "course": "PHYS 2211", "title": "Physics Lab", "kind": "Lab", "buildingId": "instructional-center", "room": "105", "start": "16:30", "end": "17:45" }
+  ]
+}

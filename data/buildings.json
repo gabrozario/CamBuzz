@@ -1,0 +1,18 @@
+[
+  { "id": "klaus", "name": "Klaus Advanced Computing Building", "shortName": "Klaus", "category": "academic", "coordinate": { "latitude": 33.77715, "longitude": -84.39622 } },
+  { "id": "coc", "name": "College of Computing Building", "shortName": "CoC", "category": "academic", "coordinate": { "latitude": 33.77735, "longitude": -84.39730 } },
+  { "id": "howey", "name": "Howey Physics Building", "shortName": "Howey", "category": "academic", "coordinate": { "latitude": 33.77755, "longitude": -84.39895 } },
+  { "id": "culc", "name": "Clough Undergraduate Learning Commons", "shortName": "Clough Commons", "category": "academic", "coordinate": { "latitude": 33.77465, "longitude": -84.39640 } },
+  { "id": "skiles", "name": "Skiles Classroom Building", "shortName": "Skiles", "category": "academic", "coordinate": { "latitude": 33.77370, "longitude": -84.39590 } },
+  { "id": "library", "name": "Price Gilbert Library", "shortName": "Library", "category": "library", "coordinate": { "latitude": 33.77435, "longitude": -84.39555 } },
+  { "id": "student-center", "name": "John Lewis Student Center", "shortName": "Student Center", "category": "student-life", "coordinate": { "latitude": 33.77385, "longitude": -84.39885 } },
+  { "id": "tech-green", "name": "Tech Green", "shortName": "Tech Green", "category": "outdoor", "coordinate": { "latitude": 33.77445, "longitude": -84.39740 } },
+  { "id": "tech-tower", "name": "Tech Tower", "shortName": "Tech Tower", "category": "landmark", "coordinate": { "latitude": 33.77260, "longitude": -84.39480 } },
+  { "id": "van-leer", "name": "Van Leer Building", "shortName": "Van Leer", "category": "academic", "coordinate": { "latitude": 33.77605, "longitude": -84.39730 } },
+  { "id": "instructional-center", "name": "Instructional Center", "shortName": "IC", "category": "academic", "coordinate": { "latitude": 33.77545, "longitude": -84.40130 } },
+  { "id": "kendeda", "name": "Kendeda Building", "shortName": "Kendeda", "category": "academic", "coordinate": { "latitude": 33.77880, "longitude": -84.39945 } },
+  { "id": "crc", "name": "Campus Recreation Center", "shortName": "CRC", "category": "recreation", "coordinate": { "latitude": 33.77550, "longitude": -84.40390 } },
+  { "id": "north-ave-dining", "name": "North Avenue Dining Hall", "shortName": "North Ave Dining", "category": "dining", "coordinate": { "latitude": 33.77125, "longitude": -84.39150 } },
+  { "id": "brittain", "name": "Brittain Dining Hall", "shortName": "Brittain", "category": "dining", "coordinate": { "latitude": 33.77270, "longitude": -84.39135 } },
+  { "id": "west-village", "name": "West Village Dining Commons", "shortName": "West Village", "category": "dining", "coordinate": { "latitude": 33.77950, "longitude": -84.40490 } }
+]
