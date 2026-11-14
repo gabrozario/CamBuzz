@@ -70,7 +70,7 @@ export function ResourcesSheet({ state, onClose, onIndexChange }: Props) {
   return (
     <FilterSheet
       ref={sheetRef}
-      title="Campus Resources"
+      title="Resources"
       subtitle={subtitle}
       hideChevron={true}
       customHeader={

@@ -18,10 +18,10 @@ export function CampusDetailsHeader({ buildingName, onBack }: HeaderProps) {
         hitSlop={12}
         style={styles.backRow}
         accessibilityRole="button"
-        accessibilityLabel="Back to campus resources"
+        accessibilityLabel="Back to resources"
       >
         <ChevronLeft size={22} color={colors.ink} strokeWidth={2} />
-        <Text style={styles.backLabel}>Campus resources</Text>
+        <Text style={styles.backLabel}>Resources</Text>
       </Pressable>
       <Text style={styles.title} numberOfLines={1}>
         {buildingName}
