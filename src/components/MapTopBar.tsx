@@ -6,12 +6,14 @@ import { IconButton, ICON_BUTTON_SIZE } from './IconButton';
 
 interface Props {
   topInset: number;
+  /** Substitui o botão "adicionar amigo" (ex.: "‹ All events" no detalhe de um evento). */
+  leftAccessory?: ReactNode;
   /** Conteúdo ao lado do botão "adicionar amigo" (ex.: chip "Your day · 11:15 AM"). */
   children?: ReactNode;
 }
 
 /** Barra flutuante do topo: agenda, busca, configurações e adicionar amigo. */
-export function MapTopBar({ topInset, children }: Props) {
+export function MapTopBar({ topInset, leftAccessory, children }: Props) {
   return (
     <View style={[styles.container, { paddingTop: topInset + spacing.md }]} pointerEvents="box-none">
       <View style={styles.row}>
@@ -24,7 +26,7 @@ export function MapTopBar({ topInset, children }: Props) {
         <IconButton icon={Settings} accessibilityLabel="Settings" />
       </View>
       <View style={styles.row} pointerEvents="box-none">
-        <IconButton icon={UserPlus} accessibilityLabel="Add friend" />
+        {leftAccessory ?? <IconButton icon={UserPlus} accessibilityLabel="Add friend" />}
         <View style={styles.extra} pointerEvents="box-none">
           {children}
         </View>
