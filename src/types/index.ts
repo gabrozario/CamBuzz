@@ -115,5 +115,48 @@ export interface Person {
   schedule: ClassSession[];
 }
 
+/** Localização ou ponto específico de um recurso no campus (ex.: "L1" - Clough Commons). */
+export interface ResourceLocation {
+  id: string; // ex.: "culc-lib"
+  code: string; // ex.: "L1", "P2", "R1"
+  name: string; // ex.: "Clough Commons"
+  buildingId: string;
+  coordinate: LatLng;
+  hasDetails?: boolean;
+  details?: string[];
+  buzzCardRestricted?: boolean;
+}
+
+/** Categoria de recurso do campus (Libraries, Printers, Campus Recreation Center). */
+export interface ResourceCategory {
+  id: 'libraries' | 'printers' | 'recreation';
+  name: string;
+  color: string;
+  locations: ResourceLocation[];
+}
+
+export type OccupancyStatus = 'Busy' | 'Moderate' | 'Quiet';
+
+export interface FloorSpaceOccupancy {
+  id: string;
+  name: string;
+  status: OccupancyStatus;
+  percentage: number;
+}
+
+export interface FloorOccupancy {
+  floor: number;
+  label: string;
+  spaces: FloorSpaceOccupancy[];
+}
+
+export interface BuildingOccupancyDetails {
+  buildingId: string;
+  buildingName: string;
+  subtitle: string;
+  photoAttribution: string;
+  floors: FloorOccupancy[];
+}
+
 /** Chaves dos filtros da barra inferior. */
 export type FilterKey = 'events' | 'resources' | 'food' | 'people';

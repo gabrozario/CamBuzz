@@ -27,6 +27,8 @@ interface Props {
   subtitle?: string;
   /** Texto pequeno à direita do subtítulo (ex.: "Sample events"). */
   note?: string;
+  /** Oculta o chevron de recolher/expandir (ex.: telas de Campus resources e Food options no Figma). */
+  hideChevron?: boolean;
   /**
    * Cabeçalho próprio no lugar do título padrão (ex.: no detalhe de um evento:
    * setinha ‹ + categoria + nome). Também é área de arrastar e não rola com a lista.
@@ -48,7 +50,17 @@ interface Props {
  * - ROLAR A LISTA rola a lista em qualquer altura (não puxa a aba).
  * Por isso o cabeçalho é o "handle" da biblioteca e o arrastar pelo conteúdo está desligado.
  */
-export function FilterSheet({ ref, title, subtitle, note, customHeader, onClose, onIndexChange, children }: Props) {
+export function FilterSheet({
+  ref,
+  title,
+  subtitle,
+  note,
+  hideChevron = false,
+  customHeader,
+  onClose,
+  onIndexChange,
+  children,
+}: Props) {
   const insets = useSafeAreaInsets();
   const sheetRef = useRef<BottomSheet>(null);
   const [index, setIndex] = useState(SHEET_MID);
@@ -72,18 +84,20 @@ export function FilterSheet({ ref, title, subtitle, note, customHeader, onClose,
               <Text style={styles.title} numberOfLines={1}>
                 {title}
               </Text>
-              <Pressable
-                onPress={toggleCollapsed}
-                hitSlop={10}
-                accessibilityRole="button"
-                accessibilityLabel={collapsed ? 'Expand' : 'Collapse'}
-              >
-                {collapsed ? (
-                  <ChevronUp size={24} color={colors.ink} strokeWidth={1.8} />
-                ) : (
-                  <ChevronDown size={24} color={colors.ink} strokeWidth={1.8} />
-                )}
-              </Pressable>
+              {!hideChevron && (
+                <Pressable
+                  onPress={toggleCollapsed}
+                  hitSlop={10}
+                  accessibilityRole="button"
+                  accessibilityLabel={collapsed ? 'Expand' : 'Collapse'}
+                >
+                  {collapsed ? (
+                    <ChevronUp size={24} color={colors.ink} strokeWidth={1.8} />
+                  ) : (
+                    <ChevronDown size={24} color={colors.ink} strokeWidth={1.8} />
+                  )}
+                </Pressable>
+              )}
               <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close">
                 <X size={24} color={colors.ink} strokeWidth={1.8} />
               </Pressable>
@@ -98,7 +112,7 @@ export function FilterSheet({ ref, title, subtitle, note, customHeader, onClose,
         )}
       </View>
     ),
-    [customHeader, title, subtitle, note, collapsed, toggleCollapsed, onClose],
+    [customHeader, title, hideChevron, collapsed, toggleCollapsed, onClose, subtitle, note],
   );
 
   return (

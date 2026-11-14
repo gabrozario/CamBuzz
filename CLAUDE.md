@@ -136,7 +136,13 @@ src/filters/people/
   PeopleSheet.tsx      # ABA: lista com checkbox + pedidos pendentes + "Add friends"
   PersonRow.tsx        #   linha de uma pessoa
 src/filters/food/      # depois
-src/filters/resources/ # depois
+src/filters/resources/ # ✅ filtro Campus resources (Libraries, Printers, CRC + detalhes de ocupação de prédios)
+  useResourcesFilter.ts    # ESTADO: seleção, expansão, detalhes do prédio
+  ResourcesLayer.tsx       # MAPA: pinos de recursos ativos (L1..L3, P1..P3, R1)
+  ResourcePin.tsx          #   pino circular colorido com código (+ halo e chip de nome quando selecionado)
+  ResourcesSheet.tsx       # ABA: lista de categorias ("Select all", Libraries, Printers, CRC) ou detalhe do prédio
+  ResourceCategoryRow.tsx  #   linha de categoria com checkbox, dot colorido e sub-locais expansíveis
+  CampusDetails.tsx        #   detalhe de ocupação por andar (Clough Commons) com barras coloridas e foto CC0
 ```
 No `MapScreen`: chame o hook do filtro, renderize a camada dentro do `<CampusMap>` quando `active.includes('<key>')`,
 adicione a key em `FILTERS_WITH_SHEET` e renderize a aba quando `sheetFilter === '<key>'`.
