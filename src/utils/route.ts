@@ -1,6 +1,7 @@
 import { getBuilding } from '../../data';
 import type { Building, ClassSession, LatLng, TimeOfDay } from '../types';
 import { sortByStart, toMinutes } from './time';
+import preloadedCampusCache from '../services/routing/campusRouteCache.json';
 
 /** Uma parada do caminho do dia (uma aula num prédio). */
 export interface RouteStop {
@@ -19,6 +20,8 @@ export interface RouteLeg {
   freeFrom: TimeOfDay;
   freeUntil: TimeOfDay;
   isNext: boolean; // o próximo trecho que a pessoa vai caminhar
+  distanceMeters?: number;
+  durationSeconds?: number;
 }
 
 export interface DayRoute {
@@ -29,7 +32,7 @@ export interface DayRoute {
 /**
  * Pontos intermediários opcionais para trechos específicos, para o caminho
  * contornar prédios. Chave: "idPredioOrigem>idPredioDestino". Sem entrada aqui,
- * o trecho vira um "L" simples (um ponto de cotovelo), como no Figma.
+ * o trecho usa a rota pré-carregada do OpenRouteService (se houver) ou cotovelo.
  */
 const WAYPOINTS: Record<string, LatLng[]> = {
   // Exemplo: 'howey>skiles': [{ latitude: 33.7760, longitude: -84.3975 }],
@@ -38,6 +41,8 @@ const WAYPOINTS: Record<string, LatLng[]> = {
 function legPath(a: Building, b: Building): LatLng[] {
   const custom = WAYPOINTS[`${a.id}>${b.id}`];
   if (custom) return [a.coordinate, ...custom, b.coordinate];
+  const cached = (preloadedCampusCache as Record<string, LatLng[]>)[`${a.id}>${b.id}`];
+  if (cached && cached.length > 0) return cached;
   const elbow = { latitude: a.coordinate.latitude, longitude: b.coordinate.longitude };
   return [a.coordinate, elbow, b.coordinate];
 }
