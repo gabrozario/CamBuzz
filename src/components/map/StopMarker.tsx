@@ -1,20 +1,24 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { colors, fonts, radius, shadow } from '../../theme';
-import type { RouteStop } from '../../utils/route';
+import { shiftCoordinate, type RouteStop } from '../../utils/route';
 import { formatTimeShort } from '../../utils/time';
 import { useTracksViewChanges } from './useTracksViewChanges';
 
 interface Props {
   stop: RouteStop;
   color: string; // cor da pessoa (verde = você)
+  showChip?: boolean;
+  /** Mesmo deslocamento do caminho da pessoa (ver DayRouteLayer). */
+  offset?: number;
 }
 
 /** Marcador numerado de uma aula + chip com horário embaixo. */
-export function StopMarker({ stop, color }: Props) {
-  const tracks = useTracksViewChanges();
+export function StopMarker({ stop, color, showChip = true, offset = 0 }: Props) {
+  const tracks = useTracksViewChanges([color, showChip]);
   const isNow = stop.status === 'now';
   const isPast = stop.status === 'past';
+  const coordinate = shiftCoordinate(stop.building.coordinate, offset);
   const label = isNow
     ? `Now · ${stop.building.shortName}`
     : `${formatTimeShort(stop.session.start)} · ${stop.building.shortName}`;
@@ -23,7 +27,7 @@ export function StopMarker({ stop, color }: Props) {
     <>
       {/* Círculo numerado (com "anel" se for a aula de agora) */}
       <Marker
-        coordinate={stop.building.coordinate}
+        coordinate={coordinate}
         anchor={{ x: 0.5, y: 0.5 }}
         tracksViewChanges={tracks}
         zIndex={10}
@@ -39,21 +43,17 @@ export function StopMarker({ stop, color }: Props) {
       </Marker>
 
       {/* Chip com horário/prédio, ancorado logo abaixo do círculo */}
-      <Marker
-        coordinate={stop.building.coordinate}
-        anchor={{ x: 0.5, y: 0 }}
-        tracksViewChanges={tracks}
-        zIndex={9}
-        tappable={false}
-      >
-        <View style={styles.chipBox}>
-          <View style={[styles.chip, isPast && styles.past]}>
-            <Text style={[styles.chipText, isNow && { color }]} numberOfLines={1}>
-              {label}
-            </Text>
+      {showChip && (
+        <Marker coordinate={coordinate} anchor={{ x: 0.5, y: 0 }} tracksViewChanges={tracks} zIndex={9} tappable={false}>
+          <View style={styles.chipBox}>
+            <View style={[styles.chip, isPast && styles.past]}>
+              <Text style={[styles.chipText, isNow && { color }]} numberOfLines={1}>
+                {label}
+              </Text>
+            </View>
           </View>
-        </View>
-      </Marker>
+        </Marker>
+      )}
     </>
   );
 }

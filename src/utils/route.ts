@@ -72,6 +72,21 @@ export function buildDayRoute(classes: ClassSession[], now: TimeOfDay): DayRoute
   return { stops, legs };
 }
 
+/** ~11 m em graus — um "passo" de deslocamento entre linhas paralelas de pessoas diferentes. */
+const OFFSET_STEP_DEG = 0.0001;
+
+/**
+ * Desloca um ponto alguns metros (diagonal) para desenhar caminhos de pessoas
+ * diferentes lado a lado em vez de um em cima do outro. `steps` pode ser negativo.
+ */
+export function shiftCoordinate(p: LatLng, steps: number): LatLng {
+  if (!steps) return p;
+  return {
+    latitude: p.latitude + steps * OFFSET_STEP_DEG,
+    longitude: p.longitude + steps * OFFSET_STEP_DEG * 1.2, // compensa a longitude "mais curta" nesta latitude
+  };
+}
+
 /** Região do mapa que enquadra todas as coordenadas, com uma margem. */
 export function regionFor(points: LatLng[], padding = 1.6) {
   const lats = points.map((p) => p.latitude);

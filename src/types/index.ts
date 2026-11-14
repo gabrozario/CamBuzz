@@ -46,13 +46,40 @@ export interface DaySchedule {
   classes: ClassSession[];
 }
 
-/** /data/friends.json */
-export interface Friend {
+/**
+ * /data/me.json — o usuário logado. No futuro vem do cadastro
+ * (cada pessoa informa o email e ganha um link de convite próprio).
+ */
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  /** Parte final do link de convite: cambuzz.app/friends/<inviteSlug> */
+  inviteSlug: string;
+}
+
+/** /data/directory.json — outro usuário do app (ainda não é seu amigo). */
+export interface DirectoryUser {
   id: string;
   name: string;
   initials: string;
-  color: string; // cor do caminho no mapa (ver friendPalette no tema)
+  email: string;
+  inviteSlug: string;
   schedule: ClassSession[];
+}
+
+/** /data/friends.json — um amigo: usuário + a cor do caminho dele no mapa. */
+export interface Friend extends DirectoryUser {
+  color: string; // ver friendPalette no tema
+}
+
+/** Pedido de amizade enviado por você (por email ou link). */
+export interface FriendRequest {
+  id: string;
+  email: string;
+  via: 'email' | 'link';
+  status: 'pending' | 'accepted';
+  createdAt: string; // ISO date
 }
 
 export type EventCategory = 'Social' | 'Community' | 'Career' | 'Food' | 'Academic' | 'Wellness' | 'Arts';
@@ -73,6 +100,19 @@ export interface CampusEvent {
   outdoor: boolean;
   start: TimeOfDay;
   end: TimeOfDay;
+}
+
+/**
+ * Uma pessoa cujo dia aparece no mapa: você ou um amigo.
+ * (Formato único para o filtro People e para "quem pode ir junto" nos Eventos.)
+ */
+export interface Person {
+  id: string; // "me" para você
+  name: string; // "You" / "Maya Chen"
+  shortName: string; // "You" / "Maya"
+  color: string;
+  isMe: boolean;
+  schedule: ClassSession[];
 }
 
 /** Chaves dos filtros da barra inferior. */

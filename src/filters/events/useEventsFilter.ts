@@ -4,6 +4,7 @@ import type { CampusEvent, TimeOfDay } from '../../types';
 import type { DayRoute } from '../../utils/route';
 import { toMinutes } from '../../utils/time';
 import { findEventsOnRoute, windowSubtitle, windowTitle, type EventMatch } from './eventsOnRoute';
+import { friendsAtEvents, type Companion, type FriendAtEvent } from './eventsWithFriends';
 
 /** Um evento como aparece na lista e no mapa. */
 export interface EventEntry {
@@ -12,6 +13,8 @@ export interface EventEntry {
   number: number;
   /** Presente se o evento cabe no seu caminho. */
   match?: EventMatch;
+  /** Amigos (visíveis no filtro People) que também podem ir. Vazio se People estiver desligado. */
+  friends: FriendAtEvent[];
 }
 
 export interface EventSection {
@@ -26,12 +29,19 @@ const byStart = (a: CampusEvent, b: CampusEvent) => toMinutes(a.start) - toMinut
 /**
  * Estado do filtro de Eventos: quais eventos mostrar, em que seções e qual está
  * selecionado. Usado pelo MapScreen para alimentar EventsLayer (mapa) e EventsSheet (aba).
+ *
+ * `companions`: amigos visíveis no filtro People (passe [] se People estiver desligado).
+ * Com eles, cada evento ganha a lista de amigos que podem ir junto.
  */
-export function useEventsFilter(route: DayRoute, now: TimeOfDay) {
+export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Companion[] = []) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
 
   const matches = useMemo(() => findEventsOnRoute(route, allEvents, now), [route, now]);
+  const withFriends = useMemo(
+    () => friendsAtEvents(matches, companions, allEvents, now),
+    [matches, companions, now],
+  );
 
   const { sections, entries, upcomingCount } = useMemo(() => {
     const matchById = new Map(matches.map((m) => [m.event.id, m]));
@@ -51,7 +61,9 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay) {
           start: toMinutes(w.start),
         });
       }
-      windowSections.get(w.id)!.entries.push({ event: m.event, number: 0, match: m });
+      windowSections
+        .get(w.id)!
+        .entries.push({ event: m.event, number: 0, match: m, friends: withFriends.get(m.event.id) ?? [] });
     }
     const result: EventSection[] = [...windowSections.values()].sort((a, b) => a.start - b.start);
 
@@ -62,7 +74,7 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay) {
           id: 'others',
           title: 'Other events today',
           subtitle: 'Not on your route',
-          entries: others.map((event) => ({ event, number: 0 })),
+          entries: others.map((event) => ({ event, number: 0, friends: [] })),
         });
       }
     }
@@ -72,7 +84,9 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay) {
     for (const s of result) for (const e of s.entries) e.number = n++;
 
     return { sections: result, entries: result.flatMap((s) => s.entries), upcomingCount: upcoming.length };
-  }, [matches, now, showAll]);
+  }, [matches, withFriends, now, showAll]);
+
+  const withFriendsCount = withFriends.size;
 
   const selected = entries.find((e) => e.event.id === selectedId) ?? null;
   const clearSelection = useCallback(() => setSelectedId(null), []);
@@ -81,6 +95,9 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay) {
     sections,
     entries,
     matchCount: matches.length,
+    /** Quantos eventos do seu caminho têm pelo menos um amigo que pode ir junto. */
+    withFriendsCount,
+    hasCompanions: companions.length > 0,
     upcomingCount,
     selected,
     select: setSelectedId,

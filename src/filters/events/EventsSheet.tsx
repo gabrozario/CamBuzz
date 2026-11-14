@@ -16,14 +16,17 @@ interface Props {
 /** A aba do filtro de Eventos: lista agrupada por janela livre, ou o detalhe de um evento. */
 export function EventsSheet({ state, onClose, onIndexChange }: Props) {
   const sheetRef = useRef<FilterSheetHandle>(null);
-  const { sections, selected, select, showAll, setShowAll, matchCount, upcomingCount } = state;
+  const { sections, selected, select, showAll, setShowAll, matchCount, upcomingCount, withFriendsCount, hasCompanions } =
+    state;
 
   // Ao escolher um evento (na lista ou no pino do mapa), a aba vai para a metade da tela.
   useEffect(() => {
     if (selected) sheetRef.current?.snapTo(SHEET_HALF);
   }, [selected?.event.id]);
 
-  const subtitle = showAll ? `Today · ${upcomingCount} events` : `Today · ${matchCount} on your route`;
+  const base = showAll ? `Today · ${upcomingCount} events` : `Today · ${matchCount} on your route`;
+  // Com People ligado: quantos dá pra ir com amigos.
+  const subtitle = hasCompanions ? `${base} · ${withFriendsCount} with friends` : base;
 
   return (
     <FilterSheet

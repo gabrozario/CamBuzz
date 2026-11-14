@@ -9,6 +9,7 @@ import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { MapScreen } from './src/screens/MapScreen';
+import { FriendsProvider } from './src/services/friends/FriendsProvider';
 import { colors } from './src/theme';
 
 export default function App() {
@@ -20,7 +21,7 @@ export default function App() {
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
         <StatusBar style="dark" />
-        {fontsLoaded ? <MapScreen /> : <View style={styles.root} />}
+        <FriendsProvider>{fontsLoaded ? <MapScreen /> : <View style={styles.root} />}</FriendsProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

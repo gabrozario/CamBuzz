@@ -12,8 +12,11 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 ### Prioridades
 1. ✅ Mapa + caminho do dia (Etapa 1)
 2. ✅ Filtro **Events**: eventos perto do caminho do usuário, no horário em que ele está passando (ex.: entre uma aula e outra) (Etapa 2)
-3. ⏳ Filtro **People** (amigos): caminho de cada amigo (uma cor cada), com mostrar/esconder por amigo
-4. ⏳ Events + People ativos ao mesmo tempo → ver qual evento dá pra ir junto com um amigo
+3. ✅ Filtro **People** (amigos): caminho de cada amigo (uma cor cada), com mostrar/esconder por amigo (Etapa 3)
+4. ✅ Events + People ativos ao mesmo tempo → ver qual evento dá pra ir junto com um amigo (Etapa 3)
+5. ✅ Popup **Add Friends** (link de convite + email) com serviço falso pronto para virar backend (Etapa 3)
+6. ⏳ Telas **My schedule** e **Settings** (Figma: `Schedule · …`, `Settings · …`) — botões do topo já existem, sem tela ainda
+7. ⏳ Busca ("Search campus") — só visual por enquanto
 
 **Depois (não fazer agora; estrutura já preparada):** filtros **Food options** (Dining) e **Campus resources** (Libraries/Printers). Eles já aparecem na barra com `status: 'planned'` em `src/filters/filterConfig.ts`.
 
@@ -28,12 +31,14 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 - **Nunca colocar chaves de API / segredos no código** — o repo é público.
 - Instalar pacotes sempre com `npx expo install <pacote>` (escolhe versões compatíveis com o SDK). Só usar bibliotecas que funcionam no Expo Go.
 - Antes de dar uma tarefa como pronta: `npx tsc --noEmit` e `npx expo-doctor`.
+- `react-native-web` está instalado, mas o `react-native-maps` **não funciona no navegador**: teste sempre no Expo Go (Android).
 
 ## Design (fonte da verdade: `/figma-designs`)
 
 Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 `Campus map · Start` (tela inicial), `Events · Collapsed/Half-open/Expanded`, `Event details · …`,
-`People · You / Maya / You and Maya`, `Food options · …`, `Campus resources · …`, `Campus details · …`.
+`People · You / Maya / You and Maya`, `Add Friends · Popup`, `Food options · …`, `Campus resources · …`, `Campus details · …`,
+`Schedule · View / Edit / Add course`, `Settings · Light / Dark mode / Edit account`.
 
 ### Cores (em `src/theme/colors.ts` — use sempre as constantes)
 
@@ -51,6 +56,9 @@ Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 | `green` (+ `greenSoft #EEF3EC`) | `#477969` | **Você** (seu caminho), Printers, Restaurants/Coffees |
 | `gold` | `#806C3C` | Horário dos eventos, categoria ("Social"), Dining hall, Libraries |
 | `purple` (+ `purpleSoft #F1EDF3`) | `#83608D` | Amigo 1 (Maya) |
+| `greenTint` | `#E5EBDD` | Caixa do link de convite, botão "Edit name & email" |
+| `inputBorder` / `checkboxBorder` | `#C2CCC0` / `#9AA69B` | Campo de email / checkbox desmarcado |
+| `friendPalette` | roxo, azul, dourado + 3 extras | Cor de cada amigo, na ordem; `tint(cor)` gera o fundo suave da linha selecionada |
 | `blue` (+ `blueSoft #D7E3DF`) | `#526F8A` | Amigo 2, Vending, Campus Rec, ponto de localização |
 
 ### Estilo
@@ -72,13 +80,20 @@ App.tsx                      # fontes + providers (gesture handler, safe area) �
 data/                        # DADOS FALSOS (sem backend)
   buildings.json             # ~16 prédios da GT com coordenadas aproximadas
   schedule.json              # agenda do usuário (5 aulas)
-  friends.json               # 3 amigos, cada um com cor e agenda
+  friends.json               # 3 amigos (Maya, Jordan, Priya): email, slug do convite, cor e agenda
   events.json                # 12 eventos do dia (prédios e barracas ao ar livre)
+  me.json                    # o usuário logado (Alex Morgan): nome, email, slug do convite
+  directory.json             # outros usuários do app, ainda não amigos (Sam, Chris) — para a demo de adicionar
   index.ts                   # exporta os dados tipados + getBuilding() + DEMO_NOW
 figma-designs/               # PNGs do Figma (design oficial)
 src/
-  types/index.ts             # Building, ClassSession, DaySchedule, Friend, CampusEvent, FilterKey
-  theme/                     # colors.ts, typography.ts (Inter), mapStyle.ts (estilo do Google Maps)
+  config.ts                  # INVITE_BASE_URL (domínio provisório dos links de convite)
+  types/index.ts             # Building, ClassSession, Friend, UserProfile, FriendRequest, Person, CampusEvent...
+  theme/                     # colors.ts (+ tint()), typography.ts (Inter), mapStyle.ts (estilo do Google Maps)
+  services/friends/          # "backend" de amigos (hoje falso) — ver seção Amigos
+    friendsService.ts        #   interface FriendsService + mockFriendsService
+    FriendsProvider.tsx      #   contexto React: useFriends() em qualquer tela
+    invite.ts                #   montar/ler link de convite, validar email
   utils/
     time.ts                  # toMinutes, formatTime, nowTime, overlaps
     route.ts                 # buildDayRoute (paradas + trechos + "next leg"), regionFor, WAYPOINTS
@@ -87,7 +102,10 @@ src/
   filters/
     filterConfig.ts          # lista dos 4 filtros (label, ícone, combinável, status)
     events/                  # ✅ filtro de Eventos (ver abaixo)
+    people/                  # ✅ filtro People (amigos)
   components/
+    friends/AddFriendModal.tsx  # popup "Add Friends" (link + email)
+    Checkbox.tsx             # checkbox do Figma (só visual)
     map/CampusMap.tsx        # MapView base estilizado (recebe camadas como children; aceita ref)
     map/DayRouteLayer.tsx    # desenha o caminho de UM dia (reusar para amigos!)
     map/StopMarker.tsx       # marcador numerado + chip de horário
@@ -108,13 +126,21 @@ src/filters/events/
   EventsSheet.tsx      # ABA: usa <FilterSheet>; lista ou detalhe
   EventListItem.tsx    #   linha da lista
   EventDetails.tsx     #   detalhe do evento
-src/filters/people/    # próxima etapa: mesmo modelo (FriendsLayer, PeopleSheet...)
+  eventsWithFriends.ts # LÓGICA: quais amigos podem ir junto a cada evento (Events + People)
+src/filters/people/
+  peopleDay.ts         # LÓGICA: dia de cada pessoa (status "Library now", "Next: ..."), prédios compartilhados
+  usePeopleFilter.ts   # ESTADO: quem está visível (começa só "You")
+  PeopleLayer.tsx      # MAPA: caminho de cada pessoa visível, deslocados para não sobrepor
+  SharedBuildingCallout.tsx  # card "Clough Commons / You now · Maya 11:30" (com 2+ pessoas)
+  PeopleSheet.tsx      # ABA: lista com checkbox + pedidos pendentes + "Add friends"
+  PersonRow.tsx        #   linha de uma pessoa
 src/filters/food/      # depois
 src/filters/resources/ # depois
 ```
 No `MapScreen`: chame o hook do filtro, renderize a camada dentro do `<CampusMap>` quando `active.includes('<key>')`,
-adicione a key em `FILTERS_WITH_SHEET` e renderize a aba quando `sheetFilter === '<key>'`
-(só a aba do filtro ligado por último aparece; as camadas de todos os filtros ligados aparecem juntas no mapa).
+adicione a key em `FILTERS_WITH_SHEET` e renderize a aba quando `sheetFilter === '<key>'`.
+Só uma aba aparece por vez, mas as camadas de todos os filtros ligados aparecem juntas no mapa.
+Com dois filtros ligados, tocar num deles na barra **traz a aba dele para frente** (não desliga); tocar de novo desliga.
 
 ### Regra "evento no caminho" (`eventsOnRoute.ts`)
 1. O dia vira **janelas livres**: entre cada par de aulas (você caminhando do prédio A ao B, de `fim de A` até `início de B`) e **depois da última aula** (2h30).
@@ -123,11 +149,27 @@ adicione a key em `FILTERS_WITH_SHEET` e renderize a aba quando `sheetFilter ===
 A lista é agrupada por janela; "Show all events" mostra também os que não cabem (pinos cinza).
 No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
 
+### Events + People ("ir junto com um amigo") — `eventsWithFriends.ts`
+Com os dois filtros ligados, para cada evento do **seu** caminho aplicamos a mesma regra ao dia de cada amigo **visível**.
+Se o evento também cabe no dia do amigo e vocês ficariam lá ao mesmo tempo por ≥ 10 min, ele aparece:
+bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "Together 1:20 – 2:00 PM · 40 min".
+
+## Amigos (link de convite + email)
+- Cada conta tem **email** e um **link de convite** próprio: `cambuzz.app/friends/<inviteSlug>` (`src/config.ts`, domínio provisório).
+- Popup "Add Friends" (botão de pessoa com "+" no topo, ou "Add friends" na aba People): tocar no link **copia** (expo-clipboard); o ícone ao lado abre o **compartilhar** do Android. Embaixo, o campo de **email** envia um pedido de amizade.
+- Toda a lógica passa por `friendsService` (`src/services/friends/friendsService.ts`). As telas **não** leem `friends.json` direto: usam `useFriends()`.
+- **Demo (serviço falso):** `sam.lee@gatech.edu` e `chris.park@gatech.edu` existem no `directory.json` e viram amigos na hora (com cor e caminho). Qualquer outro email válido fica como **pedido pendente** na aba People.
+- **Para o futuro (não implementado):**
+  1. Cadastro/login (o email e o `inviteSlug` nascem aqui) → substituir `data/me.json`.
+  2. Backend: criar `apiFriendsService` com as mesmas funções da interface `FriendsService` e trocar a linha `export const friendsService = ...`.
+  3. Deep link: `scheme` no `app.json` + `expo-linking` para abrir `cambuzz.app/friends/<slug>` no app e chamar `acceptInviteLink(link)` (já existe e já valida o link).
+  4. Aceitar/recusar pedidos recebidos; envio de email de convite pelo servidor.
+
 ## Convenções
 - Horários são strings `"HH:MM"` 24h; converta com `toMinutes()` para comparar.
 - `DEMO_NOW` em `data/index.ts` fixa o "agora" em 11:15 para a demo ficar sempre igual (ponha `null` para usar o relógio real).
 - Textos da interface em **inglês** (como no Figma); comentários do código podem ser em português.
-- Marcadores customizados no Android: use o padrão de `tracksViewChanges` de `StopMarker.tsx` (liga no início, desliga depois).
+- Marcadores customizados no Android: use o hook `useTracksViewChanges([deps])` (liga ao montar/mudar, desliga depois).
 
 ## Como rodar
 ```

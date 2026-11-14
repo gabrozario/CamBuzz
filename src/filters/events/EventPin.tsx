@@ -12,7 +12,8 @@ interface Props {
 
 /** Pino numerado de um evento (círculo escuro, como no Figma). Selecionado = com halo e nome. */
 export function EventPin({ entry, selected = false, onPress }: Props) {
-  const tracks = useTracksViewChanges([selected, entry.number, !!entry.match]);
+  const friendDots = entry.friends.slice(0, 3).map((f) => ({ id: f.person.id, color: f.person.color }));
+  const tracks = useTracksViewChanges([selected, entry.number, !!entry.match, friendDots.map((d) => d.id).join()]);
   const offRoute = !entry.match;
 
   return (
@@ -29,6 +30,14 @@ export function EventPin({ entry, selected = false, onPress }: Props) {
           <View style={[styles.circle, offRoute && styles.offRoute]}>
             <Text style={styles.number}>{entry.number}</Text>
           </View>
+          {/* Bolinhas com a cor dos amigos que podem ir junto */}
+          {friendDots.length > 0 && (
+            <View style={styles.friendDots}>
+              {friendDots.map((d) => (
+                <View key={d.id} style={[styles.friendDot, { backgroundColor: d.color }]} />
+              ))}
+            </View>
+          )}
         </View>
       </Marker>
 
@@ -78,6 +87,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   offRoute: { backgroundColor: colors.muted },
+  // Canto superior direito do círculo (o box tem 72 de lado; o círculo, 30, centralizado).
+  friendDots: { position: 'absolute', top: HALO / 2 - CIRCLE / 2 - 4, left: HALO / 2 + 6, flexDirection: 'row' },
+  friendDot: { width: 11, height: 11, borderRadius: 6, borderWidth: 1.5, borderColor: colors.white, marginLeft: -3 },
   number: { fontFamily: fonts.semibold, fontSize: 13, color: colors.white },
   // paddingBottom afasta o chip do halo; padding lateral dá espaço para a sombra.
   chipBox: { paddingBottom: HALO / 2 + 4, paddingHorizontal: 6, paddingTop: 6 },

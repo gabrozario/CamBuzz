@@ -10,23 +10,33 @@ interface Props {
   leftAccessory?: ReactNode;
   /** Conteúdo ao lado do botão "adicionar amigo" (ex.: chip "Your day · 11:15 AM"). */
   children?: ReactNode;
+  onOpenSchedule?: () => void; // tela "My schedule" (próxima etapa)
+  onOpenSettings?: () => void; // tela "Settings" (próxima etapa)
+  onAddFriend?: () => void; // abre o popup "Add Friends"
 }
 
 /** Barra flutuante do topo: agenda, busca, configurações e adicionar amigo. */
-export function MapTopBar({ topInset, leftAccessory, children }: Props) {
+export function MapTopBar({
+  topInset,
+  leftAccessory,
+  children,
+  onOpenSchedule,
+  onOpenSettings,
+  onAddFriend,
+}: Props) {
   return (
     <View style={[styles.container, { paddingTop: topInset + spacing.md }]} pointerEvents="box-none">
       <View style={styles.row}>
-        <IconButton icon={CalendarDays} accessibilityLabel="My schedule" />
+        <IconButton icon={CalendarDays} accessibilityLabel="My schedule" onPress={onOpenSchedule} />
         {/* Busca: só visual por enquanto */}
         <View style={styles.search} accessibilityRole="search">
           <Search size={20} color={colors.ink} strokeWidth={1.8} />
           <Text style={styles.searchPlaceholder}>Search campus</Text>
         </View>
-        <IconButton icon={Settings} accessibilityLabel="Settings" />
+        <IconButton icon={Settings} accessibilityLabel="Settings" onPress={onOpenSettings} />
       </View>
       <View style={styles.row} pointerEvents="box-none">
-        {leftAccessory ?? <IconButton icon={UserPlus} accessibilityLabel="Add friend" />}
+        {leftAccessory ?? <IconButton icon={UserPlus} accessibilityLabel="Add friend" onPress={onAddFriend} />}
         <View style={styles.extra} pointerEvents="box-none">
           {children}
         </View>

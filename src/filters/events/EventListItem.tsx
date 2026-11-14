@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts } from '../../theme';
 import { formatTime } from '../../utils/time';
 import { detourLabel } from './eventsOnRoute';
+import { friendsLabel } from './eventsWithFriends';
 import type { EventEntry } from './useEventsFilter';
 
 interface Props {
@@ -45,6 +46,18 @@ export function EventListItem({ entry, onPress, showDivider }: Props) {
             <Text style={styles.category}>{event.category}</Text>
             {match && <Text style={styles.fit}>{`  ·  ${detourLabel(match)}`}</Text>}
           </Text>
+          {entry.friends.length > 0 && (
+            <View style={styles.friendsRow}>
+              <View style={styles.dots}>
+                {entry.friends.map((f) => (
+                  <View key={f.person.id} style={[styles.dot, { backgroundColor: f.person.color }]} />
+                ))}
+              </View>
+              <Text style={[styles.friendsText, { color: entry.friends[0].person.color }]} numberOfLines={1}>
+                {friendsLabel(entry.friends)}
+              </Text>
+            </View>
+          )}
         </View>
         <ChevronRight size={22} color={colors.muted} strokeWidth={1.8} />
       </View>
@@ -77,4 +90,8 @@ const styles = StyleSheet.create({
   meta: { marginTop: 2 },
   category: { fontFamily: fonts.medium, fontSize: 12, color: colors.gold },
   fit: { fontFamily: fonts.medium, fontSize: 12, color: colors.green },
+  friendsRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  dots: { flexDirection: 'row' },
+  dot: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: colors.surface, marginRight: -3 },
+  friendsText: { flex: 1, fontFamily: fonts.semibold, fontSize: 12, marginLeft: 3 },
 });
