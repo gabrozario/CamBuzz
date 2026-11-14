@@ -24,6 +24,8 @@ export interface FriendsService {
   sendFriendRequest(email: string): Promise<AddFriendResult>;
   /** Aceita um convite recebido por link (quando alguém abrir o seu link, ou você abrir o de alguém). */
   acceptInviteLink(link: string): Promise<AddFriendResult>;
+  /** Desfaz a amizade (a pessoa some da sua lista e você da dela). */
+  removeFriend(friendId: string): Promise<{ ok: true } | { ok: false; error: string }>;
 }
 
 // ---------------- Implementação falsa (em memória) ----------------
@@ -32,6 +34,9 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 let friendsState: Friend[] = [...initialFriends];
 let requestsState: FriendRequest[] = [];
+
+/** Todos os usuários "cadastrados" na demo: o diretório + os amigos iniciais (para poder readicionar quem foi removido). */
+const allUsers: DirectoryUser[] = [...directory, ...initialFriends.map(({ color: _color, ...user }) => user)];
 
 function nextColor(): string {
   const used = new Set(friendsState.map((f) => f.color));
@@ -72,9 +77,9 @@ export const mockFriendsService: FriendsService = {
       return { ok: false, error: 'Request already sent.' };
     }
 
-    // Demo: se o email for de alguém do diretório (directory.json), a pessoa "aceita" na hora.
+    // Demo: se o email for de alguém "cadastrado" (directory.json ou amigo removido), a pessoa "aceita" na hora.
     // Na vida real o pedido fica pendente até o amigo aceitar no app dele.
-    const user = directory.find((u) => u.email === email);
+    const user = allUsers.find((u) => u.email === email);
     if (user) {
       const request = makeRequest(email, 'email', 'accepted');
       requestsState = [...requestsState, request];
@@ -91,11 +96,18 @@ export const mockFriendsService: FriendsService = {
     if (!slug) return { ok: false, error: "That doesn't look like a Cambuzz invite link." };
     if (slug === me.inviteSlug) return { ok: false, error: "That's your own link." };
     if (friendsState.some((f) => f.inviteSlug === slug)) return { ok: false, error: "You're already friends." };
-    const user = directory.find((u) => u.inviteSlug === slug);
+    const user = allUsers.find((u) => u.inviteSlug === slug);
     if (!user) return { ok: false, error: 'Invite not found.' };
     const request = makeRequest(user.email, 'link', 'accepted');
     requestsState = [...requestsState, request];
     return { ok: true, request, friend: befriend(user) };
+  },
+
+  async removeFriend(friendId) {
+    await wait(300);
+    if (!friendsState.some((f) => f.id === friendId)) return { ok: false, error: 'Friend not found.' };
+    friendsState = friendsState.filter((f) => f.id !== friendId);
+    return { ok: true };
   },
 };
 

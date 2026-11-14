@@ -11,6 +11,7 @@ interface FriendsContextValue {
   inviteLink: string;
   addFriendByEmail: (email: string) => Promise<AddFriendResult>;
   acceptInviteLink: (link: string) => Promise<AddFriendResult>;
+  removeFriend: (friendId: string) => Promise<boolean>;
 }
 
 const FriendsContext = createContext<FriendsContextValue | null>(null);
@@ -59,6 +60,17 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
     [refresh],
   );
 
+  const removeFriend = useCallback(
+    async (friendId: string) => {
+      // Some da lista na hora (resposta rápida na tela); depois confirma com o serviço.
+      setFriends((prev) => prev.filter((f) => f.id !== friendId));
+      const result = await friendsService.removeFriend(friendId);
+      await refresh();
+      return result.ok;
+    },
+    [refresh],
+  );
+
   const value = useMemo(
     () => ({
       me,
@@ -67,8 +79,9 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
       inviteLink: buildInviteLink(me.inviteSlug),
       addFriendByEmail,
       acceptInviteLink,
+      removeFriend,
     }),
-    [me, friends, pendingRequests, addFriendByEmail, acceptInviteLink],
+    [me, friends, pendingRequests, addFriendByEmail, acceptInviteLink, removeFriend],
   );
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;

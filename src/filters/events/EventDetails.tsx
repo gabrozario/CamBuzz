@@ -1,30 +1,50 @@
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { Footprints, Users, X } from 'lucide-react-native';
+import { ChevronLeft, Footprints, Users } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { colors, fonts, radius, tint } from '../../theme';
 import { formatTime } from '../../utils/time';
 import { detourLabel, windowTitle } from './eventsOnRoute';
 import type { EventEntry } from './useEventsFilter';
 
-interface Props {
+interface HeaderProps {
   entry: EventEntry;
-  onClose: () => void;
+  /** Volta para a lista de eventos (não fecha o filtro). */
+  onBack: () => void;
 }
 
-/** Detalhe de um evento dentro da aba (tela "Event details" do Figma). */
-export function EventDetails({ entry, onClose }: Props) {
+/**
+ * Cabeçalho fixo do detalhe (vai no lugar do título da aba, via `customHeader`):
+ * setinha "‹" no canto superior esquerdo + categoria + nome do evento.
+ * Fica sempre visível e serve para arrastar a aba.
+ */
+export function EventDetailsHeader({ entry, onBack }: HeaderProps) {
+  return (
+    <View style={styles.header}>
+      <View style={styles.topRow}>
+        <Pressable
+          onPress={onBack}
+          hitSlop={12}
+          style={styles.backBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Back to all events"
+        >
+          <ChevronLeft size={26} color={colors.ink} strokeWidth={1.8} />
+        </Pressable>
+        <Text style={styles.category}>{entry.event.category}</Text>
+      </View>
+      <Text style={styles.title} numberOfLines={2}>
+        {entry.event.name}
+      </Text>
+    </View>
+  );
+}
+
+/** Corpo rolável do detalhe de um evento (tela "Event details" do Figma). */
+export function EventDetails({ entry }: { entry: EventEntry }) {
   const { event, match } = entry;
 
   return (
-    <BottomSheetScrollView contentContainerStyle={styles.content}>
-      <Text style={styles.category}>{event.category}</Text>
-      <View style={styles.titleRow}>
-        <Text style={styles.title}>{event.name}</Text>
-        <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close">
-          <X size={24} color={colors.ink} strokeWidth={1.8} />
-        </Pressable>
-      </View>
-
+    <SheetScrollView contentContainerStyle={styles.content}>
       {/* O diferencial do Cambuzz: como esse evento cabe no seu dia */}
       {match ? (
         <View style={styles.fitCard}>
@@ -79,15 +99,17 @@ export function EventDetails({ entry, onClose }: Props) {
       <Text style={styles.org}>Hosted by {event.organization}</Text>
 
       <Text style={styles.footnote}>Sample event</Text>
-    </BottomSheetScrollView>
+    </SheetScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 40 },
+  header: { paddingHorizontal: 24, paddingTop: 4, paddingBottom: 8 },
+  content: { paddingHorizontal: 24, paddingTop: 4, paddingBottom: 40 },
+  topRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: -6 },
+  backBtn: { padding: 2 },
   category: { fontFamily: fonts.medium, fontSize: 13, color: colors.gold },
-  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 16, marginTop: 4 },
-  title: { flex: 1, fontFamily: fonts.bold, fontSize: 26, color: colors.ink },
+  title: { fontFamily: fonts.bold, fontSize: 26, color: colors.ink, marginTop: 6 },
   fitCard: {
     flexDirection: 'row',
     alignItems: 'center',

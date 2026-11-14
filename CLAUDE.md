@@ -7,7 +7,7 @@ Leia também o [AGENTS.md](AGENTS.md) (regras gerais do Expo: usar `npx expo ins
 
 ## A ideia
 
-O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia Tech com o **caminho do dia** destacado (de aula em aula). Embaixo há uma **barra de filtros**. Ao tocar num filtro, uma aba (bottom sheet) sobe até metade da tela e o mapa mostra os itens daquele filtro.
+O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia Tech com o **caminho do dia** destacado (de aula em aula). Embaixo há uma **barra de filtros**. Ao tocar num filtro, uma aba (bottom sheet) sobe até 35% da tela (o mapa continua grande) e o mapa mostra os itens daquele filtro.
 
 ### Prioridades
 1. ✅ Mapa + caminho do dia (Etapa 1)
@@ -111,6 +111,7 @@ src/
     map/StopMarker.tsx       # marcador numerado + chip de horário
     map/useTracksViewChanges.ts  # truque para marcadores customizados no Android
     sheet/FilterSheet.tsx    # aba genérica (bottom sheet) com cabeçalho do Figma — reusar em todo filtro
+    sheet/SheetScrollView.tsx  # lista rolável para dentro da aba (SEMPRE use esta, não a BottomSheetScrollView direto)
     MapTopBar.tsx, IconButton.tsx, InfoChip.tsx, RouteLegend.tsx, FilterBar.tsx, BackPill.tsx
   screens/MapScreen.tsx      # tela principal: junta mapa, camadas, abas, topo, legenda e barra
 ```
@@ -125,7 +126,7 @@ src/filters/events/
   EventPin.tsx         #   pino numerado (+ halo e nome quando selecionado)
   EventsSheet.tsx      # ABA: usa <FilterSheet>; lista ou detalhe
   EventListItem.tsx    #   linha da lista
-  EventDetails.tsx     #   detalhe do evento
+  EventDetails.tsx     #   detalhe do evento (setinha ‹ no canto superior esquerdo volta para a lista; X do cabeçalho da lista fecha o filtro)
   eventsWithFriends.ts # LÓGICA: quais amigos podem ir junto a cada evento (Events + People)
 src/filters/people/
   peopleDay.ts         # LÓGICA: dia de cada pessoa (status "Library now", "Next: ..."), prédios compartilhados
@@ -157,6 +158,7 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
 ## Amigos (link de convite + email)
 - Cada conta tem **email** e um **link de convite** próprio: `cambuzz.app/friends/<inviteSlug>` (`src/config.ts`, domínio provisório).
 - Popup "Add Friends" (botão de pessoa com "+" no topo, ou "Add friends" na aba People): tocar no link **copia** (expo-clipboard); o ícone ao lado abre o **compartilhar** do Android. Embaixo, o campo de **email** envia um pedido de amizade.
+- **Remover amigo:** na aba People, ícone de pessoa com "−" à direita de cada amigo → confirmação → `removeFriend(id)` no serviço. Quem foi removido pode ser adicionado de novo por email/link.
 - Toda a lógica passa por `friendsService` (`src/services/friends/friendsService.ts`). As telas **não** leem `friends.json` direto: usam `useFriends()`.
 - **Demo (serviço falso):** `sam.lee@gatech.edu` e `chris.park@gatech.edu` existem no `directory.json` e viram amigos na hora (com cor e caminho). Qualquer outro email válido fica como **pedido pendente** na aba People.
 - **Para o futuro (não implementado):**
@@ -170,6 +172,7 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
 - `DEMO_NOW` em `data/index.ts` fixa o "agora" em 11:15 para a demo ficar sempre igual (ponha `null` para usar o relógio real).
 - Textos da interface em **inglês** (como no Figma); comentários do código podem ser em português.
 - Marcadores customizados no Android: use o hook `useTracksViewChanges([deps])` (liga ao montar/mudar, desliga depois).
+- **Gestos da aba:** arrastar o **cabeçalho** (pegador + título) sobe/desce a aba; arrastar a **lista** só rola a lista (em qualquer altura). Por isso o cabeçalho é o `handleComponent` do bottom-sheet e `enableContentPanningGesture` está desligado no `FilterSheet`.
 
 ## Como rodar
 ```
