@@ -3,36 +3,42 @@
     "id": "maya",
     "name": "Maya Chen",
     "initials": "MC",
+    "email": "maya.chen@gatech.edu",
+    "inviteSlug": "maya-chen",
     "color": "#83608D",
     "schedule": [
-      { "id": "m1", "course": "CS 1331", "title": "Intro to OOP", "kind": "Lecture", "buildingId": "coc", "start": "09:30", "end": "10:45" },
-      { "id": "m2", "course": "—", "title": "Study session", "kind": "Study session", "buildingId": "library", "start": "11:00", "end": "12:00" },
-      { "id": "m3", "course": "CS 1332", "title": "Data Structures & Algorithms", "kind": "Recitation", "buildingId": "culc", "room": "262", "start": "12:30", "end": "13:20" },
-      { "id": "m4", "course": "MATH 2551", "title": "Multivariable Calculus", "kind": "Lecture", "buildingId": "skiles", "start": "15:30", "end": "16:45" }
+      {"id": "m1", "course": "CS 1331", "title": "Intro to OOP", "kind": "Lecture", "buildingId": "coc", "start": "09:30", "end": "10:45"},
+      {"id": "m2", "course": "—", "title": "Study session", "kind": "Study session", "buildingId": "library", "start": "11:00", "end": "12:00"},
+      {"id": "m3", "course": "CS 1332", "title": "Data Structures & Algorithms", "kind": "Recitation", "buildingId": "culc", "room": "262", "start": "12:30", "end": "13:20"},
+      {"id": "m4", "course": "MATH 2551", "title": "Multivariable Calculus", "kind": "Lecture", "buildingId": "skiles", "start": "15:30", "end": "16:45"}
     ]
   },
   {
     "id": "jordan",
     "name": "Jordan Ellis",
     "initials": "JE",
+    "email": "jordan.ellis@gatech.edu",
+    "inviteSlug": "jordan-ellis",
     "color": "#526F8A",
     "schedule": [
-      { "id": "j1", "course": "ECE 2020", "title": "Digital System Design", "kind": "Lecture", "buildingId": "van-leer", "start": "08:00", "end": "09:15" },
-      { "id": "j2", "course": "PHYS 2212", "title": "Intro Physics II", "kind": "Lecture", "buildingId": "howey", "start": "10:00", "end": "10:50" },
-      { "id": "j3", "course": "ECE 2026", "title": "Signals & Systems", "kind": "Lecture", "buildingId": "kendeda", "start": "13:00", "end": "14:15" },
-      { "id": "j4", "course": "ECE 2020", "title": "Digital Design Lab", "kind": "Lab", "buildingId": "van-leer", "start": "15:00", "end": "16:50" }
+      {"id": "j1", "course": "ECE 2020", "title": "Digital System Design", "kind": "Lecture", "buildingId": "van-leer", "start": "08:00", "end": "09:15"},
+      {"id": "j2", "course": "PHYS 2212", "title": "Intro Physics II", "kind": "Lecture", "buildingId": "howey", "start": "10:00", "end": "10:50"},
+      {"id": "j3", "course": "ECE 2026", "title": "Signals & Systems", "kind": "Lecture", "buildingId": "kendeda", "start": "13:00", "end": "14:15"},
+      {"id": "j4", "course": "ECE 2020", "title": "Digital Design Lab", "kind": "Lab", "buildingId": "van-leer", "start": "15:00", "end": "16:50"}
     ]
   },
   {
     "id": "priya",
     "name": "Priya Patel",
     "initials": "PP",
+    "email": "priya.patel@gatech.edu",
+    "inviteSlug": "priya-patel",
     "color": "#806C3C",
     "schedule": [
-      { "id": "p1", "course": "MGT 3000", "title": "Financial & Managerial Accounting", "kind": "Lecture", "buildingId": "student-center", "start": "09:30", "end": "10:45" },
-      { "id": "p2", "course": "ENGL 1102", "title": "English Composition II", "kind": "Lecture", "buildingId": "skiles", "start": "11:00", "end": "11:50" },
-      { "id": "p3", "course": "PSYC 1101", "title": "General Psychology", "kind": "Lecture", "buildingId": "culc", "start": "13:30", "end": "14:45" },
-      { "id": "p4", "course": "APPH 1040", "title": "Science of Physical Activity", "kind": "Lecture", "buildingId": "crc", "start": "16:00", "end": "16:50" }
+      {"id": "p1", "course": "MGT 3000", "title": "Financial & Managerial Accounting", "kind": "Lecture", "buildingId": "student-center", "start": "09:30", "end": "10:45"},
+      {"id": "p2", "course": "ENGL 1102", "title": "English Composition II", "kind": "Lecture", "buildingId": "skiles", "start": "11:00", "end": "11:50"},
+      {"id": "p3", "course": "PSYC 1101", "title": "General Psychology", "kind": "Lecture", "buildingId": "culc", "start": "13:30", "end": "14:45"},
+      {"id": "p4", "course": "APPH 1040", "title": "Science of Physical Activity", "kind": "Lecture", "buildingId": "crc", "start": "16:00", "end": "16:50"}
     ]
   }
 ]

@@ -1,7 +1,7 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { Footprints, X } from 'lucide-react-native';
+import { Footprints, Users, X } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, radius } from '../../theme';
+import { colors, fonts, radius, tint } from '../../theme';
 import { formatTime } from '../../utils/time';
 import { detourLabel, windowTitle } from './eventsOnRoute';
 import type { EventEntry } from './useEventsFilter';
@@ -46,6 +46,19 @@ export function EventDetails({ entry, onClose }: Props) {
         </View>
       )}
 
+      {/* Com o filtro People ligado: quem pode ir junto e quando vocês coincidem */}
+      {entry.friends.map((f) => (
+        <View key={f.person.id} style={[styles.fitCard, { backgroundColor: tint(f.person.color, 0.1) }]}>
+          <Users size={20} color={f.person.color} strokeWidth={1.8} />
+          <View style={styles.fitText}>
+            <Text style={[styles.fitTitle, { color: f.person.color }]}>{f.person.shortName} can go too</Text>
+            <Text style={styles.fitSub}>
+              Together {formatTime(f.from)} – {formatTime(f.until)} · {f.minutesTogether} min
+            </Text>
+          </View>
+        </View>
+      ))}
+
       <View style={styles.grid}>
         <View style={styles.cell}>
           <Text style={styles.label}>WHEN</Text>
@@ -79,7 +92,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginTop: 16,
+    marginTop: 12,
     padding: 14,
     borderRadius: radius.md,
     backgroundColor: colors.greenSoft,
