@@ -1,0 +1,61 @@
+import { CalendarDays, Search, Settings, UserPlus } from 'lucide-react-native';
+import type { ReactNode } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { colors, fonts, radius, shadow, spacing } from '../theme';
+import { IconButton, ICON_BUTTON_SIZE } from './IconButton';
+
+interface Props {
+  topInset: number;
+  /** Conteúdo ao lado do botão "adicionar amigo" (ex.: chip "Your day · 11:15 AM"). */
+  children?: ReactNode;
+}
+
+/** Barra flutuante do topo: agenda, busca, configurações e adicionar amigo. */
+export function MapTopBar({ topInset, children }: Props) {
+  return (
+    <View style={[styles.container, { paddingTop: topInset + spacing.md }]} pointerEvents="box-none">
+      <View style={styles.row}>
+        <IconButton icon={CalendarDays} accessibilityLabel="My schedule" />
+        {/* Busca: só visual por enquanto */}
+        <View style={styles.search} accessibilityRole="search">
+          <Search size={20} color={colors.ink} strokeWidth={1.8} />
+          <Text style={styles.searchPlaceholder}>Search campus</Text>
+        </View>
+        <IconButton icon={Settings} accessibilityLabel="Settings" />
+      </View>
+      <View style={styles.row} pointerEvents="box-none">
+        <IconButton icon={UserPlus} accessibilityLabel="Add friend" />
+        <View style={styles.extra} pointerEvents="box-none">
+          {children}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 18,
+    gap: spacing.md,
+  },
+  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  search: {
+    flex: 1,
+    height: ICON_BUTTON_SIZE,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
+    ...shadow,
+  },
+  searchPlaceholder: { fontFamily: fonts.regular, fontSize: 15, color: colors.muted },
+  extra: { flex: 1, alignItems: 'flex-start' },
+});

@@ -1,0 +1,38 @@
+import { DEMO_NOW } from '../../data';
+import type { ClassSession, TimeOfDay } from '../types';
+
+/** "14:30" -> 870 (minutos desde meia-noite). Facilita comparar horários. */
+export function toMinutes(time: TimeOfDay): number {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
+}
+
+/** "14:30" -> "2:30 PM" */
+export function formatTime(time: TimeOfDay): string {
+  const [h, m] = time.split(':').map(Number);
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, '0')} ${suffix}`;
+}
+
+/** "14:30" -> "2:30" (sem AM/PM, para chips curtos no mapa) */
+export function formatTimeShort(time: TimeOfDay): string {
+  return formatTime(time).replace(/ (AM|PM)$/, '');
+}
+
+/** Horário "agora" em "HH:MM" — usa DEMO_NOW se estiver definido. */
+export function nowTime(): TimeOfDay {
+  if (DEMO_NOW) return DEMO_NOW;
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+/** Ordena aulas por horário de início (sem alterar o array original). */
+export function sortByStart(classes: ClassSession[]): ClassSession[] {
+  return [...classes].sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+}
+
+/** True se dois intervalos de horário se sobrepõem (útil para o filtro de Eventos). */
+export function overlaps(aStart: TimeOfDay, aEnd: TimeOfDay, bStart: TimeOfDay, bEnd: TimeOfDay): boolean {
+  return toMinutes(aStart) < toMinutes(bEnd) && toMinutes(bStart) < toMinutes(aEnd);
+}
