@@ -11,7 +11,7 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 
 ### Prioridades
 1. ✅ Mapa + caminho do dia (Etapa 1)
-2. ⏳ Filtro **Events**: eventos perto do caminho do usuário, no horário em que ele está passando (ex.: entre uma aula e outra)
+2. ✅ Filtro **Events**: eventos perto do caminho do usuário, no horário em que ele está passando (ex.: entre uma aula e outra) (Etapa 2)
 3. ⏳ Filtro **People** (amigos): caminho de cada amigo (uma cor cada), com mostrar/esconder por amigo
 4. ⏳ Events + People ativos ao mesmo tempo → ver qual evento dá pra ir junto com um amigo
 
@@ -82,26 +82,46 @@ src/
   utils/
     time.ts                  # toMinutes, formatTime, nowTime, overlaps
     route.ts                 # buildDayRoute (paradas + trechos + "next leg"), regionFor, WAYPOINTS
+    geo.ts                   # distâncias em metros, ponto mais próximo num caminho, minutos a pé
   hooks/useActiveFilters.ts  # quais filtros estão ligados (Events+People combinam)
-  filters/filterConfig.ts    # lista dos 4 filtros (label, ícone, combinável, status)
+  filters/
+    filterConfig.ts          # lista dos 4 filtros (label, ícone, combinável, status)
+    events/                  # ✅ filtro de Eventos (ver abaixo)
   components/
-    map/CampusMap.tsx        # MapView base estilizado (recebe camadas como children)
+    map/CampusMap.tsx        # MapView base estilizado (recebe camadas como children; aceita ref)
     map/DayRouteLayer.tsx    # desenha o caminho de UM dia (reusar para amigos!)
     map/StopMarker.tsx       # marcador numerado + chip de horário
-    MapTopBar.tsx, IconButton.tsx, InfoChip.tsx, RouteLegend.tsx, FilterBar.tsx
-  screens/MapScreen.tsx      # tela principal: junta mapa, camadas, topo, legenda e barra
+    map/useTracksViewChanges.ts  # truque para marcadores customizados no Android
+    sheet/FilterSheet.tsx    # aba genérica (bottom sheet) com cabeçalho do Figma — reusar em todo filtro
+    MapTopBar.tsx, IconButton.tsx, InfoChip.tsx, RouteLegend.tsx, FilterBar.tsx, BackPill.tsx
+  screens/MapScreen.tsx      # tela principal: junta mapa, camadas, abas, topo, legenda e barra
 ```
 
-### Onde colocar cada filtro (próximas etapas)
-Cada filtro ganha sua pasta, para não haver conflito entre as pessoas do time:
+### Como um filtro é montado (modelo: `src/filters/events/`)
+Cada filtro tem sua pasta, para não haver conflito entre as pessoas do time:
 ```
-src/filters/events/   EventsLayer.tsx (pinos no mapa)  EventsSheet.tsx (lista na aba)  eventsNearRoute.ts (lógica)
-src/filters/people/   FriendsLayer.tsx                 PeopleSheet.tsx
-src/filters/food/     (depois)
-src/filters/resources/(depois)
+src/filters/events/
+  eventsOnRoute.ts     # LÓGICA pura: quais eventos cabem no seu dia (sem React)
+  useEventsFilter.ts   # ESTADO: lista numerada, seções, selecionado, "mostrar todos"
+  EventsLayer.tsx      # MAPA: pinos (vai dentro do <CampusMap>)
+  EventPin.tsx         #   pino numerado (+ halo e nome quando selecionado)
+  EventsSheet.tsx      # ABA: usa <FilterSheet>; lista ou detalhe
+  EventListItem.tsx    #   linha da lista
+  EventDetails.tsx     #   detalhe do evento
+src/filters/people/    # próxima etapa: mesmo modelo (FriendsLayer, PeopleSheet...)
+src/filters/food/      # depois
+src/filters/resources/ # depois
 ```
-Depois é só renderizar a camada dentro do `<CampusMap>` e a aba no `MapScreen` quando `active.includes('<key>')`.
-Para "eventos perto do caminho no horário certo": use `buildDayRoute(...).legs` (cada trecho tem `path`, `freeFrom`, `freeUntil`) + `overlaps()` de `utils/time.ts`.
+No `MapScreen`: chame o hook do filtro, renderize a camada dentro do `<CampusMap>` quando `active.includes('<key>')`,
+adicione a key em `FILTERS_WITH_SHEET` e renderize a aba quando `sheetFilter === '<key>'`
+(só a aba do filtro ligado por último aparece; as camadas de todos os filtros ligados aparecem juntas no mapa).
+
+### Regra "evento no caminho" (`eventsOnRoute.ts`)
+1. O dia vira **janelas livres**: entre cada par de aulas (você caminhando do prédio A ao B, de `fim de A` até `início de B`) e **depois da última aula** (2h30).
+2. Um evento entra se: fica a até **300 m** do caminho da janela (`NEAR_ROUTE_METERS`), está acontecendo durante a janela (e depois de "agora"), e sobra pelo menos **10 min** no evento (`MIN_MINUTES_AT_EVENT`) descontando a caminhada até a próxima aula e o desvio (ida e volta, a 80 m/min).
+3. Se cabe em várias janelas, fica a que dá mais tempo no evento.
+A lista é agrupada por janela; "Show all events" mostra também os que não cabem (pinos cinza).
+No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
 
 ## Convenções
 - Horários são strings `"HH:MM"` 24h; converta com `toMinutes()` para comparar.

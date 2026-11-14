@@ -1,27 +1,13 @@
-import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { colors, fonts, radius, shadow } from '../../theme';
 import type { RouteStop } from '../../utils/route';
 import { formatTimeShort } from '../../utils/time';
+import { useTracksViewChanges } from './useTracksViewChanges';
 
 interface Props {
   stop: RouteStop;
   color: string; // cor da pessoa (verde = você)
-}
-
-/**
- * No Android, marcadores com visual próprio são "fotografados" como imagem.
- * Deixamos tracksViewChanges ligado só no início (para a foto sair certa)
- * e depois desligamos, senão o mapa fica lento.
- */
-function useTracksViewChanges() {
-  const [tracks, setTracks] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setTracks(false), 800);
-    return () => clearTimeout(t);
-  }, []);
-  return tracks;
 }
 
 /** Marcador numerado de uma aula + chip com horário embaixo. */
