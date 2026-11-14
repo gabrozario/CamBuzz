@@ -1,0 +1,531 @@
+{
+  "categories": [
+    {
+      "id": "libraries",
+      "name": "Libraries",
+      "color": "#806C3C",
+      "locations": [
+        {
+          "id": "culc-lib",
+          "code": "L1",
+          "name": "Clough Commons",
+          "buildingId": "culc",
+          "coordinate": { "latitude": 33.77465, "longitude": -84.39640 },
+          "hasDetails": true
+        },
+        {
+          "id": "price-gilbert",
+          "code": "L2",
+          "name": "Price Gilbert",
+          "buildingId": "library",
+          "coordinate": { "latitude": 33.77435, "longitude": -84.39555 },
+          "hasDetails": true
+        },
+        {
+          "id": "crossland",
+          "code": "L3",
+          "name": "Crossland",
+          "buildingId": "crossland",
+          "coordinate": { "latitude": 33.77420, "longitude": -84.39480 },
+          "hasDetails": true
+        }
+      ]
+    },
+    {
+      "id": "printers",
+      "name": "Printers",
+      "color": "#477969",
+      "locations": [
+        {
+          "id": "glenn-towers",
+          "code": "P1",
+          "name": "Glenn/Towers Connector",
+          "buildingId": "glenn-towers",
+          "coordinate": { "latitude": 33.7736773, "longitude": -84.3913333 },
+          "buzzCardRestricted": true,
+          "details": ["Downstairs, near Vending (Housing residents only) - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "fitten",
+          "code": "P2",
+          "name": "Fitten",
+          "buildingId": "fitten",
+          "coordinate": { "latitude": 33.778231, "longitude": -84.403827 },
+          "buzzCardRestricted": true,
+          "details": ["McMillan Street Entrance Lobby (Housing residents only)"],
+          "hasDetails": false
+        },
+        {
+          "id": "nano",
+          "code": "P3",
+          "name": "North Ave North",
+          "buildingId": "north-ave-dining",
+          "coordinate": { "latitude": 33.7704789, "longitude": -84.3911362 },
+          "buzzCardRestricted": true,
+          "details": ["Inside NANO Housing Office (Housing residents only) - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "glc",
+          "code": "P4",
+          "name": "Graduate Living Center",
+          "buildingId": "glc",
+          "coordinate": { "latitude": 33.781749, "longitude": -84.3963933 },
+          "buzzCardRestricted": true,
+          "details": ["Activity Room - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "crosland-print",
+          "code": "P5",
+          "name": "Library (Crosland)",
+          "buildingId": "crossland",
+          "coordinate": { "latitude": 33.7742492, "longitude": -84.3951702 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - B/W, Color & Copies", "2nd Floor - B/W", "6th Floor - Color"],
+          "hasDetails": true
+        },
+        {
+          "id": "culc-print",
+          "code": "P6",
+          "name": "Clough",
+          "buildingId": "culc",
+          "coordinate": { "latitude": 33.7747062, "longitude": -84.3963933 },
+          "buzzCardRestricted": false,
+          "details": ["2nd Floor - Inside Room 215 (Color)", "3rd Floor - Near Room 385 (B/W)", "4th Floor - Near Grand Stair (B/W)"],
+          "hasDetails": true
+        },
+        {
+          "id": "coc-print",
+          "code": "P7",
+          "name": "College of Computing",
+          "buildingId": "coc",
+          "coordinate": { "latitude": 33.7774953, "longitude": -84.3974125 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - Across from Room 130 - B/W", "2nd Floor - Next to Library - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "klaus-print",
+          "code": "P8",
+          "name": "Klaus",
+          "buildingId": "klaus",
+          "coordinate": { "latitude": 33.7773705, "longitude": -84.3961278 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - Computer Lab 1446 - B/W & Color", "2nd Floor - Room 2440 - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "mrdc-print",
+          "code": "P9",
+          "name": "MRDC",
+          "buildingId": "mrdc",
+          "coordinate": { "latitude": 33.7769179, "longitude": -84.4005775 },
+          "buzzCardRestricted": true,
+          "details": ["3rd Floor - Room 3336 - Color"],
+          "hasDetails": false
+        },
+        {
+          "id": "scheller-print",
+          "code": "P10",
+          "name": "Scheller CoB",
+          "buildingId": "scheller",
+          "coordinate": { "latitude": 33.7763984, "longitude": -84.3883681 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - Computer Lab", "2nd Floor - Common area", "3rd Floor - Common area"],
+          "hasDetails": false
+        },
+        {
+          "id": "sustainable-ed-print",
+          "code": "P11",
+          "name": "Sustainable Education",
+          "buildingId": "kendeda",
+          "coordinate": { "latitude": 33.7762178, "longitude": -84.3988153 },
+          "buzzCardRestricted": true,
+          "details": ["3rd Floor - Room 317 - B/W & Color"],
+          "hasDetails": false
+        },
+        {
+          "id": "van-leer-print",
+          "code": "P12",
+          "name": "Van Leer",
+          "buildingId": "van-leer",
+          "coordinate": { "latitude": 33.7758232, "longitude": -84.397206 },
+          "buzzCardRestricted": true,
+          "details": ["2nd Floor - Lobby & Room 257 - B/W", "3rd Floor - Labs - B/W", "4th Floor - Lab 448 - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "design-print",
+          "code": "P13",
+          "name": "College of Design",
+          "buildingId": "design",
+          "coordinate": { "latitude": 33.7761019, "longitude": -84.3955323 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - B/W & Color", "2nd Floor - B/W & Color", "3rd Floor - Room 359A - B/W & Color"],
+          "hasDetails": false
+        },
+        {
+          "id": "whitaker-print",
+          "code": "P14",
+          "name": "Whitaker",
+          "buildingId": "whitaker",
+          "coordinate": { "latitude": 33.7784651, "longitude": -84.3967366 },
+          "buzzCardRestricted": true,
+          "details": ["Lower Level - Lab & Computer Cluster 207 - Color", "4th Floor - Computer Cluster - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "love-print",
+          "code": "P15",
+          "name": "Love",
+          "buildingId": "love",
+          "coordinate": { "latitude": 33.7765255, "longitude": -84.4017416 },
+          "buzzCardRestricted": true,
+          "details": ["3rd Floor - Atrium - Color"],
+          "hasDetails": false
+        },
+        {
+          "id": "isye-print",
+          "code": "P16",
+          "name": "ISyE Annex",
+          "buildingId": "instructional-center",
+          "coordinate": { "latitude": 33.7752547, "longitude": -84.4019347 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - Open Study Area (Color)", "1st Floor - Computer Lab (B/W)", "3rd & 4th Floors - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "ford-print",
+          "code": "P17",
+          "name": "Ford ES&T",
+          "buildingId": "ford",
+          "coordinate": { "latitude": 33.7788085, "longitude": -84.3959749 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - Room 1250 - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "mason-print",
+          "code": "P18",
+          "name": "Mason",
+          "buildingId": "mason",
+          "coordinate": { "latitude": 33.7765924, "longitude": -84.3985498 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - Computer Lab - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "hinman-print",
+          "code": "P19",
+          "name": "Hinman",
+          "buildingId": "hinman",
+          "coordinate": { "latitude": 33.7746705, "longitude": -84.3951112 },
+          "buzzCardRestricted": true,
+          "details": ["2nd Floor - B/W & Color", "3rd Floor - B/W & Color"],
+          "hasDetails": false
+        },
+        {
+          "id": "west-village-print",
+          "code": "P20",
+          "name": "West Village",
+          "buildingId": "west-village",
+          "coordinate": { "latitude": 33.7794427, "longitude": -84.4049589 },
+          "buzzCardRestricted": true,
+          "details": ["1st Floor - Lobby - B/W", "3rd Floor - Lobby - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "dfab-print",
+          "code": "P21",
+          "name": "Digital Fabrication Lab",
+          "buildingId": "dfab",
+          "coordinate": { "latitude": 33.7716586, "longitude": -84.4016038 },
+          "buzzCardRestricted": true,
+          "details": ["2nd Floor - Room 211 - B/W and Color"],
+          "hasDetails": false
+        },
+        {
+          "id": "mk-print",
+          "code": "P22",
+          "name": "Montgomery Knight",
+          "buildingId": "montgomery-knight",
+          "coordinate": { "latitude": 33.7720405, "longitude": -84.3959516 },
+          "buzzCardRestricted": true,
+          "details": ["3rd Floor - Computer Room 318 - B/W & Color"],
+          "hasDetails": false
+        },
+        {
+          "id": "price-gilbert-print",
+          "code": "P23",
+          "name": "Price Gilbert",
+          "buildingId": "library",
+          "coordinate": { "latitude": 33.7743673, "longitude": -84.3957728 },
+          "buzzCardRestricted": false,
+          "details": ["3rd Floor - B/W, Color & Copies"],
+          "hasDetails": true
+        },
+        {
+          "id": "comp-center-print",
+          "code": "P24",
+          "name": "Student Competition Center",
+          "buildingId": "comp-center",
+          "coordinate": { "latitude": 33.7871357, "longitude": -84.4063939 },
+          "buzzCardRestricted": false,
+          "details": ["1st Floor/Suite 1701 - B/W"],
+          "hasDetails": false
+        },
+        {
+          "id": "student-center-print",
+          "code": "P25",
+          "name": "Student Center",
+          "buildingId": "student-center",
+          "coordinate": { "latitude": 33.7736977, "longitude": -84.3983895 },
+          "buzzCardRestricted": false,
+          "details": ["3rd Floor - Student Organization Hub - Color"],
+          "hasDetails": false
+        },
+        {
+          "id": "george-print",
+          "code": "P26",
+          "name": "George Tower",
+          "buildingId": "george-tower",
+          "coordinate": { "latitude": 33.777042, "longitude": -84.3883687 },
+          "buzzCardRestricted": false,
+          "details": ["2nd Floor - Room 219", "3rd Floor - Room 363"],
+          "hasDetails": false
+        },
+        {
+          "id": "tsrb-print",
+          "code": "P27",
+          "name": "TSRB",
+          "buildingId": "tsrb",
+          "coordinate": { "latitude": 33.7773548, "longitude": -84.3901089 },
+          "buzzCardRestricted": false,
+          "details": ["1st Floor - Color"],
+          "hasDetails": false
+        }
+      ]
+    },
+    {
+      "id": "recreation",
+      "name": "Campus Recreation Center",
+      "color": "#526F8A",
+      "locations": [
+        {
+          "id": "crc-weights",
+          "code": "R1",
+          "name": "Weights",
+          "buildingId": "crc",
+          "coordinate": { "latitude": 33.77535, "longitude": -84.40420 },
+          "hasDetails": true
+        },
+        {
+          "id": "crc-fitness",
+          "code": "R2",
+          "name": "Fitness Floor",
+          "buildingId": "crc",
+          "coordinate": { "latitude": 33.77565, "longitude": -84.40380 },
+          "hasDetails": true
+        },
+        {
+          "id": "crc-lobby",
+          "code": "R3",
+          "name": "Lobby",
+          "buildingId": "crc",
+          "coordinate": { "latitude": 33.77550, "longitude": -84.40345 },
+          "hasDetails": true
+        }
+      ]
+    }
+  ],
+  "occupancy": {
+    "culc": {
+      "buildingId": "culc",
+      "buildingName": "Clough Commons",
+      "subtitle": "Live occupancy via Waitz · 5 floors",
+      "photoAttribution": "Photo: Daderot / Wikimedia Commons · CC0",
+      "floors": [
+        {
+          "floor": 1,
+          "label": "Floor 1",
+          "spaces": [
+            { "id": "culc-f1-1", "name": "Atrium", "status": "Quiet", "percentage": 28 },
+            { "id": "culc-f1-2", "name": "East Study Space", "status": "Moderate", "percentage": 42 }
+          ]
+        },
+        {
+          "floor": 2,
+          "label": "Floor 2",
+          "spaces": [
+            { "id": "culc-f2-1", "name": "East Wing", "status": "Quiet", "percentage": 28 },
+            { "id": "culc-f2-2", "name": "West Wing Breakout", "status": "Quiet", "percentage": 32 },
+            { "id": "culc-f2-3", "name": "Classrooms (North)", "status": "Quiet", "percentage": 19 },
+            { "id": "culc-f2-4", "name": "Classrooms (South)", "status": "Quiet", "percentage": 21 }
+          ]
+        },
+        {
+          "floor": 3,
+          "label": "Floor 3",
+          "spaces": [
+            { "id": "culc-f3-1", "name": "Atrium Study Area", "status": "Busy", "percentage": 74 },
+            { "id": "culc-f3-2", "name": "Study Tables (East Wing)", "status": "Busy", "percentage": 72 },
+            { "id": "culc-f3-3", "name": "Study Tables (Central)", "status": "Moderate", "percentage": 55 },
+            { "id": "culc-f3-4", "name": "Study Tables (North)", "status": "Quiet", "percentage": 37 }
+          ]
+        },
+        {
+          "floor": 4,
+          "label": "Floor 4",
+          "spaces": [
+            { "id": "culc-f4-1", "name": "Atrium Study Area", "status": "Quiet", "percentage": 37 },
+            { "id": "culc-f4-2", "name": "Study Tables (East Wing)", "status": "Busy", "percentage": 83 },
+            { "id": "culc-f4-3", "name": "Study Tables (Central)", "status": "Quiet", "percentage": 35 },
+            { "id": "culc-f4-4", "name": "Study Tables (North)", "status": "Quiet", "percentage": 34 }
+          ]
+        },
+        {
+          "floor": 5,
+          "label": "Floor 5",
+          "spaces": [
+            { "id": "culc-f5-1", "name": "Rooftop Terrace & South Study", "status": "Quiet", "percentage": 22 }
+          ]
+        }
+      ]
+    },
+    "crossland": {
+      "buildingId": "crossland",
+      "buildingName": "Crosland Tower",
+      "subtitle": "Live occupancy via Waitz · 7 floors",
+      "photoAttribution": "Georgia Tech Library · Live Waitz Data",
+      "floors": [
+        {
+          "floor": 1,
+          "label": "Floor 1",
+          "spaces": [
+            { "id": "cros-f1-1", "name": "InfoCommons & Commons", "status": "Quiet", "percentage": 31 }
+          ]
+        },
+        {
+          "floor": 2,
+          "label": "Floor 2",
+          "spaces": [
+            { "id": "cros-f2-1", "name": "Terrace Study Lounge", "status": "Busy", "percentage": 71 }
+          ]
+        },
+        {
+          "floor": 3,
+          "label": "Floor 3",
+          "spaces": [
+            { "id": "cros-f3-1", "name": "Media Scholarship Commons", "status": "Moderate", "percentage": 48 }
+          ]
+        },
+        {
+          "floor": 4,
+          "label": "Floor 4",
+          "spaces": [
+            { "id": "cros-f4-1", "name": "Computing & Collaboration", "status": "Busy", "percentage": 72 }
+          ]
+        },
+        {
+          "floor": 5,
+          "label": "Floor 5",
+          "spaces": [
+            { "id": "cros-f5-1", "name": "Graduate Commons", "status": "Busy", "percentage": 74 }
+          ]
+        },
+        {
+          "floor": 6,
+          "label": "Floor 6",
+          "spaces": [
+            { "id": "cros-f6-1", "name": "Quiet Study Area", "status": "Busy", "percentage": 74 }
+          ]
+        },
+        {
+          "floor": 7,
+          "label": "Floor 7",
+          "spaces": [
+            { "id": "cros-f7-1", "name": "East Skyview Study Area", "status": "Quiet", "percentage": 29 }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "buildingId": "library",
+      "buildingName": "Price Gilbert Memorial Library",
+      "subtitle": "Live occupancy via Waitz · 4 floors",
+      "photoAttribution": "Georgia Tech Library · Live Waitz Data",
+      "floors": [
+        {
+          "floor": 0,
+          "label": "Ground Floor",
+          "spaces": [
+            { "id": "pg-g-1", "name": "West Presentation Area", "status": "Quiet", "percentage": 29 }
+          ]
+        },
+        {
+          "floor": 1,
+          "label": "Floor 1",
+          "spaces": [
+            { "id": "pg-f1-1", "name": "Reading Room", "status": "Quiet", "percentage": 39 }
+          ]
+        },
+        {
+          "floor": 2,
+          "label": "Floor 2",
+          "spaces": [
+            { "id": "pg-f2-1", "name": "Classrooms & Study", "status": "Quiet", "percentage": 32 },
+            { "id": "pg-f2-2", "name": "Scholars Event Network", "status": "Quiet", "percentage": 33 }
+          ]
+        },
+        {
+          "floor": 3,
+          "label": "Floor 3",
+          "spaces": [
+            { "id": "pg-f3-1", "name": "General Computing 1", "status": "Quiet", "percentage": 34 },
+            { "id": "pg-f3-2", "name": "General Computing 2", "status": "Quiet", "percentage": 31 },
+            { "id": "pg-f3-3", "name": "Reading Room & Multimedia", "status": "Quiet", "percentage": 34 }
+          ]
+        },
+        {
+          "floor": 4,
+          "label": "Floor 4",
+          "spaces": [
+            { "id": "pg-f4-1", "name": "Faculty & Graduate Research", "status": "Quiet", "percentage": 29 },
+            { "id": "pg-f4-2", "name": "Overlook Study Area", "status": "Quiet", "percentage": 34 }
+          ]
+        }
+      ]
+    },
+    "crc": {
+      "buildingId": "crc",
+      "buildingName": "Campus Recreation Center",
+      "subtitle": "Live occupancy via Waitz · 3 spaces",
+      "photoAttribution": "Georgia Tech CRC · Live Waitz Data",
+      "floors": [
+        {
+          "floor": 1,
+          "label": "Level 1",
+          "spaces": [
+            { "id": "crc-s1", "name": "Weights (Weight Room)", "status": "Busy", "percentage": 79 }
+          ]
+        },
+        {
+          "floor": 2,
+          "label": "Level 2",
+          "spaces": [
+            { "id": "crc-s2", "name": "Lobby & Welcome Center", "status": "Quiet", "percentage": 24 }
+          ]
+        },
+        {
+          "floor": 4,
+          "label": "Level 4",
+          "spaces": [
+            { "id": "crc-s3", "name": "Fitness Floor", "status": "Quiet", "percentage": 19 }
+          ]
+        }
+      ]
+    }
+  }
+}

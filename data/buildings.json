@@ -5,6 +5,7 @@
   { "id": "culc", "name": "Clough Undergraduate Learning Commons", "shortName": "Clough Commons", "category": "academic", "coordinate": { "latitude": 33.77465, "longitude": -84.39640 } },
   { "id": "skiles", "name": "Skiles Classroom Building", "shortName": "Skiles", "category": "academic", "coordinate": { "latitude": 33.77370, "longitude": -84.39590 } },
   { "id": "library", "name": "Price Gilbert Library", "shortName": "Library", "category": "library", "coordinate": { "latitude": 33.77435, "longitude": -84.39555 } },
+  { "id": "crossland", "name": "Crosland Tower", "shortName": "Crosland", "category": "library", "coordinate": { "latitude": 33.77420, "longitude": -84.39480 } },
   { "id": "student-center", "name": "John Lewis Student Center", "shortName": "Student Center", "category": "student-life", "coordinate": { "latitude": 33.77385, "longitude": -84.39885 } },
   { "id": "tech-green", "name": "Tech Green", "shortName": "Tech Green", "category": "outdoor", "coordinate": { "latitude": 33.77445, "longitude": -84.39740 } },
   { "id": "tech-tower", "name": "Tech Tower", "shortName": "Tech Tower", "category": "landmark", "coordinate": { "latitude": 33.77260, "longitude": -84.39480 } },
