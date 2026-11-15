@@ -3,6 +3,7 @@ import { ClusterPin } from '../../components/map/ClusterPin';
 import { useMapViewport } from '../../components/map/mapViewport';
 import type { ResourceLocation } from '../../types';
 import { clusterOnScreen } from '../../utils/cluster';
+import { mapLabel } from '../../utils/mapLabel';
 import { ResourcePin } from './ResourcePin';
 import type { ResourcesFilterState } from './useResourcesFilter';
 
@@ -14,7 +15,7 @@ interface Props {
 export function ResourcesLayer({ state }: Props) {
   const { categories, selectedCategories, selectedLocation, selectedBuildingDetails, openDetails, selectLocation } =
     state;
-  const { viewport, width, height, zoomTo } = useMapViewport();
+  const { viewport, width, height, zoomTo, showPlaceLabels } = useMapViewport();
 
   const isSelected = (loc: ResourceLocation) =>
     selectedLocation?.id === loc.id ||
@@ -25,7 +26,7 @@ export function ResourcesLayer({ state }: Props) {
     () =>
       categories
         .filter((cat) => selectedCategories.has(cat.id))
-        .flatMap((cat) => cat.locations.map((loc) => ({ loc, color: cat.color }))),
+        .flatMap((cat) => cat.locations.map((loc) => ({ loc, color: cat.color, categoryId: cat.id }))),
     [categories, selectedCategories],
   );
   // O selecionado aparece SEMPRE (mesmo com a categoria desmarcada — ex.: veio da busca).
@@ -33,7 +34,7 @@ export function ResourcesLayer({ state }: Props) {
   const selectedPins = categories.flatMap((cat) =>
     cat.locations
       .filter((loc) => selectedLocation?.id === loc.id || (isSelected(loc) && selectedCategories.has(cat.id)))
-      .map((loc) => ({ loc, color: cat.color })),
+      .map((loc) => ({ loc, color: cat.color, categoryId: cat.id })),
   );
   const clusters = useMemo(
     () =>
@@ -51,15 +52,23 @@ export function ResourcesLayer({ state }: Props) {
 
   // Tocar no pino abre a descrição: ocupação (bibliotecas/CRC) ou detalhe simples (impressoras).
   const open = (loc: ResourceLocation) => (loc.hasDetails ? openDetails(loc.buildingId, loc) : selectLocation(loc));
-  const pin = (loc: ResourceLocation, color: string, selected = false) => (
-    <ResourcePin key={loc.id} location={loc} color={color} selected={selected} onPress={() => open(loc)} />
+  // Nome com zoom só para as bibliotecas (impressoras e CRC não).
+  const pin = (loc: ResourceLocation, color: string, categoryId: string, selected = false) => (
+    <ResourcePin
+      key={loc.id}
+      location={loc}
+      color={color}
+      selected={selected}
+      label={showPlaceLabels && categoryId === 'libraries' ? mapLabel(loc) : undefined}
+      onPress={() => open(loc)}
+    />
   );
 
   return (
     <>
       {clusters.map((c) =>
         c.items.length === 1 ? (
-          pin(c.items[0].loc, c.items[0].color)
+          pin(c.items[0].loc, c.items[0].color, c.items[0].categoryId)
         ) : (
           <ClusterPin
             key={c.key}
@@ -70,7 +79,7 @@ export function ResourcesLayer({ state }: Props) {
           />
         ),
       )}
-      {selectedPins.map((p) => pin(p.loc, p.color, true))}
+      {selectedPins.map((p) => pin(p.loc, p.color, p.categoryId, true))}
     </>
   );
 }

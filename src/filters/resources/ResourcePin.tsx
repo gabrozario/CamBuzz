@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
-import { PlacePin, placePinSize } from '../../components/map/PlacePin';
+import { PlacePin, placePinAnchor, PlacePinLabel, placePinSize } from '../../components/map/PlacePin';
 import { useTracksViewChanges } from '../../components/map/useTracksViewChanges';
 import { fonts, radius, shadow, useThemedStyles, type Palette } from '../../theme';
 import type { ResourceLocation } from '../../types';
@@ -10,26 +10,32 @@ interface Props {
   location: Pick<ResourceLocation, 'id' | 'code' | 'name' | 'coordinate'>;
   color: string;
   selected?: boolean;
+  /** Nome embaixo do alfinete (só com zoom; ex.: restaurantes e bibliotecas). */
+  label?: string;
   onPress: () => void;
 }
 
 /** Alfinete de um recurso/comida no campus (L1, P1, C3...). Selecionado = maior, com o nome em cima. */
-export function ResourcePin({ location, color, selected = false, onPress }: Props) {
+export function ResourcePin({ location, color, selected = false, label, onPress }: Props) {
   const styles = useThemedStyles(makeStyles);
-  const tracks = useTracksViewChanges([selected, location.id, location.code, color]);
+  const withLabel = !!label && !selected;
+  const tracks = useTracksViewChanges([selected, location.id, location.code, color, withLabel]);
   const pinHeight = placePinSize(selected).height;
 
   return (
     <>
-      {/* anchor y: 1 → a PONTA do alfinete fica no local */}
+      {/* anchor → a PONTA do alfinete fica no local */}
       <Marker
         coordinate={location.coordinate}
-        anchor={{ x: 0.5, y: 1 }}
+        anchor={placePinAnchor(selected, withLabel)}
         tracksViewChanges={tracks}
         zIndex={selected ? 30 : 20}
         onPress={onPress}
       >
-        <PlacePin label={location.code} color={color} selected={selected} />
+        <View style={styles.pinColumn}>
+          <PlacePin label={location.code} color={color} selected={selected} />
+          {withLabel && <PlacePinLabel text={label} />}
+        </View>
       </Marker>
 
       {selected && (
@@ -56,6 +62,7 @@ export function ResourcePin({ location, color, selected = false, onPress }: Prop
 
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
+    pinColumn: { alignItems: 'center' },
     chipBox: { paddingHorizontal: 6, paddingTop: 6 },
     chip: {
       backgroundColor: colors.surface,

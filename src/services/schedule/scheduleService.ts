@@ -34,7 +34,7 @@ export interface ScheduleService {
   removeEvent(eventId: string): Promise<ServiceResult>;
   /** Pula um único dia de um curso ou evento que se repete. */
   skipDate(type: 'course' | 'event', id: string, date: ISODate): Promise<ServiceResult>;
-  /** Aceitar (vai para a sua agenda) ou recusar um convite recebido. */
+  /** Aceitar (vai para a sua agenda) ou recusar um convite recebido. Um convite recusado ainda pode ser aceito depois. */
   respondToInvite(inviteId: string, accept: boolean, replace?: Conflict[]): Promise<ServiceResult<PersonalEvent | null>>;
 
   /** Avisa quando algo muda "do outro lado" (amigo respondeu, chegou convite). Retorna a função para parar. */
@@ -165,7 +165,9 @@ export const mockScheduleService: ScheduleService = {
   async respondToInvite(inviteId, accept, replace) {
     await wait(300);
     const invite = incoming.find((i) => i.id === inviteId);
-    if (!invite || invite.status !== 'pending') return { ok: false, error: 'This invite is no longer available.' };
+    // Pode responder um convite pendente, ou ACEITAR um que você tinha recusado ("Tap to undo").
+    const canRespond = invite && (invite.status === 'pending' || (accept && invite.status === 'declined'));
+    if (!invite || !canRespond) return { ok: false, error: 'This invite is no longer available.' };
     incoming = incoming.map((i) => (i.id === inviteId ? { ...i, status: accept ? 'accepted' : 'declined' } : i));
     if (!accept) return { ok: true, value: null };
     replaceIfNeeded(replace, 'event');

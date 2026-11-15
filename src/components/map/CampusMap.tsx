@@ -67,10 +67,20 @@ interface Props {
   children?: ReactNode;
   /** Chamado quando a pessoa termina de mover/dar zoom (usado para agrupar pinos colados). */
   onRegionChangeComplete?: (region: Region) => void;
+  /** Chamado DURANTE o movimento/zoom (usado para os nomes aparecerem/sumirem na hora). */
+  onRegionChange?: (region: Region) => void;
 }
 
 /** O mapa base do campus, com o estilo bege do Figma (ou verde-escuro no modo escuro). Não sabe nada sobre filtros. */
-export function CampusMap({ ref, initialRegion = GT_REGION, onMapReady, padding, children, onRegionChangeComplete }: Props) {
+export function CampusMap({
+  ref,
+  initialRegion = GT_REGION,
+  onMapReady,
+  padding,
+  children,
+  onRegionChangeComplete,
+  onRegionChange,
+}: Props) {
   const { mapStyle, colors, isDark } = useAppTheme();
   return (
     <MapView
@@ -86,6 +96,7 @@ export function CampusMap({ ref, initialRegion = GT_REGION, onMapReady, padding,
       initialRegion={initialRegion}
       onMapReady={onMapReady}
       onRegionChangeComplete={onRegionChangeComplete}
+      onRegionChange={onRegionChange}
       mapPadding={padding}
       showsPointsOfInterests={false}
       // Só vale no iPhone (Apple Maps) e tem prioridade sobre a linha de cima lá.

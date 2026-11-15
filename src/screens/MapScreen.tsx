@@ -12,7 +12,7 @@ import { FilterBar } from '../components/FilterBar';
 import { MyRouteCard, type LegendEntry } from '../components/MyRouteCard';
 import { MapTopBar } from '../components/MapTopBar';
 import { FloatingBarContext, useFloatingBarController } from '../components/floatingBar';
-import { MapViewportContext, type MapViewportValue } from '../components/map/mapViewport';
+import { MapViewportContext, shouldShowPlaceLabels, type MapViewportValue } from '../components/map/mapViewport';
 import { SearchPin } from '../components/map/SearchPin';
 import { SearchScreen } from '../search/SearchScreen';
 import type { SearchItem, SearchTarget } from '../search/searchIndex';
@@ -221,12 +221,28 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
 
   // ---- Parte visível do mapa (para agrupar pinos colados) + zoom num grupo ----
   const [viewport, setViewport] = useState<Region | null>(null);
+  // Nomes dos lugares no mapa: decidido DURANTE o zoom (aparecem/somem na hora, não só ao soltar o dedo).
+  // Só muda o estado quando cruza o limite, para não redesenhar os alfinetes a cada movimento.
+  const [showPlaceLabels, setShowPlaceLabels] = useState(false);
+  const onRegionChange = useCallback((region: Region) => {
+    setShowPlaceLabels((showing) => {
+      const next = shouldShowPlaceLabels(region.latitudeDelta, showing);
+      return next === showing ? showing : next;
+    });
+  }, []);
+  const onRegionChangeComplete = useCallback(
+    (region: Region) => {
+      setViewport(region);
+      onRegionChange(region);
+    },
+    [onRegionChange],
+  );
   const zoomTo = useCallback((coords: LatLng[]) => {
     if (coords.length) mapRef.current?.fitToCoordinates(coords, { edgePadding: ZOOM_PADDING, animated: true });
   }, []);
   const viewportValue = useMemo<MapViewportValue>(
-    () => ({ viewport, width: mapWidth, height: mapHeight, zoomTo }),
-    [viewport, mapWidth, mapHeight, zoomTo],
+    () => ({ viewport, width: mapWidth, height: mapHeight, zoomTo, showPlaceLabels }),
+    [viewport, mapWidth, mapHeight, zoomTo, showPlaceLabels],
   );
 
   // ---- Câmera: enquadra o que importa conforme o estado ----
@@ -277,6 +293,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
       };
       const focusCoords = focus ? coordsByFilter[focus] : [];
       if (focusCoords.length) fit(focusCoords);
+      else if (myRouteOn) fit(stopCoords); // My Route ligado → enquadra o seu caminho
       else fitCampus(true);
     }, 300);
     return () => clearTimeout(t);
@@ -508,7 +525,8 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           initialRegion={GT_REGION}
           onMapReady={() => fitCampus(false)}
           padding={mapPadding}
-          onRegionChangeComplete={setViewport}
+          onRegionChangeComplete={onRegionChangeComplete}
+          onRegionChange={onRegionChange}
         >
           {peopleOn ? (
             <PeopleLayer state={people} />
