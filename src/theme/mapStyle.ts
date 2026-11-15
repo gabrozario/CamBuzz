@@ -27,3 +27,13 @@ export function makeMapStyle(colors: Palette, buildingStroke = '#CFC7B3'): MapSt
 export const campusMapStyle = makeMapStyle(colors);
 /** Mesmo mapa ilustrado, nas cores do modo escuro. */
 export const campusMapStyleDark = makeMapStyle(darkColors, '#3A4D44');
+
+/**
+ * Visual PADRÃO do Google Maps, só sem comércios, ícones de lugares e transporte
+ * (para o caminho e os pinos do app aparecerem melhor). Usado quando MAP_LOOK = 'google'.
+ */
+export const googleCleanMapStyle: MapStyleElement[] = [
+  { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+];
