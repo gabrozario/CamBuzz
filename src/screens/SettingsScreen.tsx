@@ -1,9 +1,10 @@
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight, LogIn, LogOut } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EditAccountModal } from '../components/settings/EditAccountModal';
 import { ThemeSwitch } from '../components/settings/ThemeSwitch';
+import { useAuth } from '../services/auth/AuthProvider';
 import { useFriends } from '../services/friends/FriendsProvider';
 import { fonts, useAppTheme, type AppColors } from '../theme';
 
@@ -18,6 +19,15 @@ export function SettingsScreen({ onBack }: Props) {
   const styles = useMemo(() => makeStyles(c), [c]);
   const { me } = useFriends();
   const [editing, setEditing] = useState(false);
+  const { status, logOut } = useAuth();
+  const isGuest = status === 'guest';
+
+  // Sair da conta (ou do modo convidado) volta para a tela de boas-vindas.
+  const confirmLogOut = () =>
+    Alert.alert('Log out?', 'You can log back in anytime.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Log out', style: 'destructive', onPress: () => logOut() },
+    ]);
 
   return (
     <View style={styles.screen}>
@@ -35,16 +45,33 @@ export function SettingsScreen({ onBack }: Props) {
         </View>
 
         <Text style={styles.sectionLabel}>YOUR ACCOUNT</Text>
-        <Text style={styles.name}>{me.name}</Text>
-        <Text style={styles.email}>{me.email}</Text>
-        <Pressable
-          onPress={() => setEditing(true)}
-          style={({ pressed }) => [styles.editButton, pressed && styles.pressed]}
-          accessibilityRole="button"
-        >
-          <Text style={styles.editText}>Edit name & email</Text>
-          <ArrowRight size={20} color={c.accentSoftText} strokeWidth={2} />
-        </Pressable>
+        {isGuest ? (
+          <>
+            <Text style={styles.name}>Guest</Text>
+            <Text style={styles.email}>Log in to save your schedule</Text>
+            <Pressable
+              onPress={() => logOut()}
+              style={({ pressed }) => [styles.editButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.editText}>Log in or sign up</Text>
+              <LogIn size={20} color={c.accentSoftText} strokeWidth={2} />
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Text style={styles.name}>{me.name}</Text>
+            <Text style={styles.email}>{me.email}</Text>
+            <Pressable
+              onPress={() => setEditing(true)}
+              style={({ pressed }) => [styles.editButton, pressed && styles.pressed]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.editText}>Edit name & email</Text>
+              <ArrowRight size={20} color={c.accentSoftText} strokeWidth={2} />
+            </Pressable>
+          </>
+        )}
 
         <Text style={[styles.sectionLabel, styles.appearanceLabel]}>APPEARANCE</Text>
         <View style={styles.card}>
@@ -59,6 +86,17 @@ export function SettingsScreen({ onBack }: Props) {
           />
         </View>
         <Text style={styles.note}>Choose the look that feels right for you.</Text>
+
+        {!isGuest && (
+          <Pressable
+            onPress={confirmLogOut}
+            style={({ pressed }) => [styles.logOut, pressed && styles.pressed]}
+            accessibilityRole="button"
+          >
+            <LogOut size={20} color={c.error} strokeWidth={2} />
+            <Text style={styles.logOutText}>Log out</Text>
+          </Pressable>
+        )}
       </ScrollView>
 
       <EditAccountModal visible={editing} onClose={() => setEditing(false)} />
@@ -107,4 +145,17 @@ const makeStyles = (c: AppColors) =>
     cardTitle: { fontFamily: fonts.semibold, fontSize: 16, color: c.text },
     cardValue: { fontFamily: fonts.regular, fontSize: 15, color: c.muted },
     note: { fontFamily: fonts.regular, fontSize: 13, color: c.muted, marginTop: 14, marginLeft: 2 },
+    logOut: {
+      marginTop: 48,
+      height: 50,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: c.cardBorder,
+      backgroundColor: c.card,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
+    },
+    logOutText: { fontFamily: fonts.semibold, fontSize: 15, color: c.error },
   });
