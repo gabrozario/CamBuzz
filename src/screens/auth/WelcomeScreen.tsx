@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthButton } from '../../components/auth/AuthButton';
 import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
@@ -9,9 +9,19 @@ interface Props {
   onGuest: () => void;
 }
 
-/** Primeira tela (quando ninguém está logado): foto aérea do Tech Tower + "Welcome to CamBuzz" + botões. */
+/** Largura máxima do logo na tela (a altura segue a proporção do arquivo, 1200 × 312). */
+const LOGO_MAX_WIDTH = 320;
+/** Margem do cartão (24 de cada lado) — o logo nunca passa dela em celulares estreitos. */
+const CARD_PADDING = 24;
+
+/** Primeira tela (quando ninguém está logado): foto aérea do Tech Tower + logo centralizado + botões. */
 export function WelcomeScreen({ onSignUp, onLogIn, onGuest }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const { isDark } = useAppTheme();
+  // Logo do tamanho que couber (até 320 dp).
+  const { width: screenWidth } = useWindowDimensions();
+  const logoW = Math.min(LOGO_MAX_WIDTH, screenWidth - CARD_PADDING * 2);
+  const logoH = logoW * (312 / 1200);
   const insets = useSafeAreaInsets();
 
   return (
@@ -28,7 +38,14 @@ export function WelcomeScreen({ onSignUp, onLogIn, onGuest }: Props) {
 
       <View style={[styles.card, { paddingBottom: insets.bottom + 20 }]}>
         <Text style={styles.eyebrow}>GEORGIA TECH · CAMPUS MAP</Text>
-        <Text style={styles.title}>Welcome to{'\n'}CamBuzz</Text>
+        {/* Logo oficial centralizado (assets/cambuzz_logo.svg em PNG; versão clara no modo escuro). */}
+        <Image
+          source={isDark ? require('../../../assets/cambuzz_logo_dark.png') : require('../../../assets/cambuzz_logo.png')}
+          style={[styles.logo, { width: logoW, height: logoH }]}
+          resizeMode="contain"
+          accessibilityRole="header"
+          accessibilityLabel="CamBuzz"
+        />
         <Text style={styles.body}>Your Day on One Map</Text>
 
         <View style={styles.buttons}>
@@ -62,7 +79,9 @@ const makeStyles = (colors: Palette) =>
     elevation: 8,
   },
   eyebrow: { fontFamily: fonts.semibold, fontSize: 11, letterSpacing: 1.5, color: colors.gold },
-  title: { fontFamily: fonts.bold, fontSize: 34, lineHeight: 40, color: colors.ink, marginTop: 10 },
+  // Logo centralizado no cartão (tamanho calculado no componente, conforme a largura da tela).
+  // translateY sobe só o logo, sem puxar o slogan e os botões (o resto fica no mesmo lugar).
+  logo: { alignSelf: 'center', marginTop: 14, transform: [{ translateY: -10 }] },
   body: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 22, color: colors.muted, marginTop: 10 },
   buttons: { gap: 12, marginTop: 24 },
   footnote: { fontFamily: fonts.regular, fontSize: 12, color: colors.subtle, textAlign: 'center', marginTop: 4 },
