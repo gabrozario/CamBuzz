@@ -51,7 +51,8 @@ const MIN_FIT_HEIGHT = 240;
 const ZOOM_PADDING = { top: 80, right: 80, bottom: 80, left: 80 };
 
 /** Margem (dp) usada ao enquadrar pontos no mapa. */
-const FIT_PADDING = { top: 40, right: 40, bottom: 40, left: 40 };
+// Só o necessário para os pinos (círculos de ~30 dp) não ficarem cortados na borda.
+const FIT_PADDING = { top: 24, right: 28, bottom: 24, left: 28 };
 
 /**
  * Tela principal: mapa da GT com o caminho do dia + barra de filtros.
@@ -242,14 +243,16 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
         mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 400);
         return;
       }
-      const routeCoords = peopleOn
-        ? visibleDays.flatMap((d) => d.route.stops.map((s) => s.building.coordinate))
-        : stopCoords;
-      const eventCoords = eventsOn ? events.entries.map((e) => e.event.coordinate) : [];
-      const resourceCoords = resourcesOn ? resources.activeLocations.map((l) => l.coordinate) : [];
-      const foodCoords = foodOn ? food.activeLocations.map((l) => l.coordinate) : [];
-      const allCoords = [...routeCoords, ...eventCoords, ...resourceCoords, ...foodCoords];
-      fit(allCoords.length ? allCoords : stopCoords);
+      // Enquadra SÓ o que é do filtro que você está vendo (ex.: restaurantes marcados), bem justo.
+      // Sem nada marcado nele (ou sem filtro), enquadra o seu caminho do dia.
+      const coordsByFilter: Record<FilterKey, LatLng[]> = {
+        events: events.entries.map((e) => e.event.coordinate),
+        resources: resources.activeLocations.map((l) => l.coordinate),
+        food: food.activeLocations.map((l) => l.coordinate),
+        people: visibleDays.flatMap((d) => d.route.stops.map((s) => s.building.coordinate)),
+      };
+      const focusCoords = focus ? coordsByFilter[focus] : [];
+      fit(focusCoords.length ? focusCoords : stopCoords);
     }, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -266,6 +269,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     foodOn,
     selectedFood?.id,
     food.activeLocations.length,
+    focus,
   ]);
 
   // Botão "voltar" do Android: detalhe → lista → fecha a aba.
@@ -346,7 +350,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           {peopleOn ? (
             <PeopleLayer state={people} />
           ) : (
-            <DayRouteLayer route={userRoute} color={colors.green} highlightNextLeg />
+            <DayRouteLayer route={userRoute} color={colors.green} highlightNextLeg isMe />
           )}
           {eventsOn && <EventsLayer state={events} />}
           {resourcesOn && <ResourcesLayer state={resources} />}
