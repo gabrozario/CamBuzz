@@ -3,6 +3,7 @@ import { ClusterPin } from '../../components/map/ClusterPin';
 import { useMapViewport } from '../../components/map/mapViewport';
 import type { FoodLocation } from '../../types';
 import { clusterOnScreen } from '../../utils/cluster';
+import { mapLabel } from '../../utils/mapLabel';
 import { ResourcePin } from '../resources/ResourcePin';
 import type { FoodFilterState } from './useFoodFilter';
 
@@ -13,14 +14,17 @@ interface Props {
 /** MAPA: pinos D1/C1/V1... das categorias marcadas (vai dentro de <CampusMap>). Tocar abre o cardápio. */
 export function FoodLayer({ state }: Props) {
   const { categories, selectedCategories, selectedLocation, openLocation } = state;
-  const { viewport, width, height, zoomTo } = useMapViewport();
+  const { viewport, width, height, zoomTo, showPlaceLabels } = useMapViewport();
+  /** Nome com zoom: restaurantes/cafés e dining halls (vending não). */
+  const labelFor = (loc: FoodLocation, categoryId: string) =>
+    showPlaceLabels && categoryId !== 'vending' ? mapLabel(loc) : undefined;
 
   // Pinos visíveis (com a cor da categoria). O selecionado fica fora dos grupos.
   const pins = useMemo(
     () =>
       categories
         .filter((cat) => selectedCategories.has(cat.id))
-        .flatMap((cat) => cat.locations.map((loc) => ({ loc, color: cat.color }))),
+        .flatMap((cat) => cat.locations.map((loc) => ({ loc, color: cat.color, categoryId: cat.id }))),
     [categories, selectedCategories],
   );
   const clusters = useMemo(
@@ -40,17 +44,26 @@ export function FoodLayer({ state }: Props) {
     ? categories.find((c) => c.locations.some((l) => l.id === selectedLocation.id))
     : undefined;
   const selectedPin =
-    selectedLocation && selectedCategory ? { loc: selectedLocation, color: selectedCategory.color } : undefined;
+    selectedLocation && selectedCategory
+      ? { loc: selectedLocation, color: selectedCategory.color, categoryId: selectedCategory.id }
+      : undefined;
 
-  const pin = (loc: FoodLocation, color: string, selected = false) => (
-    <ResourcePin key={loc.id} location={loc} color={color} selected={selected} onPress={() => openLocation(loc)} />
+  const pin = (loc: FoodLocation, color: string, categoryId: string, selected = false) => (
+    <ResourcePin
+      key={loc.id}
+      location={loc}
+      color={color}
+      selected={selected}
+      label={labelFor(loc, categoryId)}
+      onPress={() => openLocation(loc)}
+    />
   );
 
   return (
     <>
       {clusters.map((c) =>
         c.items.length === 1 ? (
-          pin(c.items[0].loc, c.items[0].color)
+          pin(c.items[0].loc, c.items[0].color, c.items[0].categoryId)
         ) : (
           <ClusterPin
             key={c.key}
@@ -61,7 +74,7 @@ export function FoodLayer({ state }: Props) {
           />
         ),
       )}
-      {selectedPin && pin(selectedPin.loc, selectedPin.color, true)}
+      {selectedPin && pin(selectedPin.loc, selectedPin.color, selectedPin.categoryId, true)}
     </>
   );
 }

@@ -286,6 +286,8 @@ export interface FoodLocation {
   id: string;
   code: string; // ex.: "D1"
   name: string; // ex.: "North Avenue Dining Hall"
+  /** Apelido curto para o nome no mapa (só para nomes grandes). Ex.: "North Ave Dining". */
+  shortName?: string;
   kind: string; // ex.: "Dining hall", "Restaurant", "Coffee shop", "Vending machine"
   area: string; // ex.: "North Avenue", "Tech Square", "John Lewis Student Center"
   buildingId: string;

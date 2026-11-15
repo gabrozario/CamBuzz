@@ -202,9 +202,11 @@ O filtro "People" aparece para o usuário como **Friends** (a key no código con
 A lista é agrupada por janela; "Show all events" mostra também os que não cabem (pinos cinza).
 No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
 
-### Nome dos eventos no mapa
-- Com zoom (`LABEL_ZOOM_DELTA` em `EventsLayer.tsx`), o nome aparece embaixo do alfinete, com contorno claro como os nomes do Google/Apple Maps; afastando, some. O nome faz parte do marcador (tocar nele abre o evento).
-- Nome grande → apelido: campo opcional `shortName` no `events.json` (ex.: "Resume reviews"); sem apelido, `eventMapLabel` (`eventLabel.ts`) corta numa palavra inteira com "…".
+### Nome dos lugares no mapa (com zoom)
+- Eventos, restaurantes/cafés, dining halls e bibliotecas mostram o NOME embaixo do alfinete quando você dá zoom (estilo dos nomes do Google/Apple Maps) e somem ao afastar. Impressoras, vending e CRC não.
+- O zoom é acompanhado DURANTE o gesto (`onRegionChange`), então os nomes aparecem/somem na hora; o estado só muda ao cruzar o limite (`LABELS_SHOW_DELTA` / `LABELS_HIDE_DELTA` em `components/map/mapViewport.ts`, com folga para não piscar). Número maior = aparecem mais cedo.
+- Peça compartilhada: `PlacePinLabel` + `placePinAnchor` em `PlacePin.tsx` (o nome faz parte do marcador; tocar nele abre o lugar).
+- Nome grande → apelido: campo opcional `shortName` em `events.json` e `food.json`; sem apelido, `mapLabel` (`utils/mapLabel.ts`) corta numa palavra inteira com "…".
 
 ### Events + People ("ir junto com um amigo") — `eventsWithFriends.ts`
 Com os dois filtros ligados, para cada evento do **seu** caminho aplicamos a mesma regra ao dia de cada amigo **visível**.

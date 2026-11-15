@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
-import { PlacePin, placePinSize } from '../../components/map/PlacePin';
+import { PlacePin, placePinAnchor, PlacePinLabel, placePinSize } from '../../components/map/PlacePin';
 import { useTracksViewChanges } from '../../components/map/useTracksViewChanges';
 import { fonts, radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { eventMapLabel } from './eventLabel';
@@ -14,8 +14,6 @@ interface Props {
   onPress: () => void;
 }
 
-/** Altura reservada para o nome embaixo do alfinete (fixa, para saber onde fica a ponta). */
-const LABEL_HEIGHT = 18;
 
 /** Alfinete numerado de um evento (escuro, como no Figma). Selecionado = maior, com o nome em cima. */
 export function EventPin({ entry, selected = false, showLabel = false, onPress }: Props) {
@@ -25,17 +23,15 @@ export function EventPin({ entry, selected = false, showLabel = false, onPress }
   const tracks = useTracksViewChanges([selected, entry.number, !!entry.match, friendDots.map((d) => d.id).join(), showLabel]);
   const offRoute = !entry.match;
   const pinHeight = placePinSize(selected).height;
-  // O nome faz parte do marcador (tocar no nome também abre o evento). Com ele embaixo,
-  // a ponta do alfinete fica a pinHeight do topo → anchor y = pinHeight / altura total.
+  // O nome faz parte do marcador (tocar no nome também abre o evento).
   const withLabel = showLabel && !selected;
-  const anchorY = withLabel ? pinHeight / (pinHeight + LABEL_HEIGHT) : 1;
 
   return (
     <>
       {/* anchor → a PONTA do alfinete fica no local do evento */}
       <Marker
         coordinate={entry.event.coordinate}
-        anchor={{ x: 0.5, y: anchorY }}
+        anchor={placePinAnchor(selected, withLabel)}
         tracksViewChanges={tracks}
         zIndex={selected ? 30 : 20}
         onPress={onPress}
@@ -48,11 +44,7 @@ export function EventPin({ entry, selected = false, showLabel = false, onPress }
             selected={selected}
             dots={friendDots}
           />
-          {withLabel && (
-            <Text style={styles.mapLabel} numberOfLines={1}>
-              {eventMapLabel(entry.event)}
-            </Text>
-          )}
+          {withLabel && <PlacePinLabel text={eventMapLabel(entry.event)} />}
         </View>
       </Marker>
 
@@ -82,20 +74,6 @@ export function EventPin({ entry, selected = false, showLabel = false, onPress }
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
     pinColumn: { alignItems: 'center' },
-    // Igual aos nomes do mapa: texto escuro com contorno claro (sem caixa), embaixo do alfinete.
-    mapLabel: {
-      height: LABEL_HEIGHT,
-      maxWidth: 140,
-      paddingHorizontal: 4,
-      fontFamily: fonts.semibold,
-      fontSize: 11,
-      lineHeight: LABEL_HEIGHT,
-      color: colors.ink,
-      textAlign: 'center',
-      textShadowColor: colors.surface,
-      textShadowRadius: 3,
-      textShadowOffset: { width: 0, height: 0 },
-    },
     chipBox: { paddingHorizontal: 6, paddingTop: 6 },
     chip: {
       backgroundColor: colors.surface,

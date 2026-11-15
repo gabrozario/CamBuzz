@@ -65,7 +65,43 @@ export function PlacePin({ label, color, textColor, selected = false, size = 'no
   );
 }
 
+/** Altura reservada para o nome embaixo do alfinete (fixa, para saber onde fica a ponta). */
+export const PLACE_LABEL_HEIGHT = 18;
+
+/**
+ * Onde fica a PONTA do alfinete no marcador (para o `anchor` do <Marker>):
+ * com o nome embaixo, a ponta não é mais a base do marcador.
+ */
+export function placePinAnchor(selected = false, withLabel = false) {
+  const { height } = placePinSize(selected);
+  return { x: 0.5, y: withLabel ? height / (height + PLACE_LABEL_HEIGHT) : 1 };
+}
+
+/** Nome embaixo do alfinete, no estilo dos nomes do Google/Apple Maps (texto escuro com contorno claro). */
+export function PlacePinLabel({ text }: { text: string }) {
+  const { colors } = useAppTheme();
+  return (
+    <Text
+      style={[styles.mapLabel, { color: colors.ink, textShadowColor: colors.surface }]}
+      numberOfLines={1}
+    >
+      {text}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
+  mapLabel: {
+    height: PLACE_LABEL_HEIGHT,
+    maxWidth: 140,
+    paddingHorizontal: 4,
+    fontFamily: fonts.semibold,
+    fontSize: 11,
+    lineHeight: PLACE_LABEL_HEIGHT,
+    textAlign: 'center',
+    textShadowRadius: 3,
+    textShadowOffset: { width: 0, height: 0 },
+  },
   labelBox: { position: 'absolute', top: 0, alignItems: 'center', justifyContent: 'center' },
   label: { fontFamily: fonts.bold, textAlign: 'center' },
   dots: { position: 'absolute', top: -2, flexDirection: 'row' },

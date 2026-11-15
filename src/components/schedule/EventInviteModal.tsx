@@ -1,6 +1,6 @@
 import { CalendarDays, CircleAlert, CircleCheck, Clock, MapPin } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useFriends } from '../../services/friends/FriendsProvider';
 import { confirmConflicts } from '../../services/schedule/confirmConflicts';
 import { describeConflict, formatEventTime, repeatLabel } from '../../services/schedule/scheduleLogic';
@@ -42,7 +42,33 @@ export function EventInviteModal() {
     setBusy(accept ? 'accept' : 'decline');
     const result = await respondToInvite(invite.id, accept, replace);
     setBusy(null);
-    if (result.ok) toast(accept ? `${event.name} is on your schedule` : `You declined ${firstName}'s invite`);
+    if (!result.ok) return;
+    if (accept) {
+      toast(`${event.name} is on your schedule`);
+      return;
+    }
+    // Recusou: o aviso deixa voltar atrás (tocar → Cancel / Accept).
+    toast(`You declined ${firstName}'s invite`, {
+      actionLabel: 'Tap to undo',
+      onPress: () => reconsider(),
+    });
+  };
+
+  /** "Mudei de ideia": oferece aceitar o convite recusado (com a mesma checagem de conflito). */
+  const reconsider = () => {
+    Alert.alert('Changed your mind?', `Accept ${firstName}'s invite to ${event.name}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Accept',
+        onPress: async () => {
+          const now = conflictsFor({ type: 'event', draft: event });
+          const choice = await confirmConflicts(now, event.name);
+          if (choice === 'cancel') return;
+          const res = await respondToInvite(invite.id, true, choice === 'replace' ? now : undefined);
+          toast(res.ok ? `${event.name} is on your schedule` : res.error);
+        },
+      },
+    ]);
   };
 
   return (
