@@ -32,6 +32,7 @@ export interface AppColors {
   overlay: string; // fundo escurecido atrás dos popups
   weekend: string; // colunas sáb/dom da semana
   gridLine: string;
+  nowLine: string; // linha vermelha do "agora" na Week View
   success: string; // "Free" nos convites
   error: string;
 }
@@ -55,6 +56,7 @@ const light: AppColors = {
   overlay: 'rgba(35, 58, 67, 0.22)',
   weekend: '#F2F1E9',
   gridLine: '#E6E3D8',
+  nowLine: '#D93025',
   success: colors.green,
   error: colors.error,
 };
@@ -78,6 +80,7 @@ const dark: AppColors = {
   overlay: 'rgba(0, 0, 0, 0.5)',
   weekend: '#24332F',
   gridLine: '#33463E',
+  nowLine: '#F28B82',
   success: '#9CC59A',
   error: '#E0907C',
 };

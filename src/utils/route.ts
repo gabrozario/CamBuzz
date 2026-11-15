@@ -94,6 +94,8 @@ export function shiftCoordinate(p: LatLng, steps: number): LatLng {
 
 /** Região do mapa que enquadra todas as coordenadas, com uma margem. */
 export function regionFor(points: LatLng[], padding = 1.6) {
+  // Sem pontos (ex.: dia sem aulas), Math.min() daria Infinity → região inválida → o mapa abria nos EUA inteiros.
+  if (!points.length) return { latitude: 33.7762, longitude: -84.398, latitudeDelta: 0.0115, longitudeDelta: 0.017 };
   const lats = points.map((p) => p.latitude);
   const lngs = points.map((p) => p.longitude);
   const minLat = Math.min(...lats);

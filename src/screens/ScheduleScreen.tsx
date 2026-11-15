@@ -1,6 +1,7 @@
 import { CalendarDays, LayoutGrid, Map as MapIcon, Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useClock } from '../hooks/useClock';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getBuilding } from '../../data';
 import { AddCourseModal } from '../components/schedule/AddCourseModal';
@@ -9,7 +10,13 @@ import { AddMenu } from '../components/schedule/AddMenu';
 import { BlockView } from '../components/schedule/BlockView';
 import { WeekView } from '../components/schedule/WeekView';
 import { useToast } from '../components/ui/Toast';
-import { blocksOnDate, EVENT_COLOR, repeatLabel, type ScheduleBlock } from '../services/schedule/scheduleLogic';
+import {
+  blocksOnDate,
+  EVENT_COLOR,
+  formatEventTime,
+  repeatLabel,
+  type ScheduleBlock,
+} from '../services/schedule/scheduleLogic';
 import { useSchedule } from '../services/schedule/ScheduleProvider';
 import { fonts, useAppTheme, type AppColors } from '../theme';
 import type { EnrolledCourse, ISODate, PersonalEvent } from '../types';
@@ -42,6 +49,9 @@ export function ScheduleScreen({ onOpenMap }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [modal, setModal] = useState<'course' | 'event' | null>(null);
 
+  // Hora do celular, ao vivo (a linha vermelha da Week View anda a cada minuto).
+  const { minutes: nowMinutes } = useClock();
+
   const days = useMemo(
     () => WEEKDAYS.map((_, i) => blocksOnDate(schedule, addDays(weekStart, i))),
     [schedule, weekStart],
@@ -53,35 +63,41 @@ export function ScheduleScreen({ onOpenMap }: Props) {
       const b = getBuilding(m.buildingId);
       return `${m.kind} · ${formatDaysLong(m.days)} · ${formatTime(m.start)}–${formatTime(m.end)} · ${b.shortName}${m.room ? ` ${m.room}` : ''}`;
     });
-    Alert.alert(`${course.code} · Section ${course.sectionId}`, `${course.title}\n${course.instructor}\n\n${lines.join('\n')}`, [
-      { text: 'Close', style: 'cancel' },
-      ...(date
-        ? [
-            {
-              text: `Skip ${formatDate(date)}`,
-              onPress: async () => {
-                await skipDate('course', course.id, date);
-                toast(`${course.code} hidden on ${formatDate(date)}`);
+    Alert.alert(
+      `${course.code} · Section ${course.sectionId}`,
+      `${course.title}\n${course.instructor}\n\n${lines.join('\n')}`,
+      [
+        { text: 'Close', style: 'cancel' },
+        ...(date
+          ? [
+              {
+                text: `Skip ${formatDate(date)}`,
+                onPress: async () => {
+                  await skipDate('course', course.id, date);
+                  toast(`${course.code} hidden on ${formatDate(date)}`);
+                },
               },
-            },
-          ]
-        : []),
-      {
-        text: 'Drop course',
-        style: 'destructive' as const,
-        onPress: async () => {
-          await removeCourse(course.id);
-          toast(`${course.code} removed from your schedule`);
+            ]
+          : []),
+        {
+          text: 'Drop course',
+          style: 'destructive' as const,
+          onPress: async () => {
+            await removeCourse(course.id);
+            toast(`${course.code} removed from your schedule`);
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const openEvent = (event: PersonalEvent, date?: ISODate) => {
     const when =
-      event.repeat === 'none' ? formatDate(event.date) : `${repeatLabel(event.repeat)} · from ${formatDate(event.date)}`;
+      event.repeat === 'none'
+        ? formatDate(event.date)
+        : `${repeatLabel(event.repeat)} · from ${formatDate(event.date)}`;
     const where = event.location ? `\n${event.location}` : '';
-    Alert.alert(event.name, `${when}\n${formatTime(event.start)}–${formatTime(event.end)}${where}`, [
+    Alert.alert(event.name, `${when}\n${formatEventTime(event)}${where}`, [
       { text: 'Close', style: 'cancel' },
       ...(date && event.repeat !== 'none'
         ? [
@@ -111,7 +127,8 @@ export function ScheduleScreen({ onOpenMap }: Props) {
       if (course) openCourse(course, block.date);
     } else {
       const event = schedule.events.find((x) => x.id === block.sourceId);
-      if (event) openEvent(event, block.date);
+      // Continuação depois da meia-noite → "Skip" pula a ocorrência do dia em que o evento começou.
+      if (event) openEvent(event, block.startedOn);
     }
   };
 
@@ -123,10 +140,8 @@ export function ScheduleScreen({ onOpenMap }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: footerBottom + FAB_SIZE + 40 }]}
-        showsVerticalScrollIndicator={false}
-      >
+      {/* Topo FIXO: botão "Campus map" (voltar), título e subtítulo não rolam junto com a agenda. */}
+      <View style={[styles.content, { paddingTop: insets.top + 16 }]}>
         <Pressable
           onPress={onOpenMap}
           style={({ pressed }) => [styles.mapLink, pressed && { opacity: 0.7 }]}
@@ -143,25 +158,36 @@ export function ScheduleScreen({ onOpenMap }: Props) {
         <Text style={styles.subtitle}>
           {mode === 'week' ? 'Your week, at a glance.' : 'Your classes, all in one place.'}
         </Text>
+      </View>
 
-        {mode === 'week' ? (
+      {mode === 'week' ? (
+        // Week View: semana + dias da semana ficam fixos; só a grade de horas rola (dentro da WeekView).
+        <View style={[styles.content, styles.weekArea, { paddingBottom: footerBottom }]}>
           <WeekView
             weekStart={weekStart}
             today={today}
             days={days}
+            nowMinutes={nowMinutes}
+            bottomPadding={FAB_SIZE + 28}
             onPrevWeek={() => setWeekStart((w) => addDays(w, -7))}
             onNextWeek={() => setWeekStart((w) => addDays(w, 7))}
             onPressBlock={openBlock}
           />
-        ) : (
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={[styles.content, { paddingBottom: footerBottom + FAB_SIZE + 40 }]}
+          showsVerticalScrollIndicator={false}
+        >
           <BlockView
             courses={schedule.courses}
             events={schedule.events}
             onPressCourse={(course) => openCourse(course)}
             onPressEvent={(event) => openEvent(event)}
           />
-        )}
-      </ScrollView>
+        </ScrollView>
+      )}
 
       {/* "+" e legenda, logo acima da barra inferior */}
       <View style={[styles.footer, { bottom: footerBottom }]} pointerEvents="box-none">
@@ -232,7 +258,14 @@ const makeStyles = (c: AppColors) =>
   StyleSheet.create({
     screen: { flex: 1, backgroundColor: c.page },
     content: { paddingHorizontal: 18 },
-    mapLink: { flexDirection: 'row', alignItems: 'center', gap: 14, alignSelf: 'flex-start' },
+    flex: { flex: 1 },
+    weekArea: { flex: 1 },
+    mapLink: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      alignSelf: 'flex-start',
+    },
     mapButton: {
       width: 48,
       height: 48,
@@ -242,8 +275,20 @@ const makeStyles = (c: AppColors) =>
       justifyContent: 'center',
     },
     mapText: { fontFamily: fonts.regular, fontSize: 15, color: c.muted },
-    title: { fontFamily: fonts.bold, fontSize: 32, color: c.text, marginTop: 28, letterSpacing: -0.5 },
-    subtitle: { fontFamily: fonts.regular, fontSize: 15, color: c.muted, marginTop: 6, marginBottom: 24 },
+    title: {
+      fontFamily: fonts.bold,
+      fontSize: 32,
+      color: c.text,
+      marginTop: 28,
+      letterSpacing: -0.5,
+    },
+    subtitle: {
+      fontFamily: fonts.regular,
+      fontSize: 15,
+      color: c.muted,
+      marginTop: 6,
+      marginBottom: 24,
+    },
     footer: {
       position: 'absolute',
       left: 18,
@@ -292,7 +337,13 @@ const makeStyles = (c: AppColors) =>
       borderTopWidth: 1,
       borderTopColor: c.cardBorder,
     },
-    tab: { flex: 1, alignItems: 'center', gap: 4, paddingVertical: 8, borderRadius: 18 },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: 8,
+      borderRadius: 18,
+    },
     tabSelected: { backgroundColor: c.accentSoft },
     tabLabel: { fontFamily: fonts.medium, fontSize: 14, color: c.muted },
     tabLabelSelected: { fontFamily: fonts.semibold, color: c.accentSoftText },

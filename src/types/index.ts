@@ -107,6 +107,11 @@ export interface EventDraft {
   date: ISODate; // primeiro dia
   start: TimeOfDay;
   end: TimeOfDay;
+  /**
+   * true = termina no DIA SEGUINTE ao início (ex.: 23:30 → 02:30).
+   * Nesse caso `end` é o horário no dia seguinte. Sem o campo = começa e termina no mesmo dia.
+   */
+  endsNextDay?: boolean;
   repeat: RepeatRule;
 }
 

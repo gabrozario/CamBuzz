@@ -3,11 +3,10 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useFriends } from '../../services/friends/FriendsProvider';
 import { confirmConflicts } from '../../services/schedule/confirmConflicts';
-import { describeConflict, repeatLabel } from '../../services/schedule/scheduleLogic';
+import { describeConflict, formatEventTime, repeatLabel } from '../../services/schedule/scheduleLogic';
 import { useSchedule } from '../../services/schedule/ScheduleProvider';
 import { colors, fonts, mixHex, useAppTheme, type AppColors } from '../../theme';
 import { formatDate } from '../../utils/dates';
-import { formatTime } from '../../utils/time';
 import { AppButton } from '../ui/AppButton';
 import { DialogCard } from '../ui/DialogCard';
 import { useToast } from '../ui/Toast';
@@ -70,7 +69,7 @@ export function EventInviteModal() {
         <View style={styles.detail}>
           <Clock size={18} color={c.muted} strokeWidth={1.8} />
           <Text style={styles.detailText}>
-            {formatTime(event.start)} – {formatTime(event.end)}
+            {formatEventTime(event)}
           </Text>
         </View>
         {!!event.location && (

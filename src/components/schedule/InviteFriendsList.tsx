@@ -9,7 +9,7 @@ import { formatDate } from '../../utils/dates';
 
 interface Props {
   /** Dia e horário do evento (null = ainda não escolhido → não dá para ver quem está livre). */
-  when: Pick<EventDraft, 'date' | 'start' | 'end'> | null;
+  when: Pick<EventDraft, 'date' | 'start' | 'end' | 'endsNextDay'> | null;
   selectedIds: string[];
   onToggle: (friendId: string) => void;
 }
