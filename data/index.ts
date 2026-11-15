@@ -65,13 +65,15 @@ export function getBuildingOccupancy(buildingId: string): BuildingOccupancyDetai
 export const allResourceLocations: ResourceLocation[] = resourceCategories.flatMap((c) => c.locations);
 
 /**
- * "Agora" fixo para a demo, para o mapa sempre mostrar um meio de dia interessante
- * (igual ao Figma: "Today · 11:15 AM"). Troque por `null` para usar o relógio real.
+ * "Agora" do app. `null` = relógio REAL do celular (padrão — a agenda fica sincronizada
+ * com a hora do aparelho e a linha vermelha da Week View anda sozinha).
+ * Para uma apresentação sempre igual, troque por um horário fixo, ex.: '11:15'
+ * (igual ao Figma: "Today · 11:15 AM").
  */
-export const DEMO_NOW: string | null = '11:15';
+export const DEMO_NOW: string | null = null;
 
 /**
- * "Hoje" fixo para a demo: segunda-feira, 16/11/2026 (dia com as 5 aulas do mapa).
- * Troque por `null` para usar a data real.
+ * "Hoje" do app. `null` = data REAL do celular (padrão).
+ * Para a demo fixa, use '2026-11-16' (segunda-feira com as 5 aulas do mapa).
  */
-export const DEMO_TODAY: ISODate | null = '2026-11-16';
+export const DEMO_TODAY: ISODate | null = null;

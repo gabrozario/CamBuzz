@@ -36,7 +36,7 @@ export function repeatLabel(rule: RepeatRule): string {
 const isWeekend = (iso: ISODate) => ['Sat', 'Sun'].includes(weekdayOf(iso));
 
 /** O evento acontece nesta data? (respeita "Repeat" e dias pulados) */
-export function occursOn(event: EventDraft & { skipDates?: ISODate[] }, iso: ISODate): boolean {
+export function occursOn(event: Pick<EventDraft, 'date' | 'repeat'> & { skipDates?: ISODate[] }, iso: ISODate): boolean {
   if (iso < event.date || event.skipDates?.includes(iso)) return false;
   switch (event.repeat) {
     case 'none':
@@ -50,6 +50,42 @@ export function occursOn(event: EventDraft & { skipDates?: ISODate[] }, iso: ISO
     case 'monthly':
       return dayOfMonth(iso) === dayOfMonth(event.date);
   }
+}
+
+/** O pedaço de um evento que cai num dia da agenda. */
+export interface EventPortion {
+  start: TimeOfDay;
+  /** "24:00" = vai até a meia-noite (o evento continua no dia seguinte). */
+  end: TimeOfDay;
+  /** Dia em que esta ocorrência do evento começou (o dia anterior, se `continued`). */
+  startedOn: ISODate;
+  /** true = é a continuação, depois da meia-noite, de um evento que começou ontem. */
+  continued: boolean;
+}
+
+/**
+ * Pedaços do evento nesta data. Evento normal → no máximo 1.
+ * Evento que vira a noite (23:30 → 02:30) → "23:30–24:00" no dia em que começa
+ * e "00:00–02:30" no dia seguinte.
+ */
+export function eventPortionsOn(
+  event: Pick<EventDraft, 'date' | 'start' | 'end' | 'endsNextDay' | 'repeat'> & { skipDates?: ISODate[] },
+  iso: ISODate,
+): EventPortion[] {
+  const portions: EventPortion[] = [];
+  const yesterday = addDays(iso, -1);
+  if (event.endsNextDay && toMinutes(event.end) > 0 && occursOn(event, yesterday)) {
+    portions.push({ start: '00:00', end: event.end, startedOn: yesterday, continued: true });
+  }
+  if (occursOn(event, iso)) {
+    portions.push({ start: event.start, end: event.endsNextDay ? '24:00' : event.end, startedOn: iso, continued: false });
+  }
+  return portions;
+}
+
+/** "11:30 PM – 2:30 AM (next day)" / "6:00 PM – 7:00 PM" */
+export function formatEventTime(event: Pick<EventDraft, 'start' | 'end' | 'endsNextDay'>): string {
+  return `${formatTime(event.start)} – ${formatTime(event.end)}${event.endsNextDay ? ' (next day)' : ''}`;
 }
 
 /** Encontros do curso nesta data (vazio fora do semestre, em dias sem aula ou pulados). */
@@ -67,8 +103,14 @@ export interface ScheduleBlock {
   date: ISODate;
   label: string; // "CS 1332" ou o nome do evento
   detail: string; // "Lecture" / local do evento
+  /** Início/fim DENTRO deste dia ("24:00" se o evento passa da meia-noite). */
   start: TimeOfDay;
   end: TimeOfDay;
+  /** Dia em que esta ocorrência começou (≠ date na continuação de um evento que virou a noite). */
+  startedOn: ISODate;
+  /** Quando esta ocorrência termina DE VERDADE (para saber se já passou). */
+  endsOn: ISODate;
+  endsAt: TimeOfDay;
   color: string;
   buildingId?: string;
   room?: string;
@@ -88,6 +130,9 @@ export function blocksOnDate(schedule: MySchedule, iso: ISODate): ScheduleBlock[
         detail: m.kind,
         start: m.start,
         end: m.end,
+        startedOn: iso,
+        endsOn: iso,
+        endsAt: m.end,
         color: course.color,
         buildingId: m.buildingId,
         room: m.room,
@@ -95,19 +140,23 @@ export function blocksOnDate(schedule: MySchedule, iso: ISODate): ScheduleBlock[
     );
   }
   for (const event of schedule.events) {
-    if (!occursOn(event, iso)) continue;
-    blocks.push({
-      key: `${event.id}-${iso}`,
-      type: 'event',
-      sourceId: event.id,
-      date: iso,
-      label: event.name,
-      detail: event.location,
-      start: event.start,
-      end: event.end,
-      color: EVENT_COLOR,
-      buildingId: event.buildingId,
-    });
+    for (const p of eventPortionsOn(event, iso)) {
+      blocks.push({
+        key: `${event.id}-${p.startedOn}${p.continued ? '-cont' : ''}`,
+        type: 'event',
+        sourceId: event.id,
+        date: iso,
+        label: event.name,
+        detail: event.location,
+        start: p.start,
+        end: p.end,
+        startedOn: p.startedOn,
+        endsOn: event.endsNextDay ? addDays(p.startedOn, 1) : p.startedOn,
+        endsAt: event.end,
+        color: EVENT_COLOR,
+        buildingId: event.buildingId,
+      });
+    }
   }
   return blocks.sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
 }
@@ -145,14 +194,17 @@ export interface Conflict {
   label: string;
   /** Datas em que bate (a primeira é a mais próxima). */
   dates: ISODate[];
+  /**
+   * Dias em que as ocorrências em conflito COMEÇAM (é isso que o "Replace" pula).
+   * Igual a `dates`, menos para um evento que vira a noite e bate só na parte depois da meia-noite.
+   */
+  startDates: ISODate[];
   start: TimeOfDay;
   end: TimeOfDay;
 }
 
 function candidateIntervals(schedule: MySchedule, candidate: Candidate, iso: ISODate) {
-  if (candidate.type === 'event') {
-    return occursOn(candidate.draft, iso) ? [{ start: candidate.draft.start, end: candidate.draft.end }] : [];
-  }
+  if (candidate.type === 'event') return eventPortionsOn(candidate.draft, iso);
   if (iso < schedule.termStart || iso > schedule.termEnd) return [];
   return candidate.meetings.filter((m) => m.days.includes(weekdayOf(iso)));
 }
@@ -165,7 +217,8 @@ function candidateIntervals(schedule: MySchedule, candidate: Candidate, iso: ISO
 export function findConflicts(schedule: MySchedule, candidate: Candidate, from: ISODate): Conflict[] {
   const start = candidate.type === 'event' ? candidate.draft.date : from;
   const repeats = candidate.type === 'course' || candidate.draft.repeat !== 'none';
-  const days = repeats ? CONFLICT_HORIZON_DAYS : 1;
+  // Evento único que vira a noite ocupa 2 dias.
+  const days = repeats ? CONFLICT_HORIZON_DAYS : candidate.draft.endsNextDay ? 2 : 1;
   const byKey = new Map<string, Conflict>();
 
   for (let i = 0; i < days; i++) {
@@ -177,13 +230,16 @@ export function findConflicts(schedule: MySchedule, candidate: Candidate, from: 
       if (!mine.some((m) => overlaps(m.start, m.end, block.start, block.end))) continue;
       const key = `${block.type}:${block.sourceId}:${block.start}`;
       const existing = byKey.get(key);
-      if (existing) existing.dates.push(iso);
-      else
+      if (existing) {
+        existing.dates.push(iso);
+        if (!existing.startDates.includes(block.startedOn)) existing.startDates.push(block.startedOn);
+      } else
         byKey.set(key, {
           type: block.type,
           sourceId: block.sourceId,
           label: block.label,
           dates: [iso],
+          startDates: [block.startedOn],
           start: block.start,
           end: block.end,
         });
@@ -220,7 +276,7 @@ export function applyReplacement(schedule: MySchedule, conflicts: Conflict[], ca
       if (ev.repeat === 'none') events = events.filter((x) => x.id !== c.sourceId);
       else
         events = events.map((x) =>
-          x.id === c.sourceId ? { ...x, skipDates: [...(x.skipDates ?? []), ...c.dates] } : x,
+          x.id === c.sourceId ? { ...x, skipDates: [...(x.skipDates ?? []), ...c.startDates] } : x,
         );
     }
   }
@@ -236,16 +292,18 @@ export function applyReplacement(schedule: MySchedule, conflicts: Conflict[], ca
 export function friendSessionsOnDate(friend: Friend, acceptedEvents: PersonalEvent[], iso: ISODate): ClassSession[] {
   const classes = isWeekend(iso) ? [] : friend.schedule;
   const events: ClassSession[] = acceptedEvents
-    .filter((e) => e.buildingId && occursOn(e, iso))
-    .map((e) => ({
-      id: `${friend.id}-${e.id}`,
-      course: e.name,
-      title: e.name,
-      kind: 'Event',
-      buildingId: e.buildingId!,
-      start: e.start,
-      end: e.end,
-    }));
+    .filter((e) => e.buildingId)
+    .flatMap((e) =>
+      eventPortionsOn(e, iso).map((p) => ({
+        id: `${friend.id}-${e.id}${p.continued ? '-cont' : ''}`,
+        course: e.name,
+        title: e.name,
+        kind: 'Event' as const,
+        buildingId: e.buildingId!,
+        start: p.start,
+        end: p.end,
+      })),
+    );
   return [...classes, ...events].sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
 }
 
@@ -258,15 +316,23 @@ export interface Availability {
 export function friendAvailability(
   friend: Friend,
   acceptedEvents: PersonalEvent[],
-  when: Pick<EventDraft, 'date' | 'start' | 'end'>,
+  when: Pick<EventDraft, 'date' | 'start' | 'end' | 'endsNextDay'>,
 ): Availability {
-  const classes = isWeekend(when.date) ? [] : friend.schedule;
-  const busy = [
-    ...classes.map((s) => ({ label: s.kind === 'Study session' ? s.title : s.course, start: s.start, end: s.end })),
-    ...acceptedEvents.filter((e) => occursOn(e, when.date)).map((e) => ({ label: e.name, start: e.start, end: e.end })),
-  ].filter((b) => overlaps(b.start, b.end, when.start, when.end));
+  const once = { ...when, repeat: 'none' as const };
+  // O evento pode cair em 2 dias (se vira a noite): confere cada pedaço com o que o amigo tem naquele dia.
+  const days = when.endsNextDay ? [when.date, addDays(when.date, 1)] : [when.date];
+  const busy = days.flatMap((iso, dayIndex) => {
+    const mine = eventPortionsOn(once, iso);
+    const classes = isWeekend(iso) ? [] : friend.schedule;
+    return [
+      ...classes.map((s) => ({ label: s.kind === 'Study session' ? s.title : s.course, start: s.start, end: s.end })),
+      ...acceptedEvents.flatMap((e) => eventPortionsOn(e, iso).map((p) => ({ label: e.name, start: p.start, end: p.end }))),
+    ]
+      .filter((b) => mine.some((m) => overlaps(b.start, b.end, m.start, m.end)))
+      .map((b) => ({ ...b, dayIndex }));
+  });
 
   if (!busy.length) return { free: true, text: `Free · nothing from ${formatTime(when.start)} to ${formatTime(when.end)}` };
-  const first = busy.sort((a, b) => toMinutes(a.start) - toMinutes(b.start))[0];
+  const first = busy.sort((a, b) => a.dayIndex - b.dayIndex || toMinutes(a.start) - toMinutes(b.start))[0];
   return { free: false, text: `Busy · ${first.label} until ${formatTime(first.end)}` };
 }

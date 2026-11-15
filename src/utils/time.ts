@@ -7,9 +7,16 @@ export function toMinutes(time: TimeOfDay): number {
   return h * 60 + m;
 }
 
-/** "14:30" -> "2:30 PM" */
+/** 870 -> "14:30" (o contrário de toMinutes; 1440+ volta a contar do 00:00). */
+export function toTime(minutes: number): TimeOfDay {
+  const m = ((minutes % 1440) + 1440) % 1440;
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+}
+
+/** "14:30" -> "2:30 PM" ("24:00", fim do dia na agenda, -> "12:00 AM") */
 export function formatTime(time: TimeOfDay): string {
-  const [h, m] = time.split(':').map(Number);
+  const [rawH, m] = time.split(':').map(Number);
+  const h = rawH % 24;
   const suffix = h >= 12 ? 'PM' : 'AM';
   const hour12 = h % 12 === 0 ? 12 : h % 12;
   return `${hour12}:${String(m).padStart(2, '0')} ${suffix}`;

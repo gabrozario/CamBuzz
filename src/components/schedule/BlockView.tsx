@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { getBuilding } from '../../../data';
 import { useFriends } from '../../services/friends/FriendsProvider';
-import { EVENT_COLOR, repeatLabel } from '../../services/schedule/scheduleLogic';
+import { EVENT_COLOR, formatEventTime, repeatLabel } from '../../services/schedule/scheduleLogic';
 import { fonts, useAppTheme, type AppColors } from '../../theme';
 import type { EnrolledCourse, PersonalEvent } from '../../types';
 import { formatDate, formatDaysLong } from '../../utils/dates';
@@ -102,7 +102,7 @@ export function BlockView({ courses, events, onPressCourse, onPressEvent }: Prop
                 {event.repeat === 'none' ? formatDate(event.date) : `Starting ${formatDate(event.date)}`}
               </Text>
               <Text style={[styles.time, { color: accent }]}>
-                {formatTime(event.start)} – {formatTime(event.end)}
+                {formatEventTime(event)}
               </Text>
             </View>
             {(event.invites.length > 0 || event.invitedBy) && (

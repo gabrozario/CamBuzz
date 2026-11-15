@@ -117,6 +117,7 @@ src/
     route.ts                 # buildDayRoute (paradas + trechos + "next leg"), regionFor, WAYPOINTS
     geo.ts                   # distâncias em metros, ponto mais próximo num caminho, minutos a pé
   hooks/useActiveFilters.ts  # quais filtros estão ligados (Events+People combinam)
+  hooks/useClock.ts          # relógio ao vivo do celular: { today, minutes } (atualiza a cada minuto e ao voltar do 2º plano)
   filters/
     filterConfig.ts          # lista dos 4 filtros (label, ícone, combinável, status)
     events/                  # ✅ filtro de Eventos (ver abaixo)
@@ -124,7 +125,7 @@ src/
   components/
     friends/AddFriendModal.tsx  # popup "Add Friends" (link + email)
     Checkbox.tsx             # checkbox do Figma (só visual)
-    map/CampusMap.tsx        # MapView base estilizado (recebe camadas como children; aceita ref)
+    map/CampusMap.tsx        # MapView base estilizado (recebe camadas como children; aceita ref). GT_CAMPUS_BOUNDS = campus inteiro (visão ao abrir o app e sem filtros)
     map/DayRouteLayer.tsx    # desenha o caminho de UM dia (reusar para amigos!)
     map/StopMarker.tsx       # marcador numerado + chip de horário
     map/useTracksViewChanges.ts  # truque para marcadores customizados no Android
@@ -221,6 +222,9 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
   - Conflitos de coisas que se repetem são procurados até 120 dias à frente (`CONFLICT_HORIZON_DAYS`).
 - **Invite friends:** lista os amigos com "Free · …" / "Busy · CS 1332 until 1:20 PM" (puxa a agenda deles; na demo as aulas do `friends.json` valem de seg a sex). Na demo, quem está livre **aceita sozinho ~3,5 s depois** e o evento entra no dia dele (aparece no filtro People).
 - **Convite recebido:** popup "Maya invited you" (Accept/Decline) por cima de qualquer tela; aceitar põe na sua agenda (com a mesma checagem de conflito). Demo: `data/invites.json`.
+- **Trocar de semana:** setas ‹ › ou **arrastar a grade para os lados** (esquerda→direita = semana anterior; direita→esquerda = próxima). Gesto `usePanGesture` (gesture-handler v3) no `WeekView.tsx`.
+- **Week View:** topo fixo ("Campus map", título, semana e dias da semana); só a grade de horas rola, por baixo do cabeçalho. Grade do dia inteiro (12 AM–12 AM); ao abrir, começa 1 hora antes da linha vermelha (`LEAD_MINUTES` em `WeekView.tsx`); **linha vermelha** do "agora" na coluna de hoje (`useClock`, anda a cada minuto, cor `nowLine`); blocos que já terminaram ficam apagados (opacidade 0.45).
+- **Eventos que viram a noite:** no Add Event, a lista do "To" continua depois da meia-noite (separador "Next day"). Salvo como `endsNextDay: true` (`end` = horário do dia seguinte). `eventPortionsOn()` em `scheduleLogic.ts` corta em 2 pedaços ("23:30–24:00" no dia do início + "00:00–02:30" no dia seguinte) — use essa função sempre que precisar dos horários de um evento num dia.
 - Tocar num curso/evento (Week ou Block View) → detalhes + "Skip <dia>" / "Drop course" / "Delete event".
 - **Tudo em memória** (some ao fechar o app), igual aos amigos. Para o futuro: `apiScheduleService` / `apiCatalogService` com as mesmas funções; catálogo real do gt-scheduler (ver comentário em `catalogService.ts`); notificação push para convites.
 
@@ -245,7 +249,7 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
 
 ## Convenções
 - Horários são strings `"HH:MM"` 24h; converta com `toMinutes()` para comparar.
-- `DEMO_NOW` em `data/index.ts` fixa o "agora" em 11:15 e `DEMO_TODAY` fixa "hoje" em segunda, 16/11/2026, para a demo ficar sempre igual (ponha `null` para usar o relógio/data reais).
+- `DEMO_NOW` / `DEMO_TODAY` em `data/index.ts` estão em `null` = o app usa a **data e hora reais do celular**. Para uma apresentação sempre igual, ponha `'11:15'` e `'2026-11-16'` (segunda com as 5 aulas do mapa).
 - Datas são strings `"YYYY-MM-DD"` (use `src/utils/dates.ts`).
 - Textos da interface em **inglês** (como no Figma); comentários do código podem ser em português.
 - Marcadores customizados no Android: use o hook `useTracksViewChanges([deps])` (liga ao montar/mudar, desliga depois).

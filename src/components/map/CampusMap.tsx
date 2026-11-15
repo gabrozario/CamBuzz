@@ -1,20 +1,32 @@
 import type { ReactNode, Ref } from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, type EdgePadding, type Region } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, type EdgePadding, type LatLng, type Region } from 'react-native-maps';
 import { useAppTheme } from '../../theme';
 
-/** Centro aproximado do campus da Georgia Tech (Tech Green). */
+/**
+ * Cantos do campus principal da Georgia Tech (aprox.): North Ave (sul) até a 10th St (norte),
+ * Northside Dr/Hemphill (oeste) até a Tech Square (leste). É o que o mapa mostra ao abrir o app.
+ * Todos os prédios/eventos/comidas de /data ficam dentro desse retângulo.
+ */
+export const GT_CAMPUS_BOUNDS: LatLng[] = [
+  { latitude: 33.7705, longitude: -84.4065 }, // sudoeste
+  { latitude: 33.782, longitude: -84.3895 }, // nordeste
+];
+
+/** O campus inteiro, como região do mapa (centro + tamanho). */
 export const GT_REGION: Region = {
-  latitude: 33.7756,
-  longitude: -84.3963,
-  latitudeDelta: 0.012,
-  longitudeDelta: 0.012,
+  latitude: (GT_CAMPUS_BOUNDS[0].latitude + GT_CAMPUS_BOUNDS[1].latitude) / 2,
+  longitude: (GT_CAMPUS_BOUNDS[0].longitude + GT_CAMPUS_BOUNDS[1].longitude) / 2,
+  latitudeDelta: GT_CAMPUS_BOUNDS[1].latitude - GT_CAMPUS_BOUNDS[0].latitude,
+  longitudeDelta: GT_CAMPUS_BOUNDS[1].longitude - GT_CAMPUS_BOUNDS[0].longitude,
 };
 
 interface Props {
   /** Ref do MapView, para mover a câmera (fitToCoordinates, animateToRegion...). */
   ref?: Ref<MapView>;
   initialRegion?: Region;
+  /** Chamado quando o mapa terminou de carregar (bom momento para enquadrar a câmera). */
+  onMapReady?: () => void;
   /** Espaço ocupado por barras/cards sobre o mapa, para o enquadramento não ficar escondido. */
   padding?: EdgePadding;
   /** Camadas desenhadas no mapa (caminhos, marcadores de eventos, amigos...). */
@@ -22,7 +34,7 @@ interface Props {
 }
 
 /** O mapa base do campus, com o estilo bege do Figma (ou verde-escuro no modo escuro). Não sabe nada sobre filtros. */
-export function CampusMap({ ref, initialRegion = GT_REGION, padding, children }: Props) {
+export function CampusMap({ ref, initialRegion = GT_REGION, onMapReady, padding, children }: Props) {
   const { mapStyle, colors, isDark } = useAppTheme();
   return (
     <MapView
@@ -36,6 +48,7 @@ export function CampusMap({ ref, initialRegion = GT_REGION, padding, children }:
       customMapStyle={mapStyle}
       userInterfaceStyle={isDark ? 'dark' : 'light'}
       initialRegion={initialRegion}
+      onMapReady={onMapReady}
       mapPadding={padding}
       showsPointsOfInterests={false}
       showsBuildings

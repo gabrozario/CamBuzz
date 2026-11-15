@@ -6,10 +6,10 @@ import { useFriends } from '../../services/friends/FriendsProvider';
 import { confirmConflicts } from '../../services/schedule/confirmConflicts';
 import { useSchedule } from '../../services/schedule/ScheduleProvider';
 import { fonts, useAppTheme, type AppColors } from '../../theme';
-import type { EventDraft, RepeatRule, TimeOfDay } from '../../types';
+import type { EventDraft, RepeatRule } from '../../types';
 import { matchBuilding } from '../../utils/buildingSearch';
-import { formatDate } from '../../utils/dates';
-import { formatTime, toMinutes } from '../../utils/time';
+import { addDays, formatDate } from '../../utils/dates';
+import { formatTime, toTime } from '../../utils/time';
 import { AppButton } from '../ui/AppButton';
 import { DialogCard } from '../ui/DialogCard';
 import { FieldGroup, FieldLabel, FormInput, PickerField } from '../ui/FormField';
@@ -33,10 +33,7 @@ function joinNames(names: string[]): string {
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
 
-function plusOneHour(time: TimeOfDay): TimeOfDay {
-  const m = Math.min(toMinutes(time) + 60, 23 * 60 + 59);
-  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-}
+const DAY = 24 * 60;
 
 /**
  * Popup "Add Event" (Figma "Schedule · Add Event" + "Invite friends"):
@@ -53,8 +50,9 @@ export function AddEventModal({ visible, onClose }: Props) {
   const [step, setStep] = useState<'form' | 'invite'>('form');
   const [name, setName] = useState('');
   const [date, setDate] = useState(today);
-  const [start, setStart] = useState<TimeOfDay | null>(null);
-  const [end, setEnd] = useState<TimeOfDay | null>(null);
+  // Horários em MINUTOS desde a meia-noite do dia do evento. `end` >= 1440 = termina no dia seguinte.
+  const [start, setStart] = useState<number | null>(null);
+  const [end, setEnd] = useState<number | null>(null);
   const [repeat, setRepeat] = useState<RepeatRule>('none');
   const [location, setLocation] = useState('');
   const [buildingId, setBuildingId] = useState<string | undefined>();
@@ -80,6 +78,11 @@ export function AddEventModal({ visible, onClose }: Props) {
     setSaving(false);
   }, [visible, today]);
 
+  /** Horários no formato salvo na agenda ("HH:MM" + endsNextDay). */
+  const timing =
+    start !== null && end !== null ? { start: toTime(start), end: toTime(end), endsNextDay: end >= DAY } : null;
+  const nextDay = addDays(date, 1);
+
   const invitedNames = friends.filter((f) => invited.includes(f.id)).map((f) => f.name.split(' ')[0]);
 
   /** Abre/fecha uma caixa de seleção (só uma aberta por vez). */
@@ -91,15 +94,16 @@ export function AddEventModal({ visible, onClose }: Props) {
     setError(null);
   };
 
-  const pickTime = (kind: 'start' | 'end', time: TimeOfDay) => {
+  const pickTime = (kind: 'start' | 'end', minutes: number) => {
     setError(null);
     if (kind === 'start') {
-      setStart(time);
-      // "To" automático: 1 hora depois (se ainda não escolhido ou ficou antes do início).
-      if (!end || toMinutes(end) <= toMinutes(time)) setEnd(plusOneHour(time));
+      setStart(minutes);
+      // "To" automático: 1 hora depois (se ainda não escolhido, ficou antes do início ou passou de 24 h).
+      // Ex.: começa 11:30 PM → termina 12:30 AM do dia seguinte.
+      if (end === null || end <= minutes || end - minutes >= DAY) setEnd(minutes + 60);
       setPicker(null);
     } else {
-      setEnd(time);
+      setEnd(minutes);
       setPicker(null);
     }
   };
@@ -117,10 +121,19 @@ export function AddEventModal({ visible, onClose }: Props) {
   const submit = async () => {
     if (saving) return;
     if (!name.trim()) return setError('Give your event a name.');
-    if (!start || !end) return setError('Choose when it starts and ends.');
-    if (toMinutes(end) <= toMinutes(start)) return setError('The end time must be after the start time.');
+    if (start === null || end === null || !timing) return setError('Choose when it starts and ends.');
+    if (end <= start) return setError('The end time must be after the start time.');
 
-    const draft: EventDraft = { name: name.trim(), location: location.trim(), buildingId, date, start, end, repeat };
+    const draft: EventDraft = {
+      name: name.trim(),
+      location: location.trim(),
+      buildingId,
+      date,
+      start: timing.start,
+      end: timing.end,
+      ...(timing.endsNextDay ? { endsNextDay: true } : {}),
+      repeat,
+    };
     const conflicts = conflictsFor({ type: 'event', draft });
     const choice = await confirmConflicts(conflicts, draft.name);
     if (choice === 'cancel') return;
@@ -154,7 +167,7 @@ export function AddEventModal({ visible, onClose }: Props) {
       {step === 'invite' ? (
         <>
           <InviteFriendsList
-            when={start && end ? { date, start, end } : null}
+            when={timing ? { date, ...timing } : null}
             selectedIds={invited}
             onToggle={(id) => setInvited((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))}
           />
@@ -194,7 +207,7 @@ export function AddEventModal({ visible, onClose }: Props) {
               <View style={styles.flex}>
                 <Text style={styles.subLabel}>From</Text>
                 <PickerField
-                  value={start && formatTime(start)}
+                  value={start !== null ? formatTime(toTime(start)) : null}
                   placeholder="Select time"
                   icon={Clock}
                   active={picker === 'start'}
@@ -205,7 +218,7 @@ export function AddEventModal({ visible, onClose }: Props) {
               <View style={styles.flex}>
                 <Text style={styles.subLabel}>To</Text>
                 <PickerField
-                  value={end && formatTime(end)}
+                  value={end !== null ? `${formatTime(toTime(end))}${end >= DAY ? ' +1' : ''}` : null}
                   placeholder="Select time"
                   icon={Clock}
                   active={picker === 'end'}
@@ -214,13 +227,18 @@ export function AddEventModal({ visible, onClose }: Props) {
                 />
               </View>
             </View>
-            {picker === 'start' && <TimeSelect value={start} onChange={(t) => pickTime('start', t)} />}
+            {end !== null && end >= DAY && picker !== 'end' && (
+              <Text style={styles.nextDay}>Ends the next day · {formatDate(nextDay)}</Text>
+            )}
+            {picker === 'start' && <TimeSelect value={start} onChange={(m) => pickTime('start', m)} />}
             {picker === 'end' && (
               <TimeSelect
                 value={end}
                 after={start}
-                scrollTo={start ? plusOneHour(start) : '10:00'}
-                onChange={(t) => pickTime('end', t)}
+                // Lista do "To" continua depois da meia-noite → eventos que terminam no dia seguinte.
+                nextDayLabel={formatDate(nextDay)}
+                scrollTo={start !== null ? start + 60 : 10 * 60}
+                onChange={(m) => pickTime('end', m)}
               />
             )}
           </FieldGroup>
@@ -259,6 +277,7 @@ const makeStyles = (c: AppColors) =>
   StyleSheet.create({
     row: { flexDirection: 'row', gap: 12 },
     flex: { flex: 1 },
+    nextDay: { fontFamily: fonts.medium, fontSize: 13, color: c.accentSoftText, marginTop: 8 },
     subLabel: { fontFamily: fonts.medium, fontSize: 13, color: c.muted, marginBottom: 8 },
     bigGap: { marginTop: 32 },
     smallGap: { marginTop: 12 },

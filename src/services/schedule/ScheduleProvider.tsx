@@ -10,13 +10,13 @@ import type {
   MySchedule,
   PersonalEvent,
 } from '../../types';
-import { todayISO } from '../../utils/dates';
+import { useClock } from '../../hooks/useClock';
 import { classesOnDate, findConflicts, type Candidate, type Conflict } from './scheduleLogic';
 import { scheduleService, type ServiceResult } from './scheduleService';
 
 interface ScheduleContextValue {
   schedule: MySchedule;
-  /** Data de "hoje" (DEMO_TODAY na demo). */
+  /** Data de "hoje" (relógio do celular; DEMO_TODAY se estiver definido). */
   today: ISODate;
   /** Suas paradas de hoje para o mapa (aulas + eventos com prédio). */
   todayClasses: ClassSession[];
@@ -48,7 +48,8 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
   const [schedule, setSchedule] = useState<MySchedule>(initialSchedule);
   const [friendEvents, setFriendEvents] = useState<Record<string, PersonalEvent[]>>({});
   const [incomingInvites, setIncoming] = useState<IncomingEventInvite[]>([]);
-  const today = todayISO();
+  // Data do celular, ao vivo (vira o dia sozinha à meia-noite).
+  const { today } = useClock();
 
   const refresh = useCallback(async () => {
     const [s, f, i] = await Promise.all([

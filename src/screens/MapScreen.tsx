@@ -4,7 +4,7 @@ import type MapView from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackPill } from '../components/BackPill';
 import { AddFriendModal } from '../components/friends/AddFriendModal';
-import { CampusMap } from '../components/map/CampusMap';
+import { CampusMap, GT_CAMPUS_BOUNDS, GT_REGION } from '../components/map/CampusMap';
 import { DayRouteLayer } from '../components/map/DayRouteLayer';
 import { FilterBar } from '../components/FilterBar';
 import { InfoChip } from '../components/InfoChip';
@@ -30,7 +30,7 @@ import { enhanceDayRouteWithORS } from '../services/routing/openRouteService';
 import { useSchedule } from '../services/schedule/ScheduleProvider';
 import { spacing, useAppTheme, useThemedStyles, type Palette } from '../theme';
 import type { FilterKey, LatLng } from '../types';
-import { buildDayRoute, regionFor, type DayRoute } from '../utils/route';
+import { buildDayRoute, type DayRoute } from '../utils/route';
 import { formatTime, nowTime } from '../utils/time';
 
 /** Filtros que já têm aba (bottom sheet) implementada. */
@@ -41,6 +41,8 @@ const NO_DAYS: PersonDay[] = [];
 
 /** Margem (dp) usada ao enquadrar pontos no mapa. */
 const FIT_PADDING = { top: 40, right: 40, bottom: 40, left: 40 };
+/** Margem pequena ao enquadrar o campus: mostra o campus todo sem sobrar cidade em volta. */
+const CAMPUS_PADDING = { top: 8, right: 8, bottom: 8, left: 8 };
 
 /**
  * Tela principal: mapa da GT com o caminho do dia + barra de filtros.
@@ -85,7 +87,6 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     };
   }, [baseUserRoute]);
   const stopCoords = useMemo(() => userRoute.stops.map((s) => s.building.coordinate), [userRoute]);
-  const initialRegion = useMemo(() => regionFor(stopCoords), [stopCoords]);
 
   // ---- Filtro People ----
   const people = usePeopleFilter(now);
@@ -163,6 +164,11 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     if (coords.length) mapRef.current?.fitToCoordinates(coords, { edgePadding: FIT_PADDING, animated: true });
   }, []);
 
+  /** O campus inteiro da Georgia Tech (e nada além dele) — a visão de quando o app abre. */
+  const fitCampus = useCallback((animated: boolean) => {
+    mapRef.current?.fitToCoordinates(GT_CAMPUS_BOUNDS, { edgePadding: CAMPUS_PADDING, animated });
+  }, []);
+
   const visibleKey = visibleDays.map((d) => d.person.id).join();
   useEffect(() => {
     // Pequeno atraso para o mapPadding novo ser aplicado antes de mover a câmera.
@@ -197,8 +203,11 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
       const eventCoords = eventsOn ? events.entries.map((e) => e.event.coordinate) : [];
       const resourceCoords = resourcesOn ? resources.activeLocations.map((l) => l.coordinate) : [];
       const foodCoords = foodOn ? food.activeLocations.map((l) => l.coordinate) : [];
+      // Nenhum filtro ligado (tela inicial) → campus inteiro. Com filtros → enquadra o que eles mostram.
+      const anyFilterOn = eventsOn || peopleOn || resourcesOn || foodOn;
       const allCoords = [...routeCoords, ...eventCoords, ...resourceCoords, ...foodCoords];
-      fit(allCoords.length ? allCoords : stopCoords);
+      if (!anyFilterOn || !allCoords.length) fitCampus(true);
+      else fit(allCoords);
     }, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -283,7 +292,8 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   return (
     <View style={styles.screen}>
       <View style={styles.mapArea} onLayout={(e) => setMapHeight(e.nativeEvent.layout.height)}>
-        <CampusMap ref={mapRef} initialRegion={initialRegion} padding={mapPadding}>
+        {/* Abre já no campus inteiro (initialRegion) e reenquadra certinho quando o mapa termina de carregar. */}
+        <CampusMap ref={mapRef} initialRegion={GT_REGION} onMapReady={() => fitCampus(false)} padding={mapPadding}>
           {peopleOn ? (
             <PeopleLayer state={people} />
           ) : (
@@ -343,8 +353,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   );
 }
 
-const makeStyles = (colors: Palette) =>
-  StyleSheet.create({
+const makeStyles = (colors: Palette) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.mapBackground },
   mapArea: { flex: 1 },
   legend: { position: 'absolute', left: 18, right: 18 },
