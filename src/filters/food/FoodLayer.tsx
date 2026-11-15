@@ -59,9 +59,10 @@ export function FoodLayer({ state }: Props) {
     />
   );
 
+  // Com um lugar aberto, só ele aparece (os outros somem; voltam ao fechar a descrição).
   return (
     <>
-      {clusters.map((c) =>
+      {!selectedPin && clusters.map((c) =>
         c.items.length === 1 ? (
           pin(c.items[0].loc, c.items[0].color, c.items[0].categoryId)
         ) : (

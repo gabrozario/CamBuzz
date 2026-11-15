@@ -1,8 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
-import { PlacePin, placePinAnchor, PlacePinLabel, placePinSize } from '../../components/map/PlacePin';
+import { PinNameMarker } from '../../components/map/PinNameMarker';
+import { PlacePin } from '../../components/map/PlacePin';
 import { useTracksViewChanges } from '../../components/map/useTracksViewChanges';
-import { fonts, radius, shadow, useThemedStyles, type Palette } from '../../theme';
 import type { ResourceLocation } from '../../types';
 
 interface Props {
@@ -15,62 +14,32 @@ interface Props {
   onPress: () => void;
 }
 
-/** Alfinete de um recurso/comida no campus (L1, P1, C3...). Selecionado = maior, com o nome em cima. */
+/**
+ * Alfinete de um recurso/comida no campus (L1, P1, C3...). Selecionado = maior, com o nome em cima.
+ * O marcador TOCÁVEL é só o alfinete, sempre do mesmo tamanho (como as impressoras, que clicam
+ * perfeitamente no iPhone). O nome com zoom vai num marcador separado e não tocável (PinNameMarker).
+ */
 export function ResourcePin({ location, color, selected = false, label, onPress }: Props) {
-  const styles = useThemedStyles(makeStyles);
   const withLabel = !!label && !selected;
-  const tracks = useTracksViewChanges([selected, location.id, location.code, color, withLabel]);
-  const pinHeight = placePinSize(selected).height;
+  const tracks = useTracksViewChanges([selected, location.id, location.code, color]);
 
   return (
     <>
       {/* anchor → a PONTA do alfinete fica no local */}
       <Marker
         coordinate={location.coordinate}
-        anchor={placePinAnchor(selected, withLabel)}
+        anchor={{ x: 0.5, y: 1 }}
         tracksViewChanges={tracks}
         zIndex={selected ? 30 : 20}
         onPress={onPress}
       >
-        <View style={styles.pinColumn}>
-          <PlacePin label={location.code} color={color} selected={selected} />
-          {withLabel && <PlacePinLabel text={label} />}
-        </View>
+        <PlacePin label={location.code} color={color} selected={selected} />
       </Marker>
 
-      {selected && (
-        <Marker
-          coordinate={location.coordinate}
-          anchor={{ x: 0.5, y: 1 }}
-          tracksViewChanges={tracks}
-          // Abaixo do alfinete (30): no Android "tappable" não funciona e o chip roubaria o toque.
-          zIndex={29}
-          tappable={false}
-        >
-          <View style={[styles.chipBox, { paddingBottom: pinHeight + 4 }]}>
-            <View style={styles.chip}>
-              <Text style={styles.chipText} numberOfLines={1}>
-                {location.name}
-              </Text>
-            </View>
-          </View>
-        </Marker>
-      )}
+      {withLabel && <PinNameMarker coordinate={location.coordinate} text={label} />}
+
+      {/* Balão com o nome do lugar aberto: EMBAIXO do alfinete, no mesmo lugar do nome. */}
+      {selected && <PinNameMarker coordinate={location.coordinate} text={location.name} variant="bubble" selected />}
     </>
   );
 }
-
-const makeStyles = (colors: Palette) =>
-  StyleSheet.create({
-    pinColumn: { alignItems: 'center' },
-    chipBox: { paddingHorizontal: 6, paddingTop: 6 },
-    chip: {
-      backgroundColor: colors.surface,
-      borderRadius: radius.sm,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      maxWidth: 240,
-      ...shadow,
-    },
-    chipText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.ink },
-  });

@@ -92,6 +92,7 @@ export function PlacePinLabel({ text }: { text: string }) {
 
 const styles = StyleSheet.create({
   mapLabel: {
+    marginTop: 3, // espaço entre a ponta do alfinete e o nome
     height: PLACE_LABEL_HEIGHT,
     maxWidth: 140,
     paddingHorizontal: 4,

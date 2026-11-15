@@ -54,6 +54,9 @@ const MIN_FIT_HEIGHT = 240;
 /** Margem (dp) ao dar zoom num grupo de pinos (grande, para os pinos ficarem bem separados). */
 const ZOOM_PADDING = { top: 80, right: 80, bottom: 80, left: 80 };
 
+/** Zoom ao abrir um lugar (latitudeDelta; menor = mais perto). */
+const PIN_ZOOM_DELTA = 0.003;
+
 /** Margem (dp) usada ao enquadrar pontos no mapa. */
 // Só o necessário para os pinos (círculos de ~30 dp) não ficarem cortados na borda.
 const FIT_PADDING = { top: 24, right: 28, bottom: 24, left: 28 };
@@ -287,23 +290,23 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
         const loc = resources.activeLocations.find((l) => l.buildingId === selectedBuildingDetails.buildingId);
         if (loc) {
           const { latitude, longitude } = loc.coordinate;
-          mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 400);
+          mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: PIN_ZOOM_DELTA, longitudeDelta: PIN_ZOOM_DELTA }, 400);
           return;
         }
       }
       if (selectedFood) {
         const { latitude, longitude } = selectedFood.coordinate;
-        mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 400);
+        mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: PIN_ZOOM_DELTA, longitudeDelta: PIN_ZOOM_DELTA }, 400);
         return;
       }
       if (selectedResource) {
         const { latitude, longitude } = selectedResource.coordinate;
-        mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 400);
+        mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: PIN_ZOOM_DELTA, longitudeDelta: PIN_ZOOM_DELTA }, 400);
         return;
       }
       if (selectedEvent) {
         const { latitude, longitude } = selectedEvent.event.coordinate;
-        mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 400);
+        mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: PIN_ZOOM_DELTA, longitudeDelta: PIN_ZOOM_DELTA }, 400);
         return;
       }
       // Enquadra SÓ o que é do filtro que você está vendo (ex.: restaurantes marcados), bem justo.
@@ -518,6 +521,15 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     food.clearSelection,
   ]);
 
+  // Qual filtro tem um lugar aberto agora (descrição): os alfinetes dos outros somem enquanto isso.
+  const openPlace: FilterKey | null = selectedEvent
+    ? 'events'
+    : selectedFood
+      ? 'food'
+      : selectedResource || selectedBuildingDetails
+        ? 'resources'
+        : null;
+
   // ---- Cartão "My Route" + legenda (canto inferior esquerdo) ----
   const inDetail = !!(selectedEvent || selectedBuildingDetails || selectedResource || selectedFood);
   // Legenda só quando há caminho no mapa (e não no detalhe de um lugar, para não poluir).
@@ -556,9 +568,10 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           ) : (
             myRouteOn && <DayRouteLayer route={userRoute} color={colors.me} highlightNextLeg isMe />
           )}
-          {eventsOn && <EventsLayer state={events} />}
-          {resourcesOn && <ResourcesLayer state={resources} />}
-          {foodOn && <FoodLayer state={food} />}
+          {/* Com um lugar aberto (descrição), só a camada dele aparece — os alfinetes dos outros filtros somem. */}
+          {eventsOn && (!openPlace || openPlace === 'events') && <EventsLayer state={events} />}
+          {resourcesOn && (!openPlace || openPlace === 'resources') && <ResourcesLayer state={resources} />}
+          {foodOn && (!openPlace || openPlace === 'food') && <FoodLayer state={food} />}
           {searchPin && (
             <SearchPin
               coordinate={searchPin.coordinate}
