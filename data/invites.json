@@ -11,6 +11,8 @@
       "end": "20:00",
       "repeat": "none"
     },
-    "status": "pending"
+    "status": "pending",
+    "arrival": "while-away",
+    "receivedAt": "2026-11-16T08:42:00"
   }
 ]

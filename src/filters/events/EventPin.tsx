@@ -21,7 +21,8 @@ export function EventPin({ entry, selected = false, showLabel = false, onPress }
   const styles = useThemedStyles(makeStyles);
   const friendDots = entry.friends.slice(0, 3).map((f) => ({ id: f.person.id, color: f.person.color }));
   const tracks = useTracksViewChanges([selected, entry.number, !!entry.match, friendDots.map((d) => d.id).join(), showLabel]);
-  const offRoute = !entry.match;
+  // Apagado: fora do seu caminho (dia com agenda) ou já terminou.
+  const offRoute = !!entry.dim;
   const pinHeight = placePinSize(selected).height;
   // O nome faz parte do marcador (tocar no nome também abre o evento).
   const withLabel = showLabel && !selected;

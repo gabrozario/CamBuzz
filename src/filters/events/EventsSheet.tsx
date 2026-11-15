@@ -17,15 +17,29 @@ interface Props {
 export function EventsSheet({ state, onClose, onIndexChange }: Props) {
   const styles = useThemedStyles(makeStyles);
   const sheetRef = useRef<FilterSheetHandle>(null);
-  const { sections, selected, select, showAll, setShowAll, matchCount, upcomingCount, withFriendsCount, hasCompanions } =
-    state;
+  const {
+    sections,
+    selected,
+    select,
+    showAll,
+    setShowAll,
+    matchCount,
+    upcomingCount,
+    withFriendsCount,
+    hasCompanions,
+    noPlanToday,
+  } = state;
 
   // Ao escolher um evento (na lista ou no pino do mapa), a aba vai para a altura do meio (30%).
   useEffect(() => {
     if (selected) sheetRef.current?.snapTo(SHEET_MID);
   }, [selected?.event.id]);
 
-  const base = showAll ? `Today · ${upcomingCount} events` : `Today · ${matchCount} on your route`;
+  const base = noPlanToday
+    ? 'Showing all events of the day'
+    : showAll
+      ? `Today · ${upcomingCount} events`
+      : `Today · ${matchCount} on your route`;
   // Com People ligado: quantos dá pra ir com amigos.
   const subtitle = hasCompanions ? `${base} · ${withFriendsCount} with friends` : base;
 
@@ -44,7 +58,9 @@ export function EventsSheet({ state, onClose, onIndexChange }: Props) {
       ) : (
         <SheetScrollView contentContainerStyle={styles.content}>
           {sections.length === 0 && (
-            <Text style={styles.empty}>No events fit between your classes right now.</Text>
+            <Text style={styles.empty}>
+              {noPlanToday ? 'No events today.' : 'No events fit between your classes right now.'}
+            </Text>
           )}
 
           {sections.map((section) => (
@@ -64,11 +80,14 @@ export function EventsSheet({ state, onClose, onIndexChange }: Props) {
             </View>
           ))}
 
-          <Pressable onPress={() => setShowAll(!showAll)} style={styles.toggle} accessibilityRole="button">
-            <Text style={styles.toggleText}>
-              {showAll ? 'Only show events on my route' : `Show all ${upcomingCount} events today`}
-            </Text>
-          </Pressable>
+          {/* Sem agenda hoje não existe "no meu caminho" — já mostra tudo. */}
+          {!noPlanToday && (
+            <Pressable onPress={() => setShowAll(!showAll)} style={styles.toggle} accessibilityRole="button">
+              <Text style={styles.toggleText}>
+                {showAll ? 'Only show events on my route' : `Show all ${upcomingCount} events today`}
+              </Text>
+            </Pressable>
+          )}
         </SheetScrollView>
       )}
     </FilterSheet>

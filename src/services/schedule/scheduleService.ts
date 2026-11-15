@@ -23,8 +23,12 @@ export interface ScheduleService {
   getSchedule(): Promise<MySchedule>;
   /** Eventos que cada amigo aceitou (por id do amigo) — entram no dia dele no mapa. */
   getFriendEvents(): Promise<Record<string, PersonalEvent[]>>;
-  /** Convites de eventos que você recebeu e ainda não respondeu. */
+  /** Convites que chegaram com o app aberto e ainda não foram respondidos (aparecem como popup). */
   getIncomingInvites(): Promise<IncomingEventInvite[]>;
+  /** Central de notificações: todos os convites recebidos, do mais novo para o mais antigo. */
+  getInbox(): Promise<IncomingEventInvite[]>;
+  /** Marca todos os convites como vistos (abriu a central de notificações → some a bolinha vermelha). */
+  markInboxSeen(): Promise<ServiceResult>;
 
   /** Adiciona a section escolhida. Se você já tinha o curso, troca de section. `replace` = conflitos a substituir. */
   addCourse(course: CatalogCourse, sectionId: string, replace?: Conflict[]): Promise<ServiceResult<EnrolledCourse>>;
@@ -46,8 +50,8 @@ export interface ScheduleService {
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const clone = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
 
-/** Demo: o convite da Maya (data/invites.json) "chega" alguns segundos depois de abrir o app. */
-const INCOMING_DELAY_MS = 6000;
+/** Demo: convites com arrival 'live' sem delaySeconds chegam este tempo depois de abrir o app. */
+const DEFAULT_LIVE_DELAY_S = 6;
 /** Demo: quanto tempo o amigo "demora" para aceitar o seu convite. */
 const FRIEND_REPLY_MS = 3500;
 
@@ -100,7 +104,14 @@ export const mockScheduleService: ScheduleService = {
     return friendEvents;
   },
   async getIncomingInvites() {
-    return incoming.filter((i) => i.status === 'pending');
+    return incoming.filter((i) => i.status === 'pending' && i.showPopup);
+  },
+  async getInbox() {
+    return [...incoming].sort((a, b) => (b.receivedAt ?? '').localeCompare(a.receivedAt ?? ''));
+  },
+  async markInboxSeen() {
+    incoming = incoming.map((i) => (i.seen ? i : { ...i, seen: true }));
+    return { ok: true, value: null };
   },
 
   async addCourse(course, sectionId, replace) {
@@ -168,7 +179,9 @@ export const mockScheduleService: ScheduleService = {
     // Pode responder um convite pendente, ou ACEITAR um que você tinha recusado ("Tap to undo").
     const canRespond = invite && (invite.status === 'pending' || (accept && invite.status === 'declined'));
     if (!invite || !canRespond) return { ok: false, error: 'This invite is no longer available.' };
-    incoming = incoming.map((i) => (i.id === inviteId ? { ...i, status: accept ? 'accepted' : 'declined' } : i));
+    incoming = incoming.map((i) =>
+      i.id === inviteId ? { ...i, status: accept ? 'accepted' : 'declined', showPopup: false, seen: true } : i,
+    );
     if (!accept) return { ok: true, value: null };
     replaceIfNeeded(replace, 'event');
     const event: PersonalEvent = { ...invite.event, id: newId('ev'), invites: [], invitedBy: invite.from };
@@ -180,10 +193,22 @@ export const mockScheduleService: ScheduleService = {
     listeners.add(listener);
     if (!deliveredDemoInvites) {
       deliveredDemoInvites = true;
-      setTimeout(() => {
-        incoming = [...incoming, ...clone(initialIncoming)];
+      // Demo (data/invites.json): 'while-away' já está na central de notificações (chegou com o app
+      // fechado, sem popup); 'live' chega com o app aberto, depois de alguns segundos, e abre o popup.
+      const deliver = (invite: IncomingEventInvite, showPopup: boolean) => {
+        incoming = [
+          ...incoming,
+          { ...invite, showPopup, seen: false, receivedAt: invite.receivedAt ?? new Date().toISOString() },
+        ];
         notify();
-      }, INCOMING_DELAY_MS);
+      };
+      for (const invite of clone(initialIncoming)) {
+        if (invite.arrival === 'live') {
+          setTimeout(() => deliver(invite, true), (invite.delaySeconds ?? DEFAULT_LIVE_DELAY_S) * 1000);
+        } else {
+          deliver(invite, false);
+        }
+      }
     }
     return () => {
       listeners.delete(listener);

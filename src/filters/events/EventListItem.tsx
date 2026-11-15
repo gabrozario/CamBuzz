@@ -34,7 +34,7 @@ export function EventListItem({ entry, onPress, showDivider }: Props) {
       <View style={[styles.body, showDivider && styles.divider]}>
         <View style={styles.textCol}>
           <View style={styles.titleRow}>
-            <View style={[styles.badge, !match && styles.badgeOff]}>
+            <View style={[styles.badge, entry.dim && styles.badgeOff]}>
               <Text style={styles.badgeText}>{number}</Text>
             </View>
             <Text style={styles.title} numberOfLines={2}>
@@ -47,6 +47,7 @@ export function EventListItem({ entry, onPress, showDivider }: Props) {
           <Text style={styles.meta} numberOfLines={1}>
             <Text style={styles.category}>{event.category}</Text>
             {match && <Text style={styles.fit}>{`  ·  ${detourLabel(match)}`}</Text>}
+            {entry.ended && <Text style={styles.ended}>{'  ·  Ended'}</Text>}
           </Text>
           {entry.friends.length > 0 && (
             <View style={styles.friendsRow}>
@@ -92,6 +93,7 @@ const makeStyles = (colors: Palette) =>
   location: { fontFamily: fonts.regular, fontSize: 14, color: colors.muted },
   meta: { marginTop: 2 },
   category: { fontFamily: fonts.medium, fontSize: 12, color: colors.gold },
+  ended: { fontFamily: fonts.medium, fontSize: 12, color: colors.muted },
   fit: { fontFamily: fonts.medium, fontSize: 12, color: colors.green },
   friendsRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   dots: { flexDirection: 'row' },
