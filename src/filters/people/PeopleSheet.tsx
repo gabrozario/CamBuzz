@@ -21,10 +21,10 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
   const styles = useThemedStyles(makeStyles);
   const { pendingRequests, removeFriend, reorderFriends } = useFriends();
   const { days, visibleIds, toggle } = state;
-  const n = visibleIds.size;
-  const meDay = days.find((d) => d.person.isMe);
   const friendDays = days.filter((d) => !d.person.isMe);
-  const subtitle = `${n} selected · ${n > 1 ? 'Compare your day' : "Today's schedule"}`;
+  const n = friendDays.filter((d) => visibleIds.has(d.person.id)).length;
+  // (o seu caminho fica na pílula "My Route" sobre o mapa)
+  const subtitle = n === 0 ? 'Tap a friend to see their day' : `${n} ${n === 1 ? 'friend' : 'friends'} on the map · Today`;
 
   // Pede confirmação antes de remover (evita remover alguém sem querer).
   const confirmRemove = (id: string, name: string) => {
@@ -37,11 +37,6 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
   return (
     <FilterSheet title="Friends" subtitle={subtitle} onClose={onClose} onIndexChange={onIndexChange}>
       <SheetScrollView contentContainerStyle={styles.content}>
-        {/* "You" fica sempre no topo */}
-        {meDay && (
-          <PersonRow day={meDay} checked={visibleIds.has('me')} onToggle={() => toggle('me')} />
-        )}
-
         {/* Amigos: segure e arraste para colocar os mais importantes em cima */}
         <DraggableList
           items={friendDays}

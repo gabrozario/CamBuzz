@@ -9,11 +9,14 @@ import { AddFriendModal } from '../components/friends/AddFriendModal';
 import { CampusMap } from '../components/map/CampusMap';
 import { DayRouteLayer } from '../components/map/DayRouteLayer';
 import { FilterBar } from '../components/FilterBar';
-import { InfoChip } from '../components/InfoChip';
+import { MyRouteCard, type LegendEntry } from '../components/MyRouteCard';
 import { MapTopBar } from '../components/MapTopBar';
-import { RouteLegend, type LegendEntry } from '../components/RouteLegend';
 import { FloatingBarContext, useFloatingBarController } from '../components/floatingBar';
 import { MapViewportContext, type MapViewportValue } from '../components/map/mapViewport';
+import { SearchPin } from '../components/map/SearchPin';
+import { SearchScreen } from '../search/SearchScreen';
+import type { SearchItem, SearchTarget } from '../search/searchIndex';
+import { foodCategories, getBuilding, resourceCategories } from '../../data';
 import { BottomClearanceContext } from '../components/sheet/bottomClearance';
 import { SHEET_MID, sheetHeightAt } from '../components/sheet/FilterSheet';
 import { EventsLayer } from '../filters/events/EventsLayer';
@@ -73,16 +76,25 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
   // Até 2 filtros ligados; `focus` = o que você está vendo (a aba dele fica aberta).
-  const { active, focus, press, remove, focusFilter } = useActiveFilters();
+  const { active, focus, press, remove, activate, focusFilter } = useActiveFilters();
   const [mapHeight, setMapHeight] = useState(0);
   const [mapWidth, setMapWidth] = useState(0);
   const [barHeight, setBarHeight] = useState(76); // medido no onLayout da barra
   const [sheetIndex, setSheetIndex] = useState(-1); // -1 = sem aba aberta
   const [addFriendOpen, setAddFriendOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  /** Alfinete de destaque da busca (prédio, aula, onde um amigo está). */
+  const [searchPin, setSearchPin] = useState<{ coordinate: LatLng; label: string; color?: string } | null>(null);
+  /** Busca atual (aparece na barra com um X) e qual filtro ela ligou (para desligar no X). */
+  const [currentSearch, setCurrentSearch] = useState<{
+    label: string;
+    target: SearchTarget;
+    activatedFilter: FilterKey | null;
+  } | null>(null);
 
   const now = nowTime();
   // Suas paradas de hoje vêm da agenda (My schedule): aulas + eventos com prédio.
-  const { todayClasses } = useSchedule();
+  const { todayClasses, schedule } = useSchedule();
   const baseUserRoute = useMemo(() => buildDayRoute(todayClasses, now), [todayClasses, now]);
   const [userRoute, setUserRoute] = useState<DayRoute>(baseUserRoute);
 
@@ -102,9 +114,13 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const initialRegion = useMemo(() => regionFor(stopCoords), [stopCoords]);
 
   // ---- Filtro People ----
-  const people = usePeopleFilter(now);
+  // Pílula "My Route": o seu caminho do dia (começa DESLIGADO ao abrir o app).
+  const [myRouteOn, setMyRouteOn] = useState(false);
+  const people = usePeopleFilter(now, myRouteOn);
   const peopleOn = active.includes('people');
   const visibleDays = peopleOn ? people.visibleDays : NO_DAYS;
+  // Quem tem caminho desenhado agora: amigos visíveis (Friends) e/ou você (My Route).
+  const shownDays = peopleOn ? visibleDays : myRouteOn ? people.days.filter((d) => d.person.isMe) : NO_DAYS;
 
   // ---- Filtro Events (+ amigos visíveis, se People estiver ligado) ----
   const companions: Companion[] = useMemo(
@@ -192,7 +208,9 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     expandBar();
   }, [sheetFilter, sheetIndex, expandBar]);
   const paddingTop = insets.top + 130; // barra de busca + chips
-  const wantedBottom = sheetIndex < 0 ? clearance + 10 : sheetCover + (sheetFilter === 'people' ? 64 : 0); // 64 = legenda
+  // + espaço do cartão "My Route" (com legenda quando há caminho no mapa), que fica logo acima da barra/aba.
+  const routeCardSpace = shownDays.length > 0 ? 84 : 52;
+  const wantedBottom = (sheetIndex < 0 ? clearance : sheetCover) + routeCardSpace;
   // Sempre sobra pelo menos MIN_FIT_HEIGHT de mapa livre entre o topo e a aba para enquadrar.
   const paddingBottom = Math.max(0, Math.min(wantedBottom, mapHeight - paddingTop - MIN_FIT_HEIGHT));
   const mapPadding = useMemo(
@@ -270,7 +288,147 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     selectedFood?.id,
     food.activeLocations.length,
     focus,
+    myRouteOn,
   ]);
+
+  // ---- Busca ----
+  /** Onde cada amigo está agora (aparece embaixo do nome nos resultados). */
+  const friendStatus = useMemo(
+    () => Object.fromEntries(people.days.filter((d) => !d.person.isMe).map((d) => [d.person.id, d.status])),
+    [people.days],
+  );
+
+  /** Move a câmera até um ponto (depois do enquadramento automático, que roda ~300 ms após mudar filtro). */
+  const flyTo = useCallback((coordinate: LatLng, delay = 450) => {
+    setTimeout(() => {
+      mapRef.current?.animateToRegion({ ...coordinate, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 500);
+    }, delay);
+  }, []);
+
+  /** Tocou num resultado: liga o filtro certo, abre a descrição e/ou leva a câmera até lá. */
+  const onSearchSelect = (target: SearchTarget, item: SearchItem) => {
+    setSearchOpen(false);
+    setSearchPin(null);
+    // Lembra a busca (aparece na barra) e se ela ligou um filtro que estava desligado.
+    const filterOf: Partial<Record<SearchTarget['type'], FilterKey>> = {
+      resource: 'resources',
+      food: 'food',
+      event: 'events',
+      friend: 'people',
+    };
+    const filter = target.type === 'category' ? target.filter : filterOf[target.type];
+    setCurrentSearch({
+      label: item.title,
+      target,
+      activatedFilter: filter && !active.includes(filter) ? filter : null,
+    });
+    switch (target.type) {
+      case 'resource': {
+        const loc = resourceCategories.flatMap((c) => c.locations).find((l) => l.id === target.locationId);
+        if (!loc) return;
+        activate('resources');
+        resources.showLocation(loc); // só o alfinete dele; a câmera vai até ele (efeito da câmera)
+        return;
+      }
+      case 'food': {
+        const loc = foodCategories.flatMap((c) => c.locations).find((l) => l.id === target.locationId);
+        if (!loc) return;
+        activate('food');
+        food.openOnly(loc); // só o alfinete dele ("Return" volta com nada marcado)
+        return;
+      }
+      case 'event':
+        activate('events');
+        events.openEvent(target.eventId);
+        return;
+      case 'friend': {
+        activate('people');
+        people.show(target.friendId);
+        // Onde ele deve estar agora: aula atual → próxima → última do dia.
+        const day = people.days.find((d) => d.person.id === target.friendId);
+        const stops = day?.route.stops ?? [];
+        const stop =
+          stops.find((s) => s.status === 'now') ?? stops.find((s) => s.status === 'upcoming') ?? stops[stops.length - 1];
+        if (day && stop) {
+          const when = stop.status === 'now' ? 'now' : stop.status === 'upcoming' ? `at ${formatTime(stop.session.start)}` : 'last class';
+          setSearchPin({
+            coordinate: stop.building.coordinate,
+            label: `${day.person.shortName} · ${stop.building.shortName} ${when}`,
+            color: day.person.color,
+          });
+          flyTo(stop.building.coordinate, 650);
+        }
+        return;
+      }
+      case 'course': {
+        const course = schedule.courses.find((c) => c.id === target.courseId);
+        if (!course) return;
+        const m = course.meetings[0];
+        const b = getBuilding(m.buildingId);
+        setSearchPin({ coordinate: b.coordinate, label: `${course.code} · ${b.shortName}${m.room ? ` ${m.room}` : ''}`, color: course.color });
+        flyTo(b.coordinate, 50);
+        return;
+      }
+      case 'building': {
+        const b = getBuilding(target.buildingId);
+        setSearchPin({ coordinate: b.coordinate, label: b.name });
+        flyTo(b.coordinate, 50);
+        return;
+      }
+      case 'category':
+        activate(target.filter);
+        if (target.filter === 'food' && target.categoryId) food.showCategory(target.categoryId);
+        if (target.filter === 'resources' && target.categoryId) resources.showCategory(target.categoryId);
+        return;
+    }
+  };
+
+  /** X da busca na barra: tira o alfinete/descrição do resultado (e desliga o filtro se foi a busca que ligou). */
+  const clearSearch = () => {
+    if (!currentSearch) return;
+    const { target, activatedFilter } = currentSearch;
+    setCurrentSearch(null);
+    setSearchPin(null);
+    if (target.type === 'food') food.clearSelection();
+    if (target.type === 'resource') resources.clearSelection();
+    if (target.type === 'event') events.clearSelection();
+    if (activatedFilter && active.includes(activatedFilter)) remove(activatedFilter);
+  };
+
+  // A busca sai da barra sozinha quando o resultado não está mais na tela
+  // (tocou em "‹ Return", fechou o filtro, abriu outra coisa...).
+  useEffect(() => {
+    if (!currentSearch) return;
+    const t = currentSearch.target;
+    const stillShowing =
+      t.type === 'food'
+        ? selectedFood?.id === t.locationId
+        : t.type === 'resource'
+          ? selectedResource?.id === t.locationId
+          : t.type === 'event'
+            ? selectedEvent?.event.id === t.eventId
+            : t.type === 'category'
+              ? active.includes(t.filter)
+              : !!searchPin; // prédio, aula, amigo
+    if (!stillShowing) setCurrentSearch(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFood?.id, selectedResource?.id, selectedEvent?.event.id, searchPin, active]);
+
+  // Mexeu nos filtros pela barra → tira o alfinete da busca.
+  const onBarPress = useCallback(
+    (key: FilterKey) => {
+      setSearchPin(null);
+      press(key);
+    },
+    [press],
+  );
+  const onBarRemove = useCallback(
+    (key: FilterKey) => {
+      setSearchPin(null);
+      remove(key);
+    },
+    [remove],
+  );
 
   // Botão "voltar" do Android: detalhe → lista → fecha a aba.
   useEffect(() => {
@@ -313,28 +471,19 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     food.clearSelection,
   ]);
 
-  // ---- Textos sobre o mapa ----
-  let dayLabel = `Your day · Today · ${formatTime(now)}`;
-  if (peopleOn) {
-    const n = visibleDays.length;
-    if (n === 0) dayLabel = `Today · ${formatTime(now)}`;
-    else if (n === 1 && !visibleDays[0].person.isMe)
-      dayLabel = `${visibleDays[0].person.shortName}'s day · Today · ${formatTime(now)}`;
-    else if (n > 1) dayLabel = `Today · ${formatTime(now)} · ${n} people`;
-  }
-
-  const legendEntries: LegendEntry[] = peopleOn
-    ? visibleDays.map((d) => ({ label: d.person.shortName, color: d.person.color }))
-    : [{ label: 'You', color: colors.green }];
-  legendEntries.push({ label: 'Next leg', color: colors.ink, thick: true });
-  // Legenda: sem aba, ou acima da aba People (como no Figma). Escondida no detalhe de evento e recursos.
-  const showLegend =
-    !selectedEvent &&
-    !selectedBuildingDetails &&
-    !selectedResource &&
-    !selectedFood &&
-    (!sheetFilter || (sheetFilter === 'people' && sheetIndex > 0 && sheetIndex < 2));
-  const legendBottom = sheetFilter ? sheetHeight + spacing.md : clearance + spacing.xs;
+  // ---- Cartão "My Route" + legenda (canto inferior esquerdo) ----
+  const inDetail = !!(selectedEvent || selectedBuildingDetails || selectedResource || selectedFood);
+  // Legenda só quando há caminho no mapa (e não no detalhe de um lugar, para não poluir).
+  const legendEntries: LegendEntry[] =
+    shownDays.length > 0 && !inDetail
+      ? [
+          ...shownDays.map((d) => ({ label: d.person.shortName, color: d.person.color })),
+          { label: 'Next leg', color: colors.ink, thick: true },
+        ]
+      : [];
+  // Some com a aba em tela cheia; senão fica logo acima da aba (ou da barra de filtros).
+  const showRouteCard = !(sheetFilter && sheetIndex >= 2);
+  const routeCardBottom = sheetFilter ? sheetHeight + spacing.md : clearance + spacing.xs;
 
   return (
     <View style={styles.screen}>
@@ -350,29 +499,39 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           {peopleOn ? (
             <PeopleLayer state={people} />
           ) : (
-            <DayRouteLayer route={userRoute} color={colors.green} highlightNextLeg isMe />
+            myRouteOn && <DayRouteLayer route={userRoute} color={colors.green} highlightNextLeg isMe />
           )}
           {eventsOn && <EventsLayer state={events} />}
           {resourcesOn && <ResourcesLayer state={resources} />}
           {foodOn && <FoodLayer state={food} />}
+          {searchPin && (
+            <SearchPin
+              coordinate={searchPin.coordinate}
+              label={searchPin.label}
+              color={searchPin.color}
+              onPress={() => setSearchPin(null)}
+            />
+          )}
         </CampusMap>
         </MapViewportContext.Provider>
 
         <MapTopBar
           topInset={insets.top}
           onAddFriend={() => setAddFriendOpen(true)}
+          onOpenSearch={() => setSearchOpen(true)}
+          searchLabel={currentSearch?.label}
+          onClearSearch={clearSearch}
           onOpenSchedule={onOpenSchedule}
           onOpenSettings={onOpenSettings}
           leftAccessory={
             selectedEvent ? <BackPill label="All events" onPress={events.clearSelection} /> : undefined
           }
         >
-          {!selectedEvent && !selectedBuildingDetails && !selectedResource && !selectedFood && <InfoChip label={dayLabel} />}
         </MapTopBar>
 
-        {showLegend && (
-          <View style={[styles.legend, { bottom: legendBottom }]} pointerEvents="none">
-            <RouteLegend entries={legendEntries} />
+        {showRouteCard && (
+          <View style={[styles.routeCard, { bottom: routeCardBottom }]} pointerEvents="box-none">
+            <MyRouteCard value={myRouteOn} onChange={setMyRouteOn} entries={legendEntries} />
           </View>
         )}
 
@@ -409,11 +568,20 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           pointerEvents="box-none"
           onLayout={(e) => setBarHeight(Math.round(e.nativeEvent.layout.height))}
         >
-          <FilterBar active={active} focus={focus} onPress={press} onRemove={remove} />
+          <FilterBar active={active} focus={focus} onPress={onBarPress} onRemove={onBarRemove} />
         </Animated.View>
       </View>
 
       <AddFriendModal visible={addFriendOpen} onClose={() => setAddFriendOpen(false)} />
+
+      <SearchScreen
+        visible={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelect={onSearchSelect}
+        friendStatus={friendStatus}
+        now={now}
+        initialQuery={currentSearch?.label}
+      />
     </View>
   );
 }
@@ -422,6 +590,6 @@ const makeStyles = (colors: Palette) =>
   StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.mapBackground },
   mapArea: { flex: 1 },
-  legend: { position: 'absolute', left: 18, right: 18 },
+  routeCard: { position: 'absolute', left: 14, right: 14 },
   floatingBar: { position: 'absolute', left: 14, right: 14 },
 });

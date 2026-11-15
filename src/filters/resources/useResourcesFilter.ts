@@ -21,6 +21,10 @@ export interface ResourcesFilterState {
   openDetails: (buildingId: string, specificLoc?: ResourceLocation) => void;
   closeDetails: () => void;
   clearSelection: () => void;
+  /** Abre a descrição de UM local sem marcar a categoria (busca): só o alfinete dele aparece. */
+  showLocation: (location: ResourceLocation) => void;
+  /** Marca e expande uma categoria (atalho da busca, ex.: "Printers"). */
+  showCategory: (categoryId: string) => void;
   /** Volta tudo ao início (nada marcado, nada expandido) — chamado ao desligar o filtro. */
   reset: () => void;
 }
@@ -97,11 +101,29 @@ export function useResourcesFilter(): ResourcesFilterState {
     [activeLocations],
   );
 
+  // "‹ Return" do detalhe: volta para a lista (sem local selecionado).
   const closeDetails = useCallback(() => {
     setSelectedBuildingDetails(null);
+    setSelectedLocation(null);
   }, []);
 
   const clearSelection = useCallback(() => {
+    setSelectedLocation(null);
+    setSelectedBuildingDetails(null);
+  }, []);
+
+  const showLocation = useCallback(
+    (loc: ResourceLocation) => {
+      const details = loc.hasDetails ? getBuildingOccupancy(loc.buildingId) : null;
+      setSelectedBuildingDetails(details);
+      setSelectedLocation(loc);
+    },
+    [],
+  );
+
+  const showCategory = useCallback((categoryId: string) => {
+    setSelectedCategories((prev) => (prev.has(categoryId) ? prev : new Set(prev).add(categoryId)));
+    setExpandedCategories((prev) => (prev.has(categoryId) ? prev : new Set(prev).add(categoryId)));
     setSelectedLocation(null);
     setSelectedBuildingDetails(null);
   }, []);
@@ -133,5 +155,7 @@ export function useResourcesFilter(): ResourcesFilterState {
     closeDetails,
     clearSelection,
     reset,
+    showLocation,
+    showCategory,
   };
 }

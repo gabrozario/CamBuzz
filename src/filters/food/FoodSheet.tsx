@@ -52,7 +52,7 @@ export function FoodSheet({ state, onClose, onIndexChange }: Props) {
   return (
     <FilterSheet
       ref={sheetRef}
-      title="Food Options"
+      title="Food"
       subtitle={subtitle}
       hideChevron
       customHeader={
@@ -70,7 +70,7 @@ export function FoodSheet({ state, onClose, onIndexChange }: Props) {
             style={({ pressed }) => [styles.selectAllRow, pressed && styles.pressed]}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: isAllSelected }}
-            accessibilityLabel="Select all food options"
+            accessibilityLabel="Select all food places"
           >
             <Checkbox checked={isAllSelected} indeterminate={isIndeterminate} />
             <Text style={styles.selectAllText}>Select all</Text>
