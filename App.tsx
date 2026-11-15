@@ -5,9 +5,11 @@ import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { IntroVideo } from './src/components/IntroVideo';
 import { ToastProvider } from './src/components/ui/Toast';
 import { AuthFlow } from './src/screens/auth/AuthFlow';
 import { RootScreen } from './src/screens/RootScreen';
@@ -19,6 +21,8 @@ import { colors, ThemeProvider, useAppTheme } from './src/theme';
 export default function App() {
   // Carrega a fonte Inter (a do Figma). Enquanto carrega, mostra só o fundo.
   const [fontsLoaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
+  // Vídeo de abertura (toda vez que o app abre). O app carrega por baixo enquanto ele toca.
+  const [introDone, setIntroDone] = useState(false);
 
   return (
     // GestureHandlerRootView é exigido pelo @gorhom/bottom-sheet (usado nas próximas etapas).
@@ -34,6 +38,7 @@ export default function App() {
             </FriendsProvider>
           </AuthProvider>
         </ThemeProvider>
+        {!introDone && <IntroVideo onDone={() => setIntroDone(true)} />}
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
