@@ -24,7 +24,7 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 ## Regras técnicas
 
 - **Expo SDK 58** (compatível com o Expo Go da Play Store), TypeScript estrito.
-- Mapa: `react-native-maps` com `PROVIDER_GOOGLE`. No Expo Go o Google Maps funciona **sem chave de API**.
+- Mapa: `react-native-maps`. **Android:** `PROVIDER_GOOGLE` (no Expo Go funciona **sem chave de API**) com o estilo do Figma. **iPhone:** Apple Maps (o Google Maps no iOS exige chave + build próprio, não roda no Expo Go); lá o estilo bege não se aplica, só claro/escuro.
 - Aba que sobe: `@gorhom/bottom-sheet` (já instalado com reanimated/gesture-handler; o `GestureHandlerRootView` já está no `App.tsx`).
 - Ícones: `lucide-react-native` (traço fino, igual ao Figma). Fonte: Inter (`@expo-google-fonts/inter`).
 - **Sem backend**: tudo vem dos JSONs em `/data`, sempre importados via `data/index.ts`.
