@@ -42,6 +42,9 @@ const FILTERS_WITH_SHEET: FilterKey[] = ['events', 'people', 'resources', 'food'
 /** Array vazio fixo (um `[]` novo a cada render faria os useMemo recalcularem sempre). */
 const NO_DAYS: PersonDay[] = [];
 
+/** Altura mínima (dp) de mapa livre usada para enquadrar o caminho/pinos (evita zoom out exagerado). */
+const MIN_FIT_HEIGHT = 240;
+
 /** Margem (dp) usada ao enquadrar pontos no mapa. */
 const FIT_PADDING = { top: 40, right: 40, bottom: 40, left: 40 };
 
@@ -64,7 +67,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
   // Até 2 filtros ligados; `focus` = o que você está vendo (a aba dele fica aberta).
-  const { active, focus, press, remove } = useActiveFilters();
+  const { active, focus, press, remove, focusFilter } = useActiveFilters();
   const [mapHeight, setMapHeight] = useState(0);
   const [barHeight, setBarHeight] = useState(76); // medido no onLayout da barra
   const [sheetIndex, setSheetIndex] = useState(-1); // -1 = sem aba aberta
@@ -123,27 +126,56 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     setSheetIndex(sheetFilter ? SHEET_MID : -1);
   }, [sheetFilter]);
 
-  // Ao desligar os filtros, limpa as seleções.
+  // Ao desligar um filtro, ele "esquece" tudo (nada marcado, nada aberto).
+  // Ao ligar de novo, começa do zero — ex.: os restaurantes só aparecem se você marcar de novo.
   useEffect(() => {
-    if (!eventsOn) events.clearSelection();
+    if (!eventsOn) events.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventsOn]);
 
   useEffect(() => {
-    if (!resourcesOn) resources.clearSelection();
+    if (!resourcesOn) resources.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resourcesOn]);
 
   useEffect(() => {
-    if (!foodOn) food.clearSelection();
+    if (!foodOn) food.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [foodOn]);
+
+  useEffect(() => {
+    if (!peopleOn) people.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [peopleOn]);
+
+  // Tocou num pino (evento, restaurante, recurso...) → a aba DESSE filtro vem para a frente,
+  // já mostrando a descrição dele — mesmo que outro filtro estivesse em foco.
+  useEffect(() => {
+    if (selectedEvent) focusFilter('events');
+  }, [selectedEvent?.event.id, focusFilter]);
+  useEffect(() => {
+    if (selectedFood) focusFilter('food');
+  }, [selectedFood?.id, focusFilter]);
+  useEffect(() => {
+    if (selectedResource || selectedBuildingDetails) focusFilter('resources');
+  }, [selectedResource?.id, selectedBuildingDetails?.buildingId, focusFilter]);
+
+  // Mudou o filtro em foco → fecha a descrição aberta nos OUTROS (ex.: não fica "‹ All events" sobre a aba de comida).
+  useEffect(() => {
+    if (focus !== 'events') events.clearSelection();
+    if (focus !== 'food') food.clearSelection();
+    if (focus !== 'resources') resources.clearSelection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus]);
 
   // Espaço que a aba ocupa embaixo do mapa — o Google Maps centraliza o conteúdo acima dela.
   // Barra de filtros "voadora": distância até a borda de baixo e quanto ela cobre da tela.
   const barBottom = Math.max(insets.bottom, spacing.md) + spacing.sm;
   const clearance = barHeight + barBottom + spacing.sm;
   const sheetHeight = sheetHeightAt(sheetIndex, mapHeight, clearance);
+  // Para ENQUADRAR o mapa, a aba em tela cheia conta como a do meio (senão não sobra mapa nenhum
+  // e o Google Maps dá um zoom out gigante para "caber" o caminho).
+  const sheetCover = sheetHeightAt(Math.min(sheetIndex, SHEET_MID), mapHeight, clearance);
   // Encolhe ao rolar uma lista para baixo; volta ao rolar para cima.
   const floatingBar = useFloatingBarController(barHeight, barBottom);
 
@@ -152,10 +184,13 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   useEffect(() => {
     expandBar();
   }, [sheetFilter, sheetIndex, expandBar]);
-  const paddingBottom = sheetIndex < 0 ? clearance + 10 : sheetHeight + (sheetFilter === 'people' ? 80 : 0);
+  const paddingTop = insets.top + 130; // barra de busca + chips
+  const wantedBottom = sheetIndex < 0 ? clearance + 10 : sheetCover + (sheetFilter === 'people' ? 64 : 0); // 64 = legenda
+  // Sempre sobra pelo menos MIN_FIT_HEIGHT de mapa livre entre o topo e a aba para enquadrar.
+  const paddingBottom = Math.max(0, Math.min(wantedBottom, mapHeight - paddingTop - MIN_FIT_HEIGHT));
   const mapPadding = useMemo(
-    () => ({ top: insets.top + 130, bottom: paddingBottom, left: 16, right: 16 }),
-    [insets.top, paddingBottom],
+    () => ({ top: paddingTop, bottom: paddingBottom, left: 16, right: 16 }),
+    [paddingTop, paddingBottom],
   );
 
   // ---- Câmera: enquadra o que importa conforme o estado ----
@@ -276,6 +311,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const showLegend =
     !selectedEvent &&
     !selectedBuildingDetails &&
+    !selectedResource &&
     !selectedFood &&
     (!sheetFilter || (sheetFilter === 'people' && sheetIndex > 0 && sheetIndex < 2));
   const legendBottom = sheetFilter ? sheetHeight + spacing.md : clearance + spacing.xs;
@@ -303,7 +339,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
             selectedEvent ? <BackPill label="All events" onPress={events.clearSelection} /> : undefined
           }
         >
-          {!selectedEvent && !selectedBuildingDetails && !selectedFood && <InfoChip label={dayLabel} />}
+          {!selectedEvent && !selectedBuildingDetails && !selectedResource && !selectedFood && <InfoChip label={dayLabel} />}
         </MapTopBar>
 
         {showLegend && (

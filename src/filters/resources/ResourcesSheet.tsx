@@ -7,6 +7,7 @@ import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { ResourceLocation } from '../../types';
 import { CampusDetails, CampusDetailsHeader } from './CampusDetails';
 import { ResourceCategoryRow } from './ResourceCategoryRow';
+import { ResourceLocationDetails } from './ResourceLocationDetails';
 import type { ResourcesFilterState } from './useResourcesFilter';
 
 interface Props {
@@ -36,14 +37,22 @@ export function ResourcesSheet({ state, onClose, onIndexChange }: Props) {
     selectLocation,
     openDetails,
     closeDetails,
+    clearSelection,
   } = state;
+
+  // Recurso sem página de ocupação (ex.: impressora) aberto pelo pino ou pela lista → detalhe simples.
+  const locationDetails =
+    !selectedBuildingDetails && selectedLocation && !selectedLocation.hasDetails ? selectedLocation : null;
+  const locationCategory = locationDetails
+    ? categories.find((c) => c.locations.some((l) => l.id === locationDetails.id))
+    : undefined;
 
   // Ao abrir o detalhe de um prédio, posiciona a aba no meio (35%)
   useEffect(() => {
-    if (selectedBuildingDetails) {
+    if (selectedBuildingDetails || selectedLocation) {
       sheetRef.current?.snapTo(SHEET_MID);
     }
-  }, [selectedBuildingDetails?.buildingId]);
+  }, [selectedBuildingDetails?.buildingId, selectedLocation?.id]);
 
   // Subtítulo conforme estado de seleção (fiel ao Figma)
   let subtitle = 'No resources selected · Choose a filter below';
@@ -80,6 +89,8 @@ export function ResourcesSheet({ state, onClose, onIndexChange }: Props) {
             buildingName={selectedBuildingDetails.buildingName}
             onBack={closeDetails}
           />
+        ) : locationDetails ? (
+          <CampusDetailsHeader buildingName={locationDetails.name} onBack={clearSelection} />
         ) : undefined
       }
       onClose={onClose}
@@ -87,6 +98,8 @@ export function ResourcesSheet({ state, onClose, onIndexChange }: Props) {
     >
       {selectedBuildingDetails ? (
         <CampusDetails details={selectedBuildingDetails} />
+      ) : locationDetails ? (
+        <ResourceLocationDetails location={locationDetails} category={locationCategory} />
       ) : (
         <SheetScrollView contentContainerStyle={styles.content}>
           {/* Linha "Select all" */}

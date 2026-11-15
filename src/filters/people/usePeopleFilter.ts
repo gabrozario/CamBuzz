@@ -84,9 +84,12 @@ export function usePeopleFilter(now: TimeOfDay) {
     });
   }, []);
 
+  /** Volta ao início (só "You" visível, como no Figma) — chamado ao desligar o filtro. */
+  const reset = useCallback(() => setVisibleIds(new Set(['me'])), []);
+
   const visibleDays = useMemo(() => days.filter((d) => visibleIds.has(d.person.id)), [days, visibleIds]);
 
-  return { days, visibleDays, visibleIds, toggle };
+  return { days, visibleDays, visibleIds, toggle, reset };
 }
 
 export type PeopleFilterState = ReturnType<typeof usePeopleFilter>;
