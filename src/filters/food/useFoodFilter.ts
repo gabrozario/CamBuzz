@@ -19,6 +19,10 @@ export interface FoodFilterState {
   /** Abre o cardápio do local (e liga a categoria dele, para o pino aparecer no mapa). */
   openLocation: (location: FoodLocation) => void;
   clearSelection: () => void;
+  /** Abre a descrição de UM local sem marcar a categoria (busca): só o alfinete dele aparece. */
+  openOnly: (location: FoodLocation) => void;
+  /** Marca e expande uma categoria (atalho da busca, ex.: "Restaurants"). */
+  showCategory: (categoryId: string) => void;
   /** Volta tudo ao início (nada marcado, nada expandido) — chamado ao desligar o filtro. */
   reset: () => void;
 }
@@ -63,6 +67,14 @@ export function useFoodFilter(): FoodFilterState {
 
   const clearSelection = useCallback(() => setSelectedLocation(null), []);
 
+  const openOnly = useCallback((location: FoodLocation) => setSelectedLocation(location), []);
+
+  const showCategory = useCallback((categoryId: string) => {
+    setSelectedCategories((prev) => (prev.has(categoryId) ? prev : new Set(prev).add(categoryId)));
+    setExpandedCategories((prev) => (prev.has(categoryId) ? prev : new Set(prev).add(categoryId)));
+    setSelectedLocation(null);
+  }, []);
+
   const reset = useCallback(() => {
     setSelectedCategories(new Set());
     setExpandedCategories(new Set());
@@ -85,5 +97,7 @@ export function useFoodFilter(): FoodFilterState {
     openLocation,
     clearSelection,
     reset,
+    openOnly,
+    showCategory,
   };
 }

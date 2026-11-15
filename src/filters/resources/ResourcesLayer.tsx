@@ -28,7 +28,13 @@ export function ResourcesLayer({ state }: Props) {
         .flatMap((cat) => cat.locations.map((loc) => ({ loc, color: cat.color }))),
     [categories, selectedCategories],
   );
-  const selectedPins = pins.filter((p) => isSelected(p.loc));
+  // O selecionado aparece SEMPRE (mesmo com a categoria desmarcada — ex.: veio da busca).
+  // (o próprio local escolhido; outros do mesmo prédio só se a categoria deles estiver marcada)
+  const selectedPins = categories.flatMap((cat) =>
+    cat.locations
+      .filter((loc) => selectedLocation?.id === loc.id || (isSelected(loc) && selectedCategories.has(cat.id)))
+      .map((loc) => ({ loc, color: cat.color })),
+  );
   const clusters = useMemo(
     () =>
       clusterOnScreen(

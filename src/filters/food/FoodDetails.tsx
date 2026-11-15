@@ -19,7 +19,7 @@ interface HeaderProps {
   onBack: () => void;
 }
 
-/** Cabeçalho fixo do detalhe: "‹ Food options", nome do local e "Dining hall · North Avenue". */
+/** Cabeçalho fixo do detalhe: "‹ Food", nome do local e "Dining hall · North Avenue". */
 export function FoodDetailsHeader({ location, onBack }: HeaderProps) {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
@@ -30,10 +30,10 @@ export function FoodDetailsHeader({ location, onBack }: HeaderProps) {
         hitSlop={12}
         style={styles.backRow}
         accessibilityRole="button"
-        accessibilityLabel="Back to food options"
+        accessibilityLabel="Back to food"
       >
         <ChevronLeft size={20} color={colors.ink} strokeWidth={2} />
-        <Text style={styles.backLabel}>Food options</Text>
+        <Text style={styles.backLabel}>Food</Text>
       </Pressable>
       <Text style={styles.title} numberOfLines={2}>
         {location.name}

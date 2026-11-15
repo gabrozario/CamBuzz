@@ -40,6 +40,15 @@ export function useActiveFilters() {
     });
   }, []);
 
+  /** Liga (se preciso) e traz para a frente — nunca desliga. Usado pela busca. */
+  const activate = useCallback((key: FilterKey) => {
+    setState(({ active: current, focus: currentFocus }) => {
+      if (current.includes(key)) return { active: current, focus: key };
+      const kept = current.length >= MAX_ACTIVE_FILTERS ? current.filter((k) => k === currentFocus) : current;
+      return { active: [...kept.slice(-(MAX_ACTIVE_FILTERS - 1)), key], focus: key };
+    });
+  }, []);
+
   /** Traz um filtro JÁ LIGADO para a frente (ex.: tocou num pino dele no mapa). */
   const focusFilter = useCallback((key: FilterKey) => {
     setState((s) => (s.active.includes(key) && s.focus !== key ? { ...s, focus: key } : s));
@@ -47,5 +56,5 @@ export function useActiveFilters() {
 
   const clear = useCallback(() => setState({ active: [], focus: null }), []);
 
-  return { active, focus, press, remove, focusFilter, clear };
+  return { active, focus, press, remove, activate, focusFilter, clear };
 }

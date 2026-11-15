@@ -35,7 +35,12 @@ export function FoodLayer({ state }: Props) {
       ),
     [pins, selectedLocation?.id, viewport, width, height],
   );
-  const selectedPin = pins.find((p) => p.loc.id === selectedLocation?.id);
+  // O selecionado aparece SEMPRE (mesmo com a categoria desmarcada — ex.: veio da busca).
+  const selectedCategory = selectedLocation
+    ? categories.find((c) => c.locations.some((l) => l.id === selectedLocation.id))
+    : undefined;
+  const selectedPin =
+    selectedLocation && selectedCategory ? { loc: selectedLocation, color: selectedCategory.color } : undefined;
 
   const pin = (loc: FoodLocation, color: string, selected = false) => (
     <ResourcePin key={loc.id} location={loc} color={color} selected={selected} onPress={() => openLocation(loc)} />
