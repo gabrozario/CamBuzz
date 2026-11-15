@@ -1,20 +1,30 @@
 import BottomSheet from '@gorhom/bottom-sheet';
 import { ChevronDown, ChevronUp, X } from 'lucide-react-native';
-import { useCallback, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
+import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
+import { useBottomClearance } from './bottomClearance';
 
 /**
  * Alturas da aba (índices usados em snapToIndex):
- * 0 = recolhida (só o título), 1 = meio (35% da área do mapa), 2 = tela cheia.
+ * 0 = recolhida (só o título), 1 = meio (35% da tela), 2 = tela cheia.
+ * A aba vai até o fim da tela, por trás da barra de filtros "voadora"; por isso as
+ * alturas somam `clearance` (o pedaço coberto pela barra) — ver bottomClearance.ts.
  * Para mudar a altura do meio, mude só SHEET_MID_FRACTION.
  */
 export const SHEET_COLLAPSED_HEIGHT = 104;
-/** Fração da área do mapa ocupada pela aba na altura do meio (0.35 = 35%). */
+/** Fração da tela ocupada pela parte VISÍVEL da aba na altura do meio (0.35 = 35%). */
 export const SHEET_MID_FRACTION = 0.35;
-export const SHEET_SNAP_POINTS = [SHEET_COLLAPSED_HEIGHT, `${SHEET_MID_FRACTION * 100}%`, '100%'];
 export const SHEET_MID = 1;
+
+/** Altura total da aba (em dp) em cada índice: 0 recolhida, 1 meio, 2 tela cheia. */
+export function sheetHeightAt(index: number, containerHeight: number, clearance: number): number {
+  if (index < 0) return 0;
+  if (index === 0) return SHEET_COLLAPSED_HEIGHT + clearance;
+  if (index === 1) return Math.round(containerHeight * SHEET_MID_FRACTION) + clearance;
+  return containerHeight;
+}
 
 /** O que quem usa o FilterSheet pode comandar por ref. */
 export interface FilterSheetHandle {
@@ -64,6 +74,12 @@ export function FilterSheet({
   const { colors } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
+  const clearance = useBottomClearance();
+  const { height: screenHeight } = useWindowDimensions();
+  const snapPoints = useMemo(
+    () => [sheetHeightAt(0, screenHeight, clearance), sheetHeightAt(1, screenHeight, clearance), '100%'],
+    [screenHeight, clearance],
+  );
   const sheetRef = useRef<BottomSheet>(null);
   const [index, setIndex] = useState(SHEET_MID);
   const collapsed = index === 0;
@@ -121,7 +137,7 @@ export function FilterSheet({
     <BottomSheet
       ref={sheetRef}
       index={SHEET_MID}
-      snapPoints={SHEET_SNAP_POINTS}
+      snapPoints={snapPoints}
       enableDynamicSizing={false}
       enableContentPanningGesture={false}
       enableHandlePanningGesture
@@ -149,7 +165,8 @@ const makeStyles = (colors: Palette) =>
     shadowOpacity: 0.1,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: -2 },
-    elevation: 12,
+    // Android: sem elevation, senão a aba fica por cima da barra voadora (o Android desenha por elevation).
+    elevation: Platform.OS === 'android' ? 0 : 12,
   },
   header: { paddingHorizontal: 24, paddingTop: 6, paddingBottom: 6 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 24 },

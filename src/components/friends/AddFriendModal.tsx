@@ -65,7 +65,7 @@ export function AddFriendModal({ visible, onClose }: Props) {
     if (!result.ok) {
       setFeedback({ kind: 'error', text: result.error });
     } else if (result.friend) {
-      setFeedback({ kind: 'success', text: `${result.friend.name} is now your friend. See them in People.` });
+      setFeedback({ kind: 'success', text: `${result.friend.name} is now your friend. See them in Friends.` });
       setEmail('');
     } else {
       setFeedback({ kind: 'success', text: `Request sent to ${result.request.email}.` });

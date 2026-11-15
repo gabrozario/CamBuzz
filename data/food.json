@@ -12,7 +12,10 @@
           "kind": "Dining hall",
           "area": "North Avenue",
           "buildingId": "north-ave-dining",
-          "coordinate": { "latitude": 33.77125, "longitude": -84.3915 },
+          "coordinate": {
+            "latitude": 33.77125,
+            "longitude": -84.3915
+          },
           "menuNote": "All meals",
           "scrollHint": "Scroll for breakfast, lunch & dinner ↓",
           "menu": [
@@ -20,30 +23,160 @@
               "id": "breakfast",
               "label": "Breakfast · 7–10:30 AM",
               "items": [
-                { "id": "na-eggs", "name": "Scrambled eggs", "portion": "1 serving", "tag": "Eggs", "calories": 180, "protein": 12, "carbs": 2, "sugars": 1 },
-                { "id": "na-oatmeal", "name": "Oatmeal with berries", "portion": "1 bowl", "tag": "Vegan", "calories": 240, "protein": 7, "carbs": 44, "sugars": 9 },
-                { "id": "na-pancakes", "name": "Buttermilk pancakes", "portion": "2 pancakes", "tag": "Vegetarian", "calories": 310, "protein": 8, "carbs": 52, "sugars": 12 }
+                {
+                  "id": "na-eggs",
+                  "name": "Scrambled eggs",
+                  "portion": "1 serving",
+                  "tag": "Eggs",
+                  "calories": 180,
+                  "protein": 12,
+                  "carbs": 2,
+                  "sugars": 1
+                },
+                {
+                  "id": "na-oatmeal",
+                  "name": "Oatmeal with berries",
+                  "portion": "1 bowl",
+                  "tag": "Vegan",
+                  "calories": 240,
+                  "protein": 7,
+                  "carbs": 44,
+                  "sugars": 9
+                },
+                {
+                  "id": "na-pancakes",
+                  "name": "Buttermilk pancakes",
+                  "portion": "2 pancakes",
+                  "tag": "Vegetarian",
+                  "calories": 310,
+                  "protein": 8,
+                  "carbs": 52,
+                  "sugars": 12
+                }
               ]
             },
             {
               "id": "lunch",
               "label": "Lunch · 11 AM–2 PM",
               "items": [
-                { "id": "na-chicken", "name": "Grilled chicken breast", "portion": "1 portion", "tag": "Grill", "calories": 220, "protein": 41, "carbs": 0, "sugars": 0 },
-                { "id": "na-veg-bowl", "name": "Roasted vegetable bowl", "portion": "1 bowl", "tag": "Vegan", "calories": 380, "protein": 11, "carbs": 58, "sugars": 8 },
-                { "id": "na-pizza", "name": "Margherita pizza", "portion": "2 slices", "tag": "Pizza", "calories": 520, "protein": 22, "carbs": 64, "sugars": 6 }
+                {
+                  "id": "na-chicken",
+                  "name": "Grilled chicken breast",
+                  "portion": "1 portion",
+                  "tag": "Grill",
+                  "calories": 220,
+                  "protein": 41,
+                  "carbs": 0,
+                  "sugars": 0
+                },
+                {
+                  "id": "na-veg-bowl",
+                  "name": "Roasted vegetable bowl",
+                  "portion": "1 bowl",
+                  "tag": "Vegan",
+                  "calories": 380,
+                  "protein": 11,
+                  "carbs": 58,
+                  "sugars": 8
+                },
+                {
+                  "id": "na-pizza",
+                  "name": "Margherita pizza",
+                  "portion": "2 slices",
+                  "tag": "Pizza",
+                  "calories": 520,
+                  "protein": 22,
+                  "carbs": 64,
+                  "sugars": 6
+                }
               ]
             },
             {
               "id": "dinner",
               "label": "Dinner · 5–8 PM",
               "items": [
-                { "id": "na-salmon", "name": "Baked salmon", "portion": "1 fillet", "tag": "Seafood", "calories": 290, "protein": 34, "carbs": 0, "sugars": 0 },
-                { "id": "na-pasta", "name": "Penne marinara", "portion": "1 plate", "tag": "Vegetarian", "calories": 430, "protein": 14, "carbs": 78, "sugars": 10 },
-                { "id": "na-stirfry", "name": "Tofu stir-fry", "portion": "1 bowl", "tag": "Vegan", "calories": 350, "protein": 18, "carbs": 40, "sugars": 7 }
+                {
+                  "id": "na-salmon",
+                  "name": "Baked salmon",
+                  "portion": "1 fillet",
+                  "tag": "Seafood",
+                  "calories": 290,
+                  "protein": 34,
+                  "carbs": 0,
+                  "sugars": 0
+                },
+                {
+                  "id": "na-pasta",
+                  "name": "Penne marinara",
+                  "portion": "1 plate",
+                  "tag": "Vegetarian",
+                  "calories": 430,
+                  "protein": 14,
+                  "carbs": 78,
+                  "sugars": 10
+                },
+                {
+                  "id": "na-stirfry",
+                  "name": "Tofu stir-fry",
+                  "portion": "1 bowl",
+                  "tag": "Vegan",
+                  "calories": 350,
+                  "protein": 18,
+                  "carbs": 40,
+                  "sugars": 7
+                }
               ]
             }
-          ]
+          ],
+          "hours": {
+            "Sun": [
+              [
+                "09:00",
+                "21:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "09:00",
+                "21:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "120 North Avenue NW"
         },
         {
           "id": "brittain",
@@ -52,7 +185,10 @@
           "kind": "Dining hall",
           "area": "East Campus",
           "buildingId": "brittain",
-          "coordinate": { "latitude": 33.7727, "longitude": -84.39135 },
+          "coordinate": {
+            "latitude": 33.7727,
+            "longitude": -84.39135
+          },
           "menuNote": "All meals",
           "scrollHint": "Scroll for breakfast, lunch & dinner ↓",
           "menu": [
@@ -60,27 +196,263 @@
               "id": "breakfast",
               "label": "Breakfast · 7–10 AM",
               "items": [
-                { "id": "br-burrito", "name": "Breakfast burrito", "portion": "1 burrito", "tag": "Eggs", "calories": 410, "protein": 19, "carbs": 42, "sugars": 3 },
-                { "id": "br-yogurt", "name": "Greek yogurt parfait", "portion": "1 cup", "tag": "Vegetarian", "calories": 210, "protein": 15, "carbs": 28, "sugars": 18 }
+                {
+                  "id": "br-burrito",
+                  "name": "Breakfast burrito",
+                  "portion": "1 burrito",
+                  "tag": "Eggs",
+                  "calories": 410,
+                  "protein": 19,
+                  "carbs": 42,
+                  "sugars": 3
+                },
+                {
+                  "id": "br-yogurt",
+                  "name": "Greek yogurt parfait",
+                  "portion": "1 cup",
+                  "tag": "Vegetarian",
+                  "calories": 210,
+                  "protein": 15,
+                  "carbs": 28,
+                  "sugars": 18
+                }
               ]
             },
             {
               "id": "lunch",
               "label": "Lunch · 11 AM–2:30 PM",
               "items": [
-                { "id": "br-burger", "name": "Classic cheeseburger", "portion": "1 burger", "tag": "Grill", "calories": 560, "protein": 31, "carbs": 38, "sugars": 7 },
-                { "id": "br-salad", "name": "Chicken Caesar salad", "portion": "1 bowl", "tag": "Salad bar", "calories": 330, "protein": 28, "carbs": 14, "sugars": 3 }
+                {
+                  "id": "br-burger",
+                  "name": "Classic cheeseburger",
+                  "portion": "1 burger",
+                  "tag": "Grill",
+                  "calories": 560,
+                  "protein": 31,
+                  "carbs": 38,
+                  "sugars": 7
+                },
+                {
+                  "id": "br-salad",
+                  "name": "Chicken Caesar salad",
+                  "portion": "1 bowl",
+                  "tag": "Salad bar",
+                  "calories": 330,
+                  "protein": 28,
+                  "carbs": 14,
+                  "sugars": 3
+                }
               ]
             },
             {
               "id": "dinner",
               "label": "Dinner · 4:30–8 PM",
               "items": [
-                { "id": "br-tacos", "name": "Black bean tacos", "portion": "2 tacos", "tag": "Vegan", "calories": 360, "protein": 13, "carbs": 54, "sugars": 4 },
-                { "id": "br-roast", "name": "Herb roasted turkey", "portion": "1 portion", "tag": "Entrée", "calories": 260, "protein": 36, "carbs": 6, "sugars": 2 }
+                {
+                  "id": "br-tacos",
+                  "name": "Black bean tacos",
+                  "portion": "2 tacos",
+                  "tag": "Vegan",
+                  "calories": 360,
+                  "protein": 13,
+                  "carbs": 54,
+                  "sugars": 4
+                },
+                {
+                  "id": "br-roast",
+                  "name": "Herb roasted turkey",
+                  "portion": "1 portion",
+                  "tag": "Entrée",
+                  "calories": 260,
+                  "protein": 36,
+                  "carbs": 6,
+                  "sugars": 2
+                }
               ]
             }
-          ]
+          ],
+          "hours": {
+            "Sun": [],
+            "Mon": [
+              [
+                "11:00",
+                "23:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "11:00",
+                "23:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "11:00",
+                "23:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "11:00",
+                "23:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "11:00",
+                "23:00"
+              ]
+            ],
+            "Sat": []
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "649 Techwood Dr NW, Atlanta, GA 30330"
+        },
+        {
+          "id": "west-village",
+          "code": "D3",
+          "name": "West Village Dining Hall",
+          "kind": "Dining hall",
+          "area": "West Campus",
+          "buildingId": "west-village",
+          "coordinate": {
+            "latitude": 33.7795,
+            "longitude": -84.4049
+          },
+          "menuNote": "All meals",
+          "scrollHint": "Scroll for breakfast, lunch & dinner ↓",
+          "menu": [
+            {
+              "id": "breakfast",
+              "label": "Breakfast · 7–10:30 AM",
+              "items": [
+                {
+                  "id": "wv-b1",
+                  "name": "Buttermilk pancakes",
+                  "portion": "2 pancakes",
+                  "tag": "Vegetarian",
+                  "calories": 340,
+                  "protein": 8,
+                  "carbs": 58,
+                  "sugars": 12
+                },
+                {
+                  "id": "wv-b2",
+                  "name": "Turkey sausage & egg bowl",
+                  "portion": "1 bowl",
+                  "tag": "Eggs",
+                  "calories": 410,
+                  "protein": 27,
+                  "carbs": 18,
+                  "sugars": 3
+                }
+              ]
+            },
+            {
+              "id": "lunch",
+              "label": "Lunch · 11 AM–2:30 PM",
+              "items": [
+                {
+                  "id": "wv-l1",
+                  "name": "Teriyaki chicken rice bowl",
+                  "portion": "1 bowl",
+                  "tag": "Halal",
+                  "calories": 560,
+                  "protein": 34,
+                  "carbs": 72,
+                  "sugars": 14
+                },
+                {
+                  "id": "wv-l2",
+                  "name": "Roasted veggie wrap",
+                  "portion": "1 wrap",
+                  "tag": "Vegan",
+                  "calories": 420,
+                  "protein": 12,
+                  "carbs": 61,
+                  "sugars": 6
+                }
+              ]
+            },
+            {
+              "id": "dinner",
+              "label": "Dinner · 4:30–8 PM",
+              "items": [
+                {
+                  "id": "wv-d1",
+                  "name": "Grilled salmon",
+                  "portion": "1 fillet",
+                  "tag": "Fish",
+                  "calories": 380,
+                  "protein": 36,
+                  "carbs": 4,
+                  "sugars": 1
+                },
+                {
+                  "id": "wv-d2",
+                  "name": "Penne marinara",
+                  "portion": "1 plate",
+                  "tag": "Vegetarian",
+                  "calories": 510,
+                  "protein": 16,
+                  "carbs": 88,
+                  "sugars": 10
+                }
+              ]
+            }
+          ],
+          "hours": {
+            "Sun": [
+              [
+                "09:00",
+                "21:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "09:00",
+                "21:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "532 8th St NW"
         }
       ]
     },
@@ -90,93 +462,1538 @@
       "color": "#477969",
       "locations": [
         {
-          "id": "student-center-food",
+          "id": "big-chicken",
           "code": "C1",
-          "name": "Student Center Food Court",
+          "name": "Big Chicken",
           "kind": "Restaurant",
           "area": "John Lewis Student Center",
           "buildingId": "student-center",
-          "coordinate": { "latitude": 33.77385, "longitude": -84.39885 },
-          "menuNote": "Full menu",
-          "scrollHint": "Scroll for mains & sides ↓",
-          "menu": [
-            {
-              "id": "mains",
-              "label": "Mains · 10:30 AM–9 PM",
-              "items": [
-                { "id": "sc-wrap", "name": "Chicken wrap", "portion": "1 wrap", "tag": "Grill", "calories": 480, "protein": 32, "carbs": 41, "sugars": 4 },
-                { "id": "sc-rice", "name": "Teriyaki rice bowl", "portion": "1 bowl", "tag": "Asian", "calories": 590, "protein": 27, "carbs": 86, "sugars": 15 },
-                { "id": "sc-falafel", "name": "Falafel pita", "portion": "1 pita", "tag": "Vegan", "calories": 450, "protein": 15, "carbs": 58, "sugars": 5 }
+          "coordinate": {
+            "latitude": 33.77385,
+            "longitude": -84.399228
+          },
+          "hours": {
+            "Sun": [
+              [
+                "10:30",
+                "17:00"
               ]
-            },
-            {
-              "id": "sides",
-              "label": "Sides",
-              "items": [
-                { "id": "sc-fries", "name": "Seasoned fries", "portion": "1 medium", "tag": "Vegan", "calories": 340, "protein": 4, "carbs": 44, "sugars": 0 },
-                { "id": "sc-fruit", "name": "Fruit cup", "portion": "1 cup", "tag": "Vegan", "calories": 90, "protein": 1, "carbs": 23, "sugars": 18 }
+            ],
+            "Mon": [
+              [
+                "10:30",
+                "21:00"
               ]
-            }
+            ],
+            "Tue": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "12:00",
+                "16:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Chicken",
+            "Noodles",
+            "Rice"
           ]
         },
         {
-          "id": "clough-cafe",
+          "id": "blenz-bowls",
           "code": "C2",
-          "name": "Clough Café",
+          "name": "Blenz Bowls",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.774007,
+            "longitude": -84.399178
+          },
+          "hours": {
+            "Sun": [
+              [
+                "12:00",
+                "18:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "09:00",
+                "18:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "09:00",
+                "18:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "09:00",
+                "18:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "09:00",
+                "18:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "09:00",
+                "17:00"
+              ]
+            ],
+            "Sat": []
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Desserts",
+            "Smoothies"
+          ]
+        },
+        {
+          "id": "chick-fil",
+          "code": "C3",
+          "name": "Chick-fil-A",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.774122,
+            "longitude": -84.399039
+          },
+          "hours": {
+            "Sun": [],
+            "Mon": [
+              [
+                "07:00",
+                "22:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "07:00",
+                "22:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "07:00",
+                "22:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "07:00",
+                "22:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "07:00",
+                "19:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "09:00",
+                "17:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Chicken",
+            "Coffee",
+            "Salads"
+          ]
+        },
+        {
+          "id": "dancing-goats",
+          "code": "C4",
+          "name": "Dancing Goats",
+          "kind": "Coffee shop",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.774164,
+            "longitude": -84.39885
+          },
+          "hours": {
+            "Sun": [
+              [
+                "09:00",
+                "16:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "07:00",
+                "21:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "07:00",
+                "21:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "07:00",
+                "21:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "07:00",
+                "21:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "07:00",
+                "21:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "09:00",
+                "16:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Coffee",
+            "Desserts",
+            "Sandwiches"
+          ]
+        },
+        {
+          "id": "fresh-brothers-pizza",
+          "code": "C5",
+          "name": "Fresh Brothers Pizza",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.774122,
+            "longitude": -84.398661
+          },
+          "hours": {
+            "Sun": [
+              [
+                "10:30",
+                "19:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "10:30",
+                "23:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "10:30",
+                "23:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "10:30",
+                "23:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "10:30",
+                "23:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "10:30",
+                "23:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "12:00",
+                "16:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Chicken",
+            "Pizza"
+          ]
+        },
+        {
+          "id": "kinnamons",
+          "code": "C6",
+          "name": "Kinnamōns",
+          "kind": "Bakery",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.774007,
+            "longitude": -84.398522
+          },
+          "hours": {
+            "Sun": [
+              [
+                "10:30",
+                "17:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "10:30",
+                "17:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Desserts"
+          ]
+        },
+        {
+          "id": "krafted-wander-dawgs-bennys-cheesesteaks",
+          "code": "C7",
+          "name": "Krafted | Wander Dawgs | Benny's",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.77385,
+            "longitude": -84.398472
+          },
+          "hours": {
+            "Sun": [
+              [
+                "10:30",
+                "19:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "08:30",
+                "23:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "08:30",
+                "23:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "08:30",
+                "23:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "08:30",
+                "23:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "08:30",
+                "23:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "10:30",
+                "19:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Burgers",
+            "Chicken",
+            "Sandwiches"
+          ],
+          "hoursNote": "Breakfast 8:30–10:30 AM on weekdays, 10:30 AM–12 PM on weekends"
+        },
+        {
+          "id": "marrakech-express",
+          "code": "C8",
+          "name": "Marrakech Express",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.773693,
+            "longitude": -84.398522
+          },
+          "hours": {
+            "Sun": [],
+            "Mon": [
+              [
+                "11:00",
+                "18:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "11:00",
+                "18:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "11:00",
+                "18:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "11:00",
+                "18:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "11:00",
+                "18:00"
+              ]
+            ],
+            "Sat": []
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "350 Ferst Dr, Atlanta, GA 30332",
+          "tags": [
+            "Chicken"
+          ]
+        },
+        {
+          "id": "panda-express",
+          "code": "C9",
+          "name": "Panda Express",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.773578,
+            "longitude": -84.398661
+          },
+          "hours": {
+            "Sun": [
+              [
+                "11:00",
+                "17:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "10:00",
+                "21:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "10:00",
+                "21:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "10:00",
+                "21:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "10:00",
+                "21:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "10:00",
+                "19:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "11:00",
+                "16:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Chicken",
+            "Noodles",
+            "Rice"
+          ]
+        },
+        {
+          "id": "taim-mediterranean-kitchen",
+          "code": "C10",
+          "name": "taïm Mediterranean Kitchen",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.773536,
+            "longitude": -84.39885
+          },
+          "hours": {
+            "Sun": [
+              [
+                "10:30",
+                "17:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "10:30",
+                "21:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "10:30",
+                "17:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Chicken",
+            "Salads",
+            "Sandwiches"
+          ]
+        },
+        {
+          "id": "tech-it-go",
+          "code": "C11",
+          "name": "Tech It To Go",
+          "kind": "Convenience store",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.773578,
+            "longitude": -84.399039
+          },
+          "hours": {
+            "Sun": [],
+            "Mon": [
+              [
+                "09:00",
+                "16:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "09:00",
+                "16:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "09:00",
+                "16:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "09:00",
+                "16:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "09:00",
+                "16:00"
+              ]
+            ],
+            "Sat": []
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": []
+        },
+        {
+          "id": "twisted-taco",
+          "code": "C12",
+          "name": "Twisted Taco",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": {
+            "latitude": 33.773693,
+            "longitude": -84.399178
+          },
+          "hours": {
+            "Sun": [],
+            "Mon": [
+              [
+                "10:30",
+                "19:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "10:30",
+                "19:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "10:30",
+                "19:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "10:30",
+                "19:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "10:30",
+                "17:00"
+              ]
+            ],
+            "Sat": []
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "351 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Chicken",
+            "Noodles",
+            "Rice"
+          ]
+        },
+        {
+          "id": "kaldis-coffee",
+          "code": "C13",
+          "name": "Kaldi's Coffee",
           "kind": "Coffee shop",
           "area": "Clough Commons",
           "buildingId": "culc",
-          "coordinate": { "latitude": 33.7748, "longitude": -84.3966 },
-          "menuNote": "Full menu",
-          "scrollHint": "Scroll for drinks & bakery ↓",
-          "menu": [
-            {
-              "id": "drinks",
-              "label": "Drinks · 7:30 AM–6 PM",
-              "items": [
-                { "id": "cc-latte", "name": "Oat milk latte", "portion": "12 oz", "tag": "Espresso", "calories": 170, "protein": 3, "carbs": 24, "sugars": 12 },
-                { "id": "cc-coldbrew", "name": "Cold brew", "portion": "16 oz", "tag": "Coffee", "calories": 5, "protein": 0, "carbs": 0, "sugars": 0 },
-                { "id": "cc-chai", "name": "Chai tea latte", "portion": "12 oz", "tag": "Tea", "calories": 190, "protein": 6, "carbs": 33, "sugars": 30 }
+          "coordinate": {
+            "latitude": 33.774226,
+            "longitude": -84.396519
+          },
+          "hours": {
+            "Sun": [],
+            "Mon": [
+              [
+                "07:00",
+                "19:00"
               ]
-            },
-            {
-              "id": "bakery",
-              "label": "Bakery",
-              "items": [
-                { "id": "cc-muffin", "name": "Blueberry muffin", "portion": "1 muffin", "tag": "Vegetarian", "calories": 380, "protein": 5, "carbs": 54, "sugars": 29 },
-                { "id": "cc-bagel", "name": "Everything bagel", "portion": "1 bagel", "tag": "Vegan", "calories": 290, "protein": 11, "carbs": 56, "sugars": 6 }
+            ],
+            "Tue": [
+              [
+                "07:00",
+                "19:00"
               ]
-            }
+            ],
+            "Wed": [
+              [
+                "07:00",
+                "19:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "07:00",
+                "19:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "07:00",
+                "19:00"
+              ]
+            ],
+            "Sat": []
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "Clough Commons, 266 4th St NW, Atlanta, GA 30313",
+          "tags": [
+            "Coffee",
+            "Desserts",
+            "Sandwiches"
           ]
         },
         {
-          "id": "library-coffee",
-          "code": "C3",
-          "name": "Library Coffee Bar",
+          "id": "sideways-cafe-blue-donkey",
+          "code": "C14",
+          "name": "Sideways Cafe by Blue Donkey",
           "kind": "Coffee shop",
           "area": "Price Gilbert Library",
           "buildingId": "library",
-          "coordinate": { "latitude": 33.7742, "longitude": -84.3954 },
-          "menuNote": "Full menu",
-          "scrollHint": "Scroll for drinks & snacks ↓",
-          "menu": [
-            {
-              "id": "drinks",
-              "label": "Drinks · 8 AM–10 PM",
-              "items": [
-                { "id": "lc-americano", "name": "Americano", "portion": "12 oz", "tag": "Espresso", "calories": 15, "protein": 1, "carbs": 2, "sugars": 0 },
-                { "id": "lc-mocha", "name": "Mocha", "portion": "12 oz", "tag": "Espresso", "calories": 260, "protein": 9, "carbs": 35, "sugars": 30 }
+          "coordinate": {
+            "latitude": 33.77445,
+            "longitude": -84.3954
+          },
+          "hours": {
+            "Sun": [
+              [
+                "09:00",
+                "21:00"
               ]
-            },
-            {
-              "id": "snacks",
-              "label": "Snacks",
-              "items": [
-                { "id": "lc-cookie", "name": "Chocolate chip cookie", "portion": "1 cookie", "tag": "Vegetarian", "calories": 220, "protein": 3, "carbs": 30, "sugars": 18 },
-                { "id": "lc-sandwich", "name": "Turkey & swiss sandwich", "portion": "1 sandwich", "tag": "Deli", "calories": 420, "protein": 27, "carbs": 38, "sugars": 5 }
+            ],
+            "Mon": [
+              [
+                "07:00",
+                "22:00"
               ]
-            }
+            ],
+            "Tue": [
+              [
+                "07:00",
+                "22:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "07:00",
+                "22:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "07:00",
+                "22:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "07:00",
+                "22:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "09:00",
+                "17:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "Price Gilbert Library, 704 Cherry St NW, Atlanta, GA 30313",
+          "tags": [
+            "Coffee",
+            "Desserts",
+            "Sandwiches"
           ]
+        },
+        {
+          "id": "gold-bold-coffee-roasters-ibb",
+          "code": "C15",
+          "name": "Gold & Bold Coffee Roasters",
+          "kind": "Coffee shop",
+          "area": "Petit Institute (IBB)",
+          "buildingId": "ibb",
+          "coordinate": {
+            "latitude": 33.778997,
+            "longitude": -84.397271
+          },
+          "hours": {
+            "Sun": [],
+            "Mon": [],
+            "Tue": [],
+            "Wed": [],
+            "Thu": [],
+            "Fri": [],
+            "Sat": []
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "Petit Institute (IBB), 315 Ferst Dr NW, Atlanta, GA 30332",
+          "tags": [
+            "Coffee",
+            "Desserts"
+          ]
+        },
+        {
+          "id": "dunkin",
+          "code": "C16",
+          "name": "Dunkin'",
+          "kind": "Coffee shop",
+          "area": "The Pavilions",
+          "buildingId": "pavilions",
+          "coordinate": {
+            "latitude": 33.775084,
+            "longitude": -84.400627
+          },
+          "hours": {
+            "Sun": [
+              [
+                "09:00",
+                "16:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "07:00",
+                "20:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "07:00",
+                "20:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "07:00",
+                "20:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "07:00",
+                "20:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "07:00",
+                "19:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "08:00",
+                "17:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "The Pavilions, 410 4th St NW (across from the BuzzCard Center)",
+          "tags": [
+            "Coffee",
+            "Desserts",
+            "Sandwiches"
+          ]
+        },
+        {
+          "id": "jimmy-johns",
+          "code": "C17",
+          "name": "Jimmy John's",
+          "kind": "Restaurant",
+          "area": "The Pavilions",
+          "buildingId": "pavilions",
+          "coordinate": {
+            "latitude": 33.77525,
+            "longitude": -84.40038
+          },
+          "hours": {
+            "Sun": [
+              [
+                "10:00",
+                "16:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "10:00",
+                "20:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "10:00",
+                "20:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "10:00",
+                "20:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "10:00",
+                "20:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "10:00",
+                "19:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "10:00",
+                "17:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "The Pavilions, 410 4th St NW (across from the BuzzCard Center)",
+          "tags": [
+            "Sandwiches"
+          ]
+        },
+        {
+          "id": "boho-taco",
+          "code": "C18",
+          "name": "Boho Taco",
+          "kind": "Restaurant",
+          "area": "Tech Square",
+          "buildingId": "tech-square",
+          "coordinate": {
+            "latitude": 33.776654,
+            "longitude": -84.387903
+          },
+          "hours": {
+            "Sun": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "22 5th St NW, Atlanta, GA 30308",
+          "tags": [
+            "Tacos"
+          ],
+          "paymentNote": "Dining Dollars and BuzzCard funds can't be used for alcohol."
+        },
+        {
+          "id": "rays-pizza",
+          "code": "C19",
+          "name": "Ray's Pizza",
+          "kind": "Restaurant",
+          "area": "Tech Square",
+          "buildingId": "tech-square",
+          "coordinate": {
+            "latitude": 33.77678,
+            "longitude": -84.38825
+          },
+          "hours": {
+            "Sun": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "11:00",
+                "22:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "26 5th St NW, Atlanta, GA 30308",
+          "tags": [
+            "Burgers",
+            "Chicken",
+            "Desserts"
+          ]
+        },
+        {
+          "id": "kaldis-coffee-tech-square",
+          "code": "C20",
+          "name": "Kaldi's Coffee @ Tech Square",
+          "kind": "Coffee shop",
+          "area": "Tech Square",
+          "buildingId": "tech-square",
+          "coordinate": {
+            "latitude": 33.77695,
+            "longitude": -84.3887
+          },
+          "hours": {
+            "Sun": [],
+            "Mon": [
+              [
+                "08:00",
+                "17:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "08:00",
+                "17:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "08:00",
+                "17:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "08:00",
+                "17:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "08:00",
+                "17:00"
+              ]
+            ],
+            "Sat": []
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "55 5th St NW, Atlanta, GA 30308",
+          "tags": [
+            "Coffee",
+            "Desserts"
+          ]
+        },
+        {
+          "id": "moes-midtown-georgia-tech",
+          "code": "C21",
+          "name": "Moe's Southwest Grill",
+          "kind": "Restaurant",
+          "area": "Tech Square",
+          "buildingId": "tech-square",
+          "coordinate": {
+            "latitude": 33.7769,
+            "longitude": -84.3898
+          },
+          "hours": {
+            "Sun": [
+              [
+                "10:30",
+                "22:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "10:30",
+                "22:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "10:30",
+                "22:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "10:30",
+                "22:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "10:30",
+                "22:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "10:30",
+                "22:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "10:30",
+                "22:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "85 5th St. NW",
+          "tags": [
+            "Chicken",
+            "Rice",
+            "Salads"
+          ]
+        },
+        {
+          "id": "sankranti",
+          "code": "C22",
+          "name": "Sankranti Indian Kitchen",
+          "kind": "Restaurant",
+          "area": "Tech Square",
+          "buildingId": "tech-square",
+          "coordinate": {
+            "latitude": 33.77715,
+            "longitude": -84.390257
+          },
+          "hours": {
+            "Sun": [
+              [
+                "11:00",
+                "01:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "11:00",
+                "01:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "11:00",
+                "01:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "11:00",
+                "01:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "11:00",
+                "01:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "11:00",
+                "03:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "11:00",
+                "03:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "85 5th Street, Suite A Atlanta, GA 30308",
+          "tags": [
+            "Chicken",
+            "Rice",
+            "Salads"
+          ]
+        },
+        {
+          "id": "tin-drum-asian-kitchen",
+          "code": "C23",
+          "name": "Tin Drum Asian Kitchen",
+          "kind": "Restaurant",
+          "area": "Tech Square",
+          "buildingId": "tech-square",
+          "coordinate": {
+            "latitude": 33.7766,
+            "longitude": -84.3903
+          },
+          "hours": {
+            "Sun": [
+              [
+                "11:00",
+                "21:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "11:00",
+                "21:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "11:00",
+                "21:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "11:00",
+                "21:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "11:00",
+                "21:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "11:00",
+                "21:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "11:00",
+                "21:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "88 5th St NW, Atlanta, GA 30308",
+          "tags": [
+            "Chicken",
+            "Desserts",
+            "Noodles"
+          ]
+        },
+        {
+          "id": "tech-square-tavern",
+          "code": "C24",
+          "name": "Tech Square Tavern",
+          "kind": "Restaurant",
+          "area": "Tech Square · GT Hotel",
+          "buildingId": "tech-square",
+          "coordinate": {
+            "latitude": 33.776442,
+            "longitude": -84.389007
+          },
+          "hours": {
+            "Sun": [
+              [
+                "16:00",
+                "23:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "16:00",
+                "23:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "16:00",
+                "23:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "16:00",
+                "23:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "16:00",
+                "23:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "16:00",
+                "23:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "16:00",
+                "23:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "800 Spring St NW, Atlanta, GA 30308",
+          "tags": []
+        },
+        {
+          "id": "conference-dining-room",
+          "code": "C25",
+          "name": "Conference Dining Room",
+          "kind": "Restaurant",
+          "area": "Tech Square · GT Hotel",
+          "buildingId": "tech-square",
+          "coordinate": {
+            "latitude": 33.77625,
+            "longitude": -84.38925
+          },
+          "hours": {
+            "Sun": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Mon": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Tue": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Wed": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Thu": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Fri": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ],
+            "Sat": [
+              [
+                "07:00",
+                "23:00"
+              ]
+            ]
+          },
+          "payments": {
+            "diningDollars": true,
+            "buzzcardFunds": true
+          },
+          "address": "800 Spring St NW, Atlanta, GA 30308",
+          "tags": [],
+          "hoursNote": "Breakfast 7–11 AM · Lunch 11:30 AM–2 PM · Dinner 4–11 PM"
         }
       ]
     },
@@ -192,7 +2009,10 @@
           "kind": "Vending machine",
           "area": "Skiles Classroom Building",
           "buildingId": "skiles",
-          "coordinate": { "latitude": 33.7736, "longitude": -84.39605 },
+          "coordinate": {
+            "latitude": 33.7736,
+            "longitude": -84.39605
+          },
           "menuNote": "In stock now",
           "scrollHint": "Scroll for snacks & drinks ↓",
           "menu": [
@@ -200,16 +2020,52 @@
               "id": "snacks",
               "label": "Snacks · Open 24/7",
               "items": [
-                { "id": "v1-chips", "name": "Potato chips", "portion": "1 bag", "tag": "Snack", "calories": 160, "protein": 2, "carbs": 15, "sugars": 0 },
-                { "id": "v1-bar", "name": "Granola bar", "portion": "1 bar", "tag": "Snack", "calories": 190, "protein": 4, "carbs": 29, "sugars": 11 }
+                {
+                  "id": "v1-chips",
+                  "name": "Potato chips",
+                  "portion": "1 bag",
+                  "tag": "Snack",
+                  "calories": 160,
+                  "protein": 2,
+                  "carbs": 15,
+                  "sugars": 0
+                },
+                {
+                  "id": "v1-bar",
+                  "name": "Granola bar",
+                  "portion": "1 bar",
+                  "tag": "Snack",
+                  "calories": 190,
+                  "protein": 4,
+                  "carbs": 29,
+                  "sugars": 11
+                }
               ]
             },
             {
               "id": "drinks",
               "label": "Drinks",
               "items": [
-                { "id": "v1-water", "name": "Bottled water", "portion": "16.9 oz", "tag": "Drink", "calories": 0, "protein": 0, "carbs": 0, "sugars": 0 },
-                { "id": "v1-soda", "name": "Cola", "portion": "20 oz", "tag": "Drink", "calories": 240, "protein": 0, "carbs": 65, "sugars": 65 }
+                {
+                  "id": "v1-water",
+                  "name": "Bottled water",
+                  "portion": "16.9 oz",
+                  "tag": "Drink",
+                  "calories": 0,
+                  "protein": 0,
+                  "carbs": 0,
+                  "sugars": 0
+                },
+                {
+                  "id": "v1-soda",
+                  "name": "Cola",
+                  "portion": "20 oz",
+                  "tag": "Drink",
+                  "calories": 240,
+                  "protein": 0,
+                  "carbs": 65,
+                  "sugars": 65
+                }
               ]
             }
           ]
@@ -221,7 +2077,10 @@
           "kind": "Vending machine",
           "area": "Klaus Advanced Computing Building",
           "buildingId": "klaus",
-          "coordinate": { "latitude": 33.777, "longitude": -84.3964 },
+          "coordinate": {
+            "latitude": 33.777,
+            "longitude": -84.3964
+          },
           "menuNote": "In stock now",
           "scrollHint": "Scroll for snacks & drinks ↓",
           "menu": [
@@ -229,16 +2088,52 @@
               "id": "snacks",
               "label": "Snacks · 7 AM–11 PM",
               "items": [
-                { "id": "v2-trail", "name": "Trail mix", "portion": "1 bag", "tag": "Snack", "calories": 280, "protein": 8, "carbs": 24, "sugars": 14 },
-                { "id": "v2-pretzels", "name": "Pretzels", "portion": "1 bag", "tag": "Snack", "calories": 110, "protein": 3, "carbs": 23, "sugars": 1 }
+                {
+                  "id": "v2-trail",
+                  "name": "Trail mix",
+                  "portion": "1 bag",
+                  "tag": "Snack",
+                  "calories": 280,
+                  "protein": 8,
+                  "carbs": 24,
+                  "sugars": 14
+                },
+                {
+                  "id": "v2-pretzels",
+                  "name": "Pretzels",
+                  "portion": "1 bag",
+                  "tag": "Snack",
+                  "calories": 110,
+                  "protein": 3,
+                  "carbs": 23,
+                  "sugars": 1
+                }
               ]
             },
             {
               "id": "drinks",
               "label": "Drinks",
               "items": [
-                { "id": "v2-tea", "name": "Unsweetened iced tea", "portion": "16 oz", "tag": "Drink", "calories": 0, "protein": 0, "carbs": 0, "sugars": 0 },
-                { "id": "v2-energy", "name": "Energy drink", "portion": "12 oz", "tag": "Drink", "calories": 160, "protein": 0, "carbs": 42, "sugars": 39 }
+                {
+                  "id": "v2-tea",
+                  "name": "Unsweetened iced tea",
+                  "portion": "16 oz",
+                  "tag": "Drink",
+                  "calories": 0,
+                  "protein": 0,
+                  "carbs": 0,
+                  "sugars": 0
+                },
+                {
+                  "id": "v2-energy",
+                  "name": "Energy drink",
+                  "portion": "12 oz",
+                  "tag": "Drink",
+                  "calories": 160,
+                  "protein": 0,
+                  "carbs": 42,
+                  "sugars": 39
+                }
               ]
             }
           ]
@@ -250,7 +2145,10 @@
           "kind": "Vending machine",
           "area": "Van Leer Building",
           "buildingId": "van-leer",
-          "coordinate": { "latitude": 33.77595, "longitude": -84.39745 },
+          "coordinate": {
+            "latitude": 33.77595,
+            "longitude": -84.39745
+          },
           "menuNote": "In stock now",
           "scrollHint": "Scroll for snacks & drinks ↓",
           "menu": [
@@ -258,16 +2156,52 @@
               "id": "snacks",
               "label": "Snacks · Open 24/7",
               "items": [
-                { "id": "v3-crackers", "name": "Cheese crackers", "portion": "1 pack", "tag": "Snack", "calories": 190, "protein": 4, "carbs": 23, "sugars": 2 },
-                { "id": "v3-candy", "name": "Chocolate bar", "portion": "1 bar", "tag": "Snack", "calories": 230, "protein": 3, "carbs": 28, "sugars": 24 }
+                {
+                  "id": "v3-crackers",
+                  "name": "Cheese crackers",
+                  "portion": "1 pack",
+                  "tag": "Snack",
+                  "calories": 190,
+                  "protein": 4,
+                  "carbs": 23,
+                  "sugars": 2
+                },
+                {
+                  "id": "v3-candy",
+                  "name": "Chocolate bar",
+                  "portion": "1 bar",
+                  "tag": "Snack",
+                  "calories": 230,
+                  "protein": 3,
+                  "carbs": 28,
+                  "sugars": 24
+                }
               ]
             },
             {
               "id": "drinks",
               "label": "Drinks",
               "items": [
-                { "id": "v3-sparkling", "name": "Sparkling water", "portion": "12 oz", "tag": "Drink", "calories": 0, "protein": 0, "carbs": 0, "sugars": 0 },
-                { "id": "v3-juice", "name": "Orange juice", "portion": "10 oz", "tag": "Drink", "calories": 140, "protein": 2, "carbs": 33, "sugars": 28 }
+                {
+                  "id": "v3-sparkling",
+                  "name": "Sparkling water",
+                  "portion": "12 oz",
+                  "tag": "Drink",
+                  "calories": 0,
+                  "protein": 0,
+                  "carbs": 0,
+                  "sugars": 0
+                },
+                {
+                  "id": "v3-juice",
+                  "name": "Orange juice",
+                  "portion": "10 oz",
+                  "tag": "Drink",
+                  "calories": 140,
+                  "protein": 2,
+                  "carbs": 33,
+                  "sugars": 28
+                }
               ]
             }
           ]

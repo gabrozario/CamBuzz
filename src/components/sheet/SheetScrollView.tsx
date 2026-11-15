@@ -1,6 +1,9 @@
 import { BottomSheetScrollView, useBottomSheetInternal } from '@gorhom/bottom-sheet';
 import type { ComponentProps } from 'react';
+import { View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import { useFloatingBar } from '../floatingBar';
+import { useBottomClearance } from './bottomClearance';
 
 /**
  * Espaço no fim da lista do tamanho da parte da aba que está ESCONDIDA abaixo da tela.
@@ -24,9 +27,18 @@ function HiddenAreaSpacer() {
  * (30%, tela cheia...) e sempre deixa chegar até o último item.
  */
 export function SheetScrollView({ children, ...props }: ComponentProps<typeof BottomSheetScrollView>) {
+  // A barra de filtros "voa" por cima do fim da aba: esse espaço deixa o último item parar acima dela.
+  const clearance = useBottomClearance();
+  // Rolar para baixo encolhe a barra; para cima, ela volta (ver components/floatingBar.ts).
+  const { reportScroll } = useFloatingBar();
   return (
-    <BottomSheetScrollView {...props}>
+    <BottomSheetScrollView
+      {...props}
+      // (a biblioteca chama isto no JS a cada rolagem; um onScroll passado por quem usa é substituído)
+      onScroll={(e) => reportScroll(e.nativeEvent.contentOffset.y)}
+    >
       {children}
+      <View style={{ height: clearance }} />
       <HiddenAreaSpacer />
     </BottomSheetScrollView>
   );

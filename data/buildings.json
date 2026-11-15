@@ -15,5 +15,8 @@
   { "id": "crc", "name": "Campus Recreation Center", "shortName": "CRC", "category": "recreation", "coordinate": { "latitude": 33.77550, "longitude": -84.40390 } },
   { "id": "north-ave-dining", "name": "North Avenue Dining Hall", "shortName": "North Ave Dining", "category": "dining", "coordinate": { "latitude": 33.77125, "longitude": -84.39150 } },
   { "id": "brittain", "name": "Brittain Dining Hall", "shortName": "Brittain", "category": "dining", "coordinate": { "latitude": 33.77270, "longitude": -84.39135 } },
-  { "id": "west-village", "name": "West Village Dining Commons", "shortName": "West Village", "category": "dining", "coordinate": { "latitude": 33.77950, "longitude": -84.40490 } }
+  { "id": "west-village", "name": "West Village Dining Commons", "shortName": "West Village", "category": "dining", "coordinate": { "latitude": 33.77950, "longitude": -84.40490 } },
+  { "id": "tech-square", "name": "Technology Square", "shortName": "Tech Square", "category": "student-life", "coordinate": { "latitude": 33.7768, "longitude": -84.3892 } },
+  { "id": "ibb", "name": "Petit Institute for Bioengineering and Bioscience", "shortName": "IBB", "category": "academic", "coordinate": { "latitude": 33.778997, "longitude": -84.397271 } },
+  { "id": "pavilions", "name": "The Pavilions", "shortName": "Pavilions", "category": "dining", "coordinate": { "latitude": 33.77517, "longitude": -84.4005 } }
 ]
