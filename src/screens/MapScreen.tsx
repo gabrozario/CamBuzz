@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import type MapView from 'react-native-maps';
+import type { Region } from 'react-native-maps';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackPill } from '../components/BackPill';
@@ -12,6 +13,7 @@ import { InfoChip } from '../components/InfoChip';
 import { MapTopBar } from '../components/MapTopBar';
 import { RouteLegend, type LegendEntry } from '../components/RouteLegend';
 import { FloatingBarContext, useFloatingBarController } from '../components/floatingBar';
+import { MapViewportContext, type MapViewportValue } from '../components/map/mapViewport';
 import { BottomClearanceContext } from '../components/sheet/bottomClearance';
 import { SHEET_MID, sheetHeightAt } from '../components/sheet/FilterSheet';
 import { EventsLayer } from '../filters/events/EventsLayer';
@@ -45,6 +47,9 @@ const NO_DAYS: PersonDay[] = [];
 /** Altura mínima (dp) de mapa livre usada para enquadrar o caminho/pinos (evita zoom out exagerado). */
 const MIN_FIT_HEIGHT = 240;
 
+/** Margem (dp) ao dar zoom num grupo de pinos (grande, para os pinos ficarem bem separados). */
+const ZOOM_PADDING = { top: 80, right: 80, bottom: 80, left: 80 };
+
 /** Margem (dp) usada ao enquadrar pontos no mapa. */
 const FIT_PADDING = { top: 40, right: 40, bottom: 40, left: 40 };
 
@@ -69,6 +74,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   // Até 2 filtros ligados; `focus` = o que você está vendo (a aba dele fica aberta).
   const { active, focus, press, remove, focusFilter } = useActiveFilters();
   const [mapHeight, setMapHeight] = useState(0);
+  const [mapWidth, setMapWidth] = useState(0);
   const [barHeight, setBarHeight] = useState(76); // medido no onLayout da barra
   const [sheetIndex, setSheetIndex] = useState(-1); // -1 = sem aba aberta
   const [addFriendOpen, setAddFriendOpen] = useState(false);
@@ -191,6 +197,16 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const mapPadding = useMemo(
     () => ({ top: paddingTop, bottom: paddingBottom, left: 16, right: 16 }),
     [paddingTop, paddingBottom],
+  );
+
+  // ---- Parte visível do mapa (para agrupar pinos colados) + zoom num grupo ----
+  const [viewport, setViewport] = useState<Region | null>(null);
+  const zoomTo = useCallback((coords: LatLng[]) => {
+    if (coords.length) mapRef.current?.fitToCoordinates(coords, { edgePadding: ZOOM_PADDING, animated: true });
+  }, []);
+  const viewportValue = useMemo<MapViewportValue>(
+    () => ({ viewport, width: mapWidth, height: mapHeight, zoomTo }),
+    [viewport, mapWidth, mapHeight, zoomTo],
   );
 
   // ---- Câmera: enquadra o que importa conforme o estado ----
@@ -318,8 +334,15 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
 
   return (
     <View style={styles.screen}>
-      <View style={styles.mapArea} onLayout={(e) => setMapHeight(e.nativeEvent.layout.height)}>
-        <CampusMap ref={mapRef} initialRegion={initialRegion} padding={mapPadding}>
+      <View
+        style={styles.mapArea}
+        onLayout={(e) => {
+          setMapHeight(e.nativeEvent.layout.height);
+          setMapWidth(e.nativeEvent.layout.width);
+        }}
+      >
+        <MapViewportContext.Provider value={viewportValue}>
+        <CampusMap ref={mapRef} initialRegion={initialRegion} padding={mapPadding} onRegionChangeComplete={setViewport}>
           {peopleOn ? (
             <PeopleLayer state={people} />
           ) : (
@@ -329,6 +352,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           {resourcesOn && <ResourcesLayer state={resources} />}
           {foodOn && <FoodLayer state={food} />}
         </CampusMap>
+        </MapViewportContext.Provider>
 
         <MapTopBar
           topInset={insets.top}

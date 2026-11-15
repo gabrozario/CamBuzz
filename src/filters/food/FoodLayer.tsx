@@ -1,3 +1,8 @@
+import { useMemo } from 'react';
+import { ClusterPin } from '../../components/map/ClusterPin';
+import { useMapViewport } from '../../components/map/mapViewport';
+import type { FoodLocation } from '../../types';
+import { clusterOnScreen } from '../../utils/cluster';
 import { ResourcePin } from '../resources/ResourcePin';
 import type { FoodFilterState } from './useFoodFilter';
 
@@ -8,22 +13,50 @@ interface Props {
 /** MAPA: pinos D1/C1/V1... das categorias marcadas (vai dentro de <CampusMap>). Tocar abre o cardápio. */
 export function FoodLayer({ state }: Props) {
   const { categories, selectedCategories, selectedLocation, openLocation } = state;
+  const { viewport, width, height, zoomTo } = useMapViewport();
+
+  // Pinos visíveis (com a cor da categoria). O selecionado fica fora dos grupos.
+  const pins = useMemo(
+    () =>
+      categories
+        .filter((cat) => selectedCategories.has(cat.id))
+        .flatMap((cat) => cat.locations.map((loc) => ({ loc, color: cat.color }))),
+    [categories, selectedCategories],
+  );
+  const clusters = useMemo(
+    () =>
+      clusterOnScreen(
+        pins.filter((p) => p.loc.id !== selectedLocation?.id),
+        (p) => p.loc.coordinate,
+        (p) => p.loc.id,
+        viewport,
+        width,
+        height,
+      ),
+    [pins, selectedLocation?.id, viewport, width, height],
+  );
+  const selectedPin = pins.find((p) => p.loc.id === selectedLocation?.id);
+
+  const pin = (loc: FoodLocation, color: string, selected = false) => (
+    <ResourcePin key={loc.id} location={loc} color={color} selected={selected} onPress={() => openLocation(loc)} />
+  );
 
   return (
     <>
-      {categories
-        .filter((cat) => selectedCategories.has(cat.id))
-        .flatMap((cat) =>
-          cat.locations.map((loc) => (
-            <ResourcePin
-              key={loc.id}
-              location={loc}
-              color={cat.color}
-              selected={selectedLocation?.id === loc.id}
-              onPress={() => openLocation(loc)}
-            />
-          )),
-        )}
+      {clusters.map((c) =>
+        c.items.length === 1 ? (
+          pin(c.items[0].loc, c.items[0].color)
+        ) : (
+          <ClusterPin
+            key={c.key}
+            coordinate={c.coordinate}
+            count={c.items.length}
+            color={c.items.every((p) => p.color === c.items[0].color) ? c.items[0].color : undefined}
+            onPress={() => zoomTo(c.items.map((p) => p.loc.coordinate))}
+          />
+        ),
+      )}
+      {selectedPin && pin(selectedPin.loc, selectedPin.color, true)}
     </>
   );
 }

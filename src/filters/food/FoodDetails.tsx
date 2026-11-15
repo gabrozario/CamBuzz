@@ -56,7 +56,8 @@ export function FoodDetails({ location }: { location: FoodLocation }) {
   const menu = location.menu ?? [];
   return (
     <SheetScrollView contentContainerStyle={styles.content}>
-      <FoodHoursCard location={location} />
+      {/* Com cardápio (dining halls): horário compacto, para "Menu for today" já aparecer na aba em 35%. */}
+      <FoodHoursCard location={location} compact={menu.length > 0} />
       {location.hours && menu.length > 0 && <View style={styles.sectionGap} />}
 
       {menu.length > 0 && (
@@ -133,7 +134,7 @@ const makeStyles = (colors: Palette) =>
   subtitle: { fontFamily: fonts.regular, fontSize: 14, color: colors.muted, marginTop: 4 },
 
   content: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 32 },
-  sectionGap: { height: 1, backgroundColor: colors.divider, marginVertical: 22 },
+  sectionGap: { height: 1, backgroundColor: colors.divider, marginVertical: 14 },
   menuTitle: { fontFamily: fonts.bold, fontSize: 20, color: colors.ink },
   menuSubtitle: { fontFamily: fonts.regular, fontSize: 13, color: colors.muted, marginTop: 4 },
   scrollHint: { fontFamily: fonts.medium, fontSize: 12, color: colors.gold, marginTop: 6, marginBottom: 14 },
