@@ -37,10 +37,12 @@ export interface ClassSession {
   course: string; // ex.: "CS 1332" (para eventos: o nome do evento)
   title: string; // ex.: "Data Structures & Algorithms"
   kind: 'Lecture' | 'Lab' | 'Recitation' | 'Study session' | 'Event';
-  buildingId: string; // referencia Building.id
+  buildingId: string; // referencia Building.id (ou "place:<id>" quando é um lugar sem prédio — ver `place`)
   room?: string;
   start: TimeOfDay;
   end: TimeOfDay;
+  /** Lugar SEM prédio (ex.: evento ao ar livre no Tech Green): o caminho usa esta posição. */
+  place?: { name: string; shortName: string; coordinate: LatLng };
 }
 
 // ---------------- Agenda semanal (tela "My schedule") ----------------
@@ -101,9 +103,13 @@ export interface EventInviteStatus {
 /** Os campos que você preenche no "Add Event". */
 export interface EventDraft {
   name: string;
+  /** Se veio do "Add to schedule" de um evento do campus: o id dele (events.json). */
+  campusEventId?: string;
   location: string; // texto livre ("Clough Commons room 102")
   /** Prédio reconhecido no texto do local — se existir, o evento aparece no mapa. */
   buildingId?: string;
+  /** Posição exata (ex.: evento ao ar livre sem prédio) — também faz o evento aparecer no caminho. */
+  coordinate?: LatLng;
   date: ISODate; // primeiro dia
   start: TimeOfDay;
   end: TimeOfDay;

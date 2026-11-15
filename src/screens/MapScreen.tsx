@@ -4,7 +4,6 @@ import type MapView from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BackPill } from '../components/BackPill';
 import { AddFriendModal } from '../components/friends/AddFriendModal';
 import { CampusMap, GT_CAMPUS_BOUNDS, GT_REGION } from '../components/map/CampusMap';
 import { DayRouteLayer } from '../components/map/DayRouteLayer';
@@ -36,6 +35,7 @@ import { ResourcesSheet } from '../filters/resources/ResourcesSheet';
 import { useResourcesFilter } from '../filters/resources/useResourcesFilter';
 import { useActiveFilters } from '../hooks/useActiveFilters';
 import { enhanceDayRouteWithORS } from '../services/routing/openRouteService';
+import { blocksOnDate, classesOnDate } from '../services/schedule/scheduleLogic';
 import { useSchedule } from '../services/schedule/ScheduleProvider';
 import { spacing, useAppTheme, useThemedStyles, type Palette } from '../theme';
 import type { FilterKey, LatLng } from '../types';
@@ -97,7 +97,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
 
   const now = nowTime();
   // Suas paradas de hoje vêm da agenda (My schedule): aulas + eventos com prédio.
-  const { todayClasses, schedule } = useSchedule();
+  const { todayClasses, schedule, today } = useSchedule();
   const baseUserRoute = useMemo(() => buildDayRoute(todayClasses, now), [todayClasses, now]);
   const [userRoute, setUserRoute] = useState<DayRoute>(baseUserRoute);
 
@@ -119,12 +119,20 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   // Pílula "My Route": o seu caminho do dia (começa DESLIGADO ao abrir o app).
   const [myRouteOn, setMyRouteOn] = useState(false);
   const toast = useToast();
-  // Sem nada na agenda hoje: não há caminho para mostrar → avisa em vez de ligar.
-  const hasPlanToday = userRoute.stops.length > 0;
+  // Paradas de hoje com lugar no mapa (vêm da agenda ATUAL — atualiza sozinho quando você adiciona algo).
+  const hasPlanToday = todayClasses.length > 0;
   const onMyRouteChange = (on: boolean) => {
-    if (on && !hasPlanToday) {
-      toast('You have nothing on your schedule today');
-      return;
+    if (on) {
+      // Checa a sua agenda NESTE momento (pode ter mudado: "Add to schedule", Add Event...).
+      const itemsToday = blocksOnDate(schedule, today);
+      if (itemsToday.length === 0) {
+        toast('You have nothing on your schedule today');
+        return;
+      }
+      if (classesOnDate(schedule, today).length === 0) {
+        toast("Today's plans don't have a place on the map yet");
+        return;
+      }
     }
     setMyRouteOn(on);
   };
@@ -570,9 +578,6 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           onClearSearch={clearSearch}
           onOpenSchedule={onOpenSchedule}
           onOpenSettings={onOpenSettings}
-          leftAccessory={
-            selectedEvent ? <BackPill label="All events" onPress={events.clearSelection} /> : undefined
-          }
         >
         </MapTopBar>
 

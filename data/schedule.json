@@ -52,7 +52,7 @@
   "events": [
     {
       "id": "ev-robotics",
-      "name": "Robotics club",
+      "name": "Robotics Club",
       "location": "Van Leer",
       "buildingId": "van-leer",
       "date": "2026-11-11",
