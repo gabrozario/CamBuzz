@@ -1,0 +1,300 @@
+{
+  "title": "Georgia Tech Printing Locations",
+  "description": "Locations on Georgia Tech's campus with Pharos-enabled printers. Unless noted otherwise, all printers are B/W only. Areas with color printers are noted in the description. Some printers may be restricted to users with building BuzzCard access - these should be noted in the description. If you have any updates or corrections, please email pcs@oit.gatech.edu.",
+  "sourceUrl": "https://www.google.com/maps/d/u/0/viewer?mid=15lPUJS82GCb8UHsp9cIMUl7dtgk",
+  "totalCount": 27,
+  "locations": [
+    {
+      "name": "Glenn/Towers Connector*",
+      "category": "Residential (Housing Residents Only)",
+      "buzzCardRestricted": true,
+      "details": [
+        "Downstairs, near Vending *Accessible by Housing residents only* - B/W"
+      ],
+      "latitude": 33.7736773,
+      "longitude": -84.3913333
+    },
+    {
+      "name": "Fitten*",
+      "category": "Residential (Housing Residents Only)",
+      "buzzCardRestricted": true,
+      "details": [
+        "McMillan Street Entrance Lobby *Accessible by Housing residents only*"
+      ],
+      "latitude": 33.778231,
+      "longitude": -84.403827
+    },
+    {
+      "name": "North Ave North*",
+      "category": "Residential (Housing Residents Only)",
+      "buzzCardRestricted": true,
+      "details": [
+        "Inside NANO Housing Office *Accessible by Housing residents only* - B/W"
+      ],
+      "latitude": 33.7704789,
+      "longitude": -84.3911362
+    },
+    {
+      "name": "Graduate Living Center*",
+      "category": "Residential (Housing Residents Only)",
+      "buzzCardRestricted": true,
+      "details": [
+        "Activity Room - B/W"
+      ],
+      "latitude": 33.781749,
+      "longitude": -84.3963933
+    },
+    {
+      "name": "Library (Crosland)*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - B/W, Color & Copies",
+        "2nd Floor - B/W",
+        "6th Floor - Color"
+      ],
+      "latitude": 33.7742492,
+      "longitude": -84.3951702
+    },
+    {
+      "name": "Clough",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": false,
+      "details": [
+        "2nd Floor - Inside Room 215 (Color)",
+        "3rd Floor - Near Room 385, at Pink Computing Zone (B/W)",
+        "4th Floor - Near Grand Stair at study area (B/W)"
+      ],
+      "latitude": 33.7747062,
+      "longitude": -84.3963933
+    },
+    {
+      "name": "College of Computing*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - Across from Room 130 - B/W",
+        "2nd Floor - Next to Library - B/W"
+      ],
+      "latitude": 33.7774953,
+      "longitude": -84.3974125
+    },
+    {
+      "name": "Klaus*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - Computer Lab 1446 - B/W & Color",
+        "2nd Floor - Room 2440 - B/W"
+      ],
+      "latitude": 33.7773705,
+      "longitude": -84.3961278
+    },
+    {
+      "name": "MRDC*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "3rd Floor - Room 3336 - Color"
+      ],
+      "latitude": 33.7769179,
+      "longitude": -84.4005775
+    },
+    {
+      "name": "Scheller CoB*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - Computer Lab (B/W, Color & Copies) **Requires CoB Building BuzzCard Access**",
+        "2nd Floor - Common area near Room 200/Main Elevators (B/W)",
+        "3rd Floor - Common area (B/W, Color & Copies)"
+      ],
+      "latitude": 33.7763984,
+      "longitude": -84.3883681
+    },
+    {
+      "name": "Sustainable Education*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "3rd Floor - Room 317 - B/W & Color"
+      ],
+      "latitude": 33.7762178,
+      "longitude": -84.3988153
+    },
+    {
+      "name": "Van Leer*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "2nd Floor -Lobby - B/W",
+        "2nd Floor - Room 257 - B/W",
+        "3rd Floor - Rooms 383 - B/W",
+        "3rd Floor - Labs 348, 353 & 363 - B/W",
+        "4th Floor - Lab 448 - B/W"
+      ],
+      "latitude": 33.7758232,
+      "longitude": -84.397206
+    },
+    {
+      "name": "College of Design*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - B/W & Color",
+        "2nd Floor - B/W & Color",
+        "3rd Floor - Room 359A - B/W & Color"
+      ],
+      "latitude": 33.7761019,
+      "longitude": -84.3955323
+    },
+    {
+      "name": "Whitaker*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "Lower Level - Lab - B/W",
+        "Lower Level - Computer Cluster 207 - Color",
+        "4th Floor - Computer Cluster - B/W"
+      ],
+      "latitude": 33.7784651,
+      "longitude": -84.3967366
+    },
+    {
+      "name": "Love*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "3rd Floor - Atrium - Color"
+      ],
+      "latitude": 33.7765255,
+      "longitude": -84.4017416
+    },
+    {
+      "name": "ISyE Annex*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - Open Study Area - Color",
+        "1st Floor - Computer Lab - B/W",
+        "3rd Floor - B/W",
+        "4th Floor - Room 445 - B/W"
+      ],
+      "latitude": 33.7752547,
+      "longitude": -84.4019347
+    },
+    {
+      "name": "Ford ES&T*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - Room 1250 - B/W"
+      ],
+      "latitude": 33.7788085,
+      "longitude": -84.3959749
+    },
+    {
+      "name": "Mason*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - Computer Lab - B/W"
+      ],
+      "latitude": 33.7765924,
+      "longitude": -84.3985498
+    },
+    {
+      "name": "Hinman*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "2nd Floor - B/W & Color",
+        "3rd Floor - B/W & Color"
+      ],
+      "latitude": 33.7746705,
+      "longitude": -84.3951112
+    },
+    {
+      "name": "West Village*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "1st Floor - Lobby - B/W",
+        "3rd Floor - Lobby - B/W"
+      ],
+      "latitude": 33.7794427,
+      "longitude": -84.4049589
+    },
+    {
+      "name": "Digital Fabrication Lab*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "B/W and Color - 2nd Floor - Room 211"
+      ],
+      "latitude": 33.7716586,
+      "longitude": -84.4016038
+    },
+    {
+      "name": "Montgomery Knight*",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": true,
+      "details": [
+        "3rd Floor - Computer Room 318 - B/W & Color"
+      ],
+      "latitude": 33.7720405,
+      "longitude": -84.3959516
+    },
+    {
+      "name": "Price Gilbert",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": false,
+      "details": [
+        "3rd Floor - B/W, Color & Copies"
+      ],
+      "latitude": 33.7743673,
+      "longitude": -84.3957728
+    },
+    {
+      "name": "Georgia Tech Student Competition Center",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": false,
+      "details": [
+        "1st Floor/Suite 1701 - B/W"
+      ],
+      "latitude": 33.7871357,
+      "longitude": -84.4063939
+    },
+    {
+      "name": "Student Center",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": false,
+      "details": [
+        "3rd Floor - Student Organization Hub - Color"
+      ],
+      "latitude": 33.7736977,
+      "longitude": -84.3983895
+    },
+    {
+      "name": "George Tower",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": false,
+      "details": [
+        "2nd Floor - Room 219",
+        "3rd Floor - Room 363"
+      ],
+      "latitude": 33.777042,
+      "longitude": -84.3883687
+    },
+    {
+      "name": "TSRB",
+      "category": "Academic/Common Areas",
+      "buzzCardRestricted": false,
+      "details": [
+        "1st Floor - Color"
+      ],
+      "latitude": 33.7773548,
+      "longitude": -84.3901089
+    }
+  ]
+}
