@@ -1,7 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AuthButton } from '../../components/auth/AuthButton';
-import { WelcomeIllustration } from '../../components/auth/WelcomeIllustration';
 import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 
 interface Props {
@@ -10,23 +9,27 @@ interface Props {
   onGuest: () => void;
 }
 
-/** Primeira tela (quando ninguém está logado): mapa ilustrado + "Welcome to CamBuzz" + botões. */
+/** Primeira tela (quando ninguém está logado): foto aérea do Tech Tower + "Welcome to CamBuzz" + botões. */
 export function WelcomeScreen({ onSignUp, onLogIn, onGuest }: Props) {
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.screen}>
+      {/* Foto aérea do Tech Tower (assets/TechTowerBirdview.jpg): "cover" preenche o topo e mantém o prédio no centro. */}
       <View style={styles.art}>
-        <WelcomeIllustration />
+        <Image
+          source={require('../../../assets/TechTowerBirdview.jpg')}
+          style={styles.photo}
+          resizeMode="cover"
+          accessibilityLabel="Aerial view of Tech Tower in the fall"
+        />
       </View>
 
       <View style={[styles.card, { paddingBottom: insets.bottom + 20 }]}>
         <Text style={styles.eyebrow}>GEORGIA TECH · CAMPUS MAP</Text>
         <Text style={styles.title}>Welcome to{'\n'}CamBuzz</Text>
-        <Text style={styles.body}>
-          Your day on one map: the walk between classes, events on your way, food nearby and where your friends are.
-        </Text>
+        <Text style={styles.body}>Your Day on One Map</Text>
 
         <View style={styles.buttons}>
           <AuthButton label="Create account" onPress={onSignUp} />
@@ -43,7 +46,8 @@ export function WelcomeScreen({ onSignUp, onLogIn, onGuest }: Props) {
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.mapBackground },
-  art: { flex: 1, minHeight: 200 },
+  art: { flex: 1, minHeight: 200, overflow: 'hidden' },
+  photo: { width: '100%', height: '100%' },
   card: {
     marginTop: -28,
     backgroundColor: colors.surface,
