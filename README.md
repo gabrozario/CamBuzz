@@ -45,6 +45,8 @@ Enter your class schedule and Cambuzz draws your walking route across campus, fr
 
 Turn on **Events** and **Friends** together and Cambuzz tells you which events you and a friend could go to *together* between classes.
 
+[Demo Workflow](DEMO_WORKFLOW.md)
+
 ## Screenshots
 
 <table>
