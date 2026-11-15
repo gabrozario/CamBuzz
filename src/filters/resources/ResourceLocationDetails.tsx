@@ -60,8 +60,6 @@ export function ResourceLocationDetails({ location, category }: Props) {
           <Text style={styles.whereText}>{building.name}</Text>
         </View>
       )}
-
-      <Text style={styles.footnote}>Illustrative locations</Text>
     </SheetScrollView>
   );
 }
@@ -89,5 +87,4 @@ const makeStyles = (colors: Palette) =>
     noticeText: { fontFamily: fonts.medium, fontSize: 14, color: colors.ink },
     whereRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 18 },
     whereText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, color: colors.muted },
-    footnote: { fontFamily: fonts.regular, fontSize: 11, color: colors.subtle, marginTop: 24 },
   });

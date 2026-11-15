@@ -106,8 +106,6 @@ export function EventDetails({ entry }: { entry: EventEntry }) {
       <Text style={styles.sectionTitle}>About this event</Text>
       <Text style={styles.about}>{event.description}</Text>
       <Text style={styles.org}>Hosted by {event.organization}</Text>
-
-      <Text style={styles.footnote}>Sample event</Text>
     </SheetScrollView>
   );
 }
@@ -144,5 +142,4 @@ const makeStyles = (colors: Palette) =>
   sectionTitle: { fontFamily: fonts.semibold, fontSize: 17, color: colors.ink },
   about: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 22, color: colors.muted, marginTop: 8 },
   org: { fontFamily: fonts.medium, fontSize: 13, color: colors.ink, marginTop: 12 },
-  footnote: { fontFamily: fonts.regular, fontSize: 11, color: colors.subtle, marginTop: 24 },
 });

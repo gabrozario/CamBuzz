@@ -130,7 +130,7 @@ export function ResourcesSheet({ state, onClose, onIndexChange }: Props) {
             />
           ))}
 
-          <Text style={styles.footnote}>Illustrative locations · Scroll to see more</Text>
+          <Text style={styles.footnote}>Scroll to see more</Text>
         </SheetScrollView>
       )}
     </FilterSheet>
