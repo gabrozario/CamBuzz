@@ -39,7 +39,7 @@ import { blocksOnDate, classesOnDate } from '../services/schedule/scheduleLogic'
 import { useSchedule } from '../services/schedule/ScheduleProvider';
 import { spacing, useAppTheme, useThemedStyles, type Palette } from '../theme';
 import type { FilterKey, LatLng } from '../types';
-import { buildDayRoute, type DayRoute } from '../utils/route';
+import { buildDayRoute, remainingRoute, type DayRoute } from '../utils/route';
 import { formatTime, nowTime } from '../utils/time';
 
 /** Filtros que já têm aba (bottom sheet) implementada. */
@@ -116,7 +116,8 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
       isMounted = false;
     };
   }, [baseUserRoute]);
-  const stopCoords = useMemo(() => userRoute.stops.map((s) => s.building.coordinate), [userRoute]);
+  // Câmera enquadra só o que ainda falta do dia (as paradas que já passaram não aparecem no mapa).
+  const stopCoords = useMemo(() => remainingRoute(userRoute).stops.map((s) => s.building.coordinate), [userRoute]);
 
   // ---- Filtro People ----
   // Pílula "My Route": o seu caminho do dia (começa DESLIGADO ao abrir o app).
@@ -569,7 +570,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
             myRouteOn && <DayRouteLayer route={userRoute} color={colors.me} highlightNextLeg isMe />
           )}
           {/* Com um lugar aberto (descrição), só a camada dele aparece — os alfinetes dos outros filtros somem. */}
-          {eventsOn && (!openPlace || openPlace === 'events') && <EventsLayer state={events} />}
+          {eventsOn && (!openPlace || openPlace === 'events') && <EventsLayer state={events} routeShown={myRouteOn} />}
           {resourcesOn && (!openPlace || openPlace === 'resources') && <ResourcesLayer state={resources} />}
           {foodOn && (!openPlace || openPlace === 'food') && <FoodLayer state={food} />}
           {searchPin && (

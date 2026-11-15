@@ -4,13 +4,16 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { FoodItem, FoodLocation } from '../../types';
+import { todayISO } from '../../utils/dates';
 import { FoodHoursCard } from './FoodHoursCard';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-/** "Saturday, Nov 14" (feito à mão para não depender do Intl do Android). */
-function todayLabel(d = new Date()): string {
+/** "Saturday, Nov 14" (feito à mão para não depender do Intl do Android). Usa todayISO() → respeita DEMO_TODAY. */
+function todayLabel(): string {
+  const [y, m, day] = todayISO().split('-').map(Number);
+  const d = new Date(y, m - 1, day);
   return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
 }
 

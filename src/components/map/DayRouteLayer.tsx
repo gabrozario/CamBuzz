@@ -1,6 +1,7 @@
 import { Polyline } from 'react-native-maps';
 import { useAppTheme } from '../../theme';
-import { shiftCoordinate, type DayRoute } from '../../utils/route';
+import { useMemo } from 'react';
+import { remainingRoute, shiftCoordinate, type DayRoute } from '../../utils/route';
 import { StopMarker } from './StopMarker';
 
 interface Props {
@@ -21,10 +22,10 @@ interface Props {
 
 /**
  * Desenha o caminho de um dia (linhas + marcadores) dentro do <CampusMap>.
- * Usado para você e para cada amigo (cada um com sua cor).
+ * Usado para você e para cada amigo (cada um com sua cor). Mostra só o que ainda falta do dia.
  */
 export function DayRouteLayer({
-  route,
+  route: fullRoute,
   color,
   highlightNextLeg = false,
   nextLegColor,
@@ -34,6 +35,8 @@ export function DayRouteLayer({
   isMe = false,
 }: Props) {
   const { colors } = useAppTheme();
+  // Só o que ainda falta do dia: paradas que já acabaram (e os trechos até elas) somem do mapa.
+  const route = useMemo(() => remainingRoute(fullRoute), [fullRoute]);
   const shift = (path: typeof route.legs[number]['path']) => path.map((p) => shiftCoordinate(p, offset));
 
   return (

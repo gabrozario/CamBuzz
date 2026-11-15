@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
 import { DayRouteLayer } from '../../components/map/DayRouteLayer';
+import { useMapViewport } from '../../components/map/mapViewport';
 import { useAppTheme } from '../../theme';
+import { remainingRoute, shiftCoordinate } from '../../utils/route';
+import { estimateCalloutWidth, placeCallouts } from './calloutPlacement';
 import { sharedBuildings } from './peopleDay';
-import { SharedBuildingCallout } from './SharedBuildingCallout';
+import { CALLOUT_HEIGHT, SharedBuildingCallout } from './SharedBuildingCallout';
 import type { PeopleFilterState } from './usePeopleFilter';
 
 interface Props {
@@ -20,6 +23,28 @@ export function PeopleLayer({ state }: Props) {
   const single = days.length === 1;
   const { colors } = useAppTheme();
   const shared = useMemo(() => (single ? [] : sharedBuildings(days, colors.ink)), [days, single, colors.ink]);
+  const offsetOf = (i: number) => i - (days.length - 1) / 2;
+
+  // Cada card vai para o lugar livre mais perto do prédio (sem cobrir bolinhas nem outros cards),
+  // recalculado a cada zoom/movimento do mapa.
+  const { viewport, width, height } = useMapViewport();
+  const positions = useMemo(() => {
+    if (!shared.length) return {};
+    const circles = days.flatMap((day, i) =>
+      remainingRoute(day.route).stops.map((s) => ({
+        coordinate: shiftCoordinate(s.building.coordinate, offsetOf(i)),
+        radius: s.status === 'now' ? 23 : 15, // anel da aula de agora / bolinha
+      })),
+    );
+    const boxes = shared.map((s) => ({
+      key: s.building.id,
+      coordinate: s.building.coordinate,
+      width: estimateCalloutWidth(s.building.shortName, s.line),
+      height: CALLOUT_HEIGHT,
+    }));
+    return placeCallouts(boxes, circles, viewport, width, height);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shared, days, viewport, width, height]);
 
   return (
     <>
@@ -31,12 +56,12 @@ export function PeopleLayer({ state }: Props) {
           highlightNextLeg
           nextLegColor={day.person.color}
           showChips={single}
-          offset={i - (days.length - 1) / 2}
+          offset={offsetOf(i)}
           isMe={day.person.isMe}
         />
       ))}
       {shared.map((s) => (
-        <SharedBuildingCallout key={s.building.id} shared={s} />
+        <SharedBuildingCallout key={s.building.id} shared={s} position={positions[s.building.id] ?? s.building.coordinate} />
       ))}
     </>
   );

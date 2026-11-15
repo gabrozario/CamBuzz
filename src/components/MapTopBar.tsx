@@ -14,7 +14,7 @@ interface Props {
   onOpenSettings?: () => void; // tela "Settings"
   onAddFriend?: () => void; // abre o popup "Add Friends"
   onOpenSearch?: () => void; // abre a tela de busca
-  /** Busca atual (ex.: "Chick-fil-A"): aparece na barra no lugar de "Search campus", com um X. */
+  /** Busca atual (ex.: "Chick-fil-A"): aparece na barra no lugar de "Search CamBuzz", com um X. */
   searchLabel?: string;
   /** X da busca atual: tira o alfinete/descrição do resultado. */
   onClearSearch?: () => void;
@@ -43,7 +43,7 @@ export function MapTopBar({
           onPress={onOpenSearch}
           style={({ pressed }) => [styles.search, pressed && { opacity: 0.8 }]}
           accessibilityRole="search"
-          accessibilityLabel="Search campus"
+          accessibilityLabel="Search CamBuzz"
         >
           <Search size={20} color={colors.ink} strokeWidth={1.8} />
           {searchLabel ? (
@@ -51,7 +51,7 @@ export function MapTopBar({
               {searchLabel}
             </Text>
           ) : (
-            <Text style={styles.searchPlaceholder}>Search campus</Text>
+            <Text style={styles.searchPlaceholder}>Search CamBuzz</Text>
           )}
           {searchLabel && onClearSearch && (
             <Pressable

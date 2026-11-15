@@ -91,6 +91,25 @@ export function buildDayRoute(classes: ClassSession[], now: TimeOfDay): DayRoute
   return { stops, legs };
 }
 
+/**
+ * Só o que AINDA falta do dia (para desenhar no mapa): some com as paradas que já acabaram e
+ * com os trechos entre elas — não tem por que mostrar lugar que já passou.
+ * Exceção: o trecho que você está caminhando agora (saiu da última aula e vai para a próxima)
+ * continua, mas sem o marcador do prédio de onde saiu.
+ * As paradas que sobram são renumeradas (1, 2, 3...).
+ */
+export function remainingRoute(route: DayRoute): DayRoute {
+  const inTransit = !route.stops.some((s) => s.status === 'now');
+  const renumbered = new Map<RouteStop, RouteStop>();
+  route.stops
+    .filter((s) => s.status !== 'past')
+    .forEach((s, index) => renumbered.set(s, { ...s, index }));
+  const legs = route.legs
+    .filter((leg) => renumbered.has(leg.to) && (renumbered.has(leg.from) || (inTransit && leg.isNext)))
+    .map((leg) => ({ ...leg, from: renumbered.get(leg.from) ?? leg.from, to: renumbered.get(leg.to)! }));
+  return { stops: [...renumbered.values()], legs };
+}
+
 /** ~11 m em graus — um "passo" de deslocamento entre linhas paralelas de pessoas diferentes. */
 const OFFSET_STEP_DEG = 0.0001;
 

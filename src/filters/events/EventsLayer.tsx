@@ -9,6 +9,8 @@ import type { EventsFilterState } from './useEventsFilter';
 
 interface Props {
   state: EventsFilterState;
+  /** O seu caminho está no mapa (My Route ligado): eventos já na agenda viram bolinha dele, sem alfinete. */
+  routeShown?: boolean;
 }
 
 
@@ -18,8 +20,13 @@ interface Props {
  * - Detalhe: só o evento escolhido, com halo, nome e uma linha tracejada
  *   mostrando o desvio a partir do seu caminho.
  */
-export function EventsLayer({ state }: Props) {
-  const { entries, selected, select } = state;
+export function EventsLayer({ state, routeShown = false }: Props) {
+  const { selected: selectedEntry, select } = state;
+  // Evento já na sua agenda + caminho no mapa = a bolinha do caminho já marca o lugar: sem alfinete.
+  // (Tirou da agenda → a bolinha some e o alfinete volta.)
+  const hidePin = (e: { added?: boolean }) => routeShown && !!e.added;
+  const entries = useMemo(() => state.entries.filter((e) => !hidePin(e)), [state.entries, routeShown]);
+  const selected = selectedEntry && !hidePin(selectedEntry) ? selectedEntry : null;
   const { colors } = useAppTheme();
   // showPlaceLabels: nomes aparecem com zoom (como no Google/Apple Maps) e somem ao afastar.
   const { viewport, width, height, zoomTo, showPlaceLabels: showLabels } = useMapViewport();
@@ -28,6 +35,9 @@ export function EventsLayer({ state }: Props) {
     () => clusterOnScreen(entries, (e) => e.event.coordinate, (e) => e.event.id, viewport, width, height),
     [entries, viewport, width, height],
   );
+
+  // Detalhe aberto de um evento que virou bolinha do caminho: não desenha mais nada.
+  if (selectedEntry && !selected) return null;
 
   if (selected) {
     return (

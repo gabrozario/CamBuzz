@@ -23,7 +23,7 @@ interface Props {
 export function EventPin({ entry, selected = false, showLabel = false, onPress }: Props) {
   const { colors } = useAppTheme();
   const friendDots = entry.friends.slice(0, 3).map((f) => ({ id: f.person.id, color: f.person.color }));
-  const tracks = useTracksViewChanges([selected, entry.number, !!entry.dim, friendDots.map((d) => d.id).join()]);
+  const tracks = useTracksViewChanges([selected, entry.number, !!entry.added, !!entry.dim, friendDots.map((d) => d.id).join()]);
   // Apagado: fora do seu caminho (dia com agenda) ou já terminou.
   const offRoute = !!entry.dim;
   // Nome com zoom: marcador separado, embaixo do alfinete.
@@ -40,9 +40,10 @@ export function EventPin({ entry, selected = false, showLabel = false, onPress }
         onPress={onPress}
       >
         <PlacePin
-          label={String(entry.number)}
-          color={offRoute ? colors.muted : colors.ink}
-          textColor={offRoute ? colors.white : colors.onInk}
+          // Já na sua agenda (com My Route desligado, o alfinete continua): ✓ verde no lugar do número.
+          label={entry.added ? '✓' : String(entry.number)}
+          color={entry.added ? colors.added : offRoute ? colors.muted : colors.ink}
+          textColor={entry.added || offRoute ? colors.white : colors.onInk}
           selected={selected}
           dots={friendDots}
         />

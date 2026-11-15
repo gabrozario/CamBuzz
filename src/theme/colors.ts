@@ -73,6 +73,7 @@ export const colors = {
   inputBorder: '#DDCDB1', // gold 45% + branco — borda do campo de email
   checkboxBorder: '#8F9AA6', // navy 45% + branco — checkbox desmarcado
   error: '#A4513F', // mensagens de erro / "Closed" (exceção funcional: terracota que combina com o dourado)
+  added: '#2E7D4F', // ✓ verde de "já está na sua agenda" (lista de eventos) — exceção funcional, sem equivalente na paleta
 
   // Telas "My schedule" e "Settings". O modo escuro fica em ThemeProvider.tsx.
   forest: gt.navy, // botões principais (Done, Find sections, +), aba selecionada
@@ -126,6 +127,7 @@ export const darkColors: Palette = {
   inputBorder: '#40536A',
   checkboxBorder: '#7F8A8F',
   error: '#E0907C',
+  added: '#5CB97E',
 
   forest: gt.buzz,
   mint: gt.darkGold,

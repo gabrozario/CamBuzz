@@ -1,6 +1,6 @@
 import { CalendarDays, LayoutGrid, Map as MapIcon, Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useClock } from '../hooks/useClock';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getBuilding } from '../../data';
@@ -12,7 +12,6 @@ import { WeekView } from '../components/schedule/WeekView';
 import { useToast } from '../components/ui/Toast';
 import {
   blocksOnDate,
-  EVENT_COLOR,
   formatEventTime,
   repeatLabel,
   type ScheduleBlock,
@@ -30,7 +29,15 @@ interface Props {
 type ViewMode = 'week' | 'block';
 
 const FAB_SIZE = 54;
-const TAB_BAR_HEIGHT = 78;
+/** Altura inicial da barra Week/Block (é medida de verdade no onLayout). */
+const TAB_BAR_HEIGHT = 66;
+
+/** "#1A2B3C" + 0.8 → "rgba(26, 43, 60, 0.8)" (cor meio transparente). */
+function withAlpha(hex: string, alpha: number): string {
+  if (!hex.startsWith('#') || hex.length !== 7) return hex;
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 /**
  * Tela "My schedule" (Figma "Schedule · Week View" / "Block View").
@@ -48,6 +55,7 @@ export function ScheduleScreen({ onOpenMap }: Props) {
   const [weekStart, setWeekStart] = useState(() => startOfWeek(today));
   const [menuOpen, setMenuOpen] = useState(false);
   const [modal, setModal] = useState<'course' | 'event' | null>(null);
+  const [barHeight, setBarHeight] = useState(TAB_BAR_HEIGHT); // medido no onLayout da barra
 
   // Hora do celular, ao vivo (a linha vermelha da Week View anda a cada minuto).
   const { minutes: nowMinutes } = useClock();
@@ -132,15 +140,15 @@ export function ScheduleScreen({ onOpenMap }: Props) {
     }
   };
 
-  const footerBottom = TAB_BAR_HEIGHT + insets.bottom;
-  const legend = [
-    ...schedule.courses.map((x) => ({ label: x.code, color: x.color })),
-    ...(schedule.events.length ? [{ label: 'Events', color: EVENT_COLOR }] : []),
-  ];
+  // Barra Week/Block "voadora" (como a do mapa): distância até a borda e onde começa o "+" (logo acima dela).
+  const barBottom = Math.max(insets.bottom, 12) + 8;
+  const footerBottom = barBottom + barHeight + 4;
+  /** Topo do botão "+" (o rodapé tem 12 de espaço embaixo do botão) — o menu abre acima disso. */
+  const fabTop = footerBottom + 12 + FAB_SIZE;
 
   return (
     <View style={styles.screen}>
-      {/* Topo FIXO: botão "Campus map" (voltar), título e subtítulo não rolam junto com a agenda. */}
+      {/* Topo FIXO: botão "Campus Map" (voltar), título e subtítulo não rolam junto com a agenda. */}
       <View style={[styles.content, { paddingTop: insets.top + 16 }]}>
         <Pressable
           onPress={onOpenMap}
@@ -151,7 +159,7 @@ export function ScheduleScreen({ onOpenMap }: Props) {
           <View style={styles.mapButton}>
             <MapIcon size={22} color={c.accentSoftText} strokeWidth={1.8} />
           </View>
-          <Text style={styles.mapText}>Campus map</Text>
+          <Text style={styles.mapText}>Campus Map</Text>
         </Pressable>
 
         <Text style={styles.title}>My Schedule</Text>
@@ -162,13 +170,13 @@ export function ScheduleScreen({ onOpenMap }: Props) {
 
       {mode === 'week' ? (
         // Week View: semana + dias da semana ficam fixos; só a grade de horas rola (dentro da WeekView).
-        <View style={[styles.content, styles.weekArea, { paddingBottom: footerBottom }]}>
+        <View style={[styles.content, styles.weekArea]}>
           <WeekView
             weekStart={weekStart}
             today={today}
             days={days}
             nowMinutes={nowMinutes}
-            bottomPadding={FAB_SIZE + 28}
+            bottomPadding={fabTop + 12}
             onPrevWeek={() => setWeekStart((w) => addDays(w, -7))}
             onNextWeek={() => setWeekStart((w) => addDays(w, 7))}
             onPressBlock={openBlock}
@@ -177,7 +185,7 @@ export function ScheduleScreen({ onOpenMap }: Props) {
       ) : (
         <ScrollView
           style={styles.flex}
-          contentContainerStyle={[styles.content, { paddingBottom: footerBottom + FAB_SIZE + 40 }]}
+          contentContainerStyle={[styles.content, { paddingBottom: fabTop + 24 }]}
           showsVerticalScrollIndicator={false}
         >
           <BlockView
@@ -189,30 +197,23 @@ export function ScheduleScreen({ onOpenMap }: Props) {
         </ScrollView>
       )}
 
-      {/* "+" e legenda, logo acima da barra inferior */}
+      {/* "+" logo acima da barra inferior */}
       <View style={[styles.footer, { bottom: footerBottom }]} pointerEvents="box-none">
         <Pressable
           onPress={() => setMenuOpen(true)}
-          style={({ pressed }) => [styles.fab, pressed && { opacity: 0.85 }]}
+          style={({ pressed }) => [styles.fab, { backgroundColor: withAlpha(c.accent, 0.78) }, pressed && { opacity: 0.85 }]}
           accessibilityRole="button"
           accessibilityLabel="Add course or event"
         >
           <Plus size={28} color={c.onAccent} strokeWidth={2.2} />
         </Pressable>
-        {mode === 'week' && (
-          <View style={styles.legend} pointerEvents="none">
-            {legend.map((l) => (
-              <View key={l.label} style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: l.color }]} />
-                <Text style={styles.legendText}>{l.label}</Text>
-              </View>
-            ))}
-          </View>
-        )}
       </View>
 
-      {/* Barra inferior: Week View / Block View */}
-      <View style={[styles.tabBar, { paddingBottom: insets.bottom + 10 }]}>
+      {/* Barra Week View / Block View: flutuante e meio transparente (a agenda aparece por trás) */}
+      <View
+        style={[styles.tabBar, { bottom: barBottom, backgroundColor: theme.colors.floatingBar, borderColor: theme.colors.floatingBarBorder }]}
+        onLayout={(e) => setBarHeight(Math.round(e.nativeEvent.layout.height))}
+      >
         {(
           [
             { key: 'week', label: 'Week View', icon: CalendarDays },
@@ -228,7 +229,7 @@ export function ScheduleScreen({ onOpenMap }: Props) {
               accessibilityRole="tab"
               accessibilityState={{ selected }}
             >
-              <Icon size={24} color={selected ? c.accentSoftText : c.muted} strokeWidth={1.6} />
+              <Icon size={22} color={selected ? c.accentSoftText : c.muted} strokeWidth={1.6} />
               <Text style={[styles.tabLabel, selected && styles.tabLabelSelected]}>{label}</Text>
             </Pressable>
           );
@@ -237,7 +238,7 @@ export function ScheduleScreen({ onOpenMap }: Props) {
 
       <AddMenu
         visible={menuOpen}
-        bottom={footerBottom + FAB_SIZE + 12}
+        bottom={fabTop}
         onClose={() => setMenuOpen(false)}
         onAddCourse={() => {
           setMenuOpen(false);
@@ -302,49 +303,37 @@ const makeStyles = (c: AppColors) =>
       width: FAB_SIZE,
       height: FAB_SIZE,
       borderRadius: 18,
-      backgroundColor: c.accent,
       alignItems: 'center',
       justifyContent: 'center',
-      shadowColor: '#000',
-      shadowOpacity: 0.12,
-      shadowRadius: 8,
-      shadowOffset: { width: 0, height: 3 },
-      elevation: 4,
+      // Sombra só no iPhone: no Android "elevation" + fundo transparente fica manchado.
+      ...Platform.select({
+        ios: { shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
+        default: {},
+      }),
     },
-    legend: {
-      flex: 1,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      columnGap: 14,
-      rowGap: 4,
-      backgroundColor: c.page,
-      borderRadius: 12,
-      paddingVertical: 4,
-    },
-    legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    legendDot: { width: 8, height: 8, borderRadius: 2 },
-    legendText: { fontFamily: fonts.regular, fontSize: 12, color: c.muted },
+    // Flutuante (pílula) e meio transparente, igual à barra de filtros do mapa.
     tabBar: {
       position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0,
+      left: 14,
+      right: 14,
       flexDirection: 'row',
-      gap: 12,
-      paddingHorizontal: 16,
-      paddingTop: 6,
-      backgroundColor: c.card,
-      borderTopWidth: 1,
-      borderTopColor: c.cardBorder,
+      gap: 6,
+      padding: 6,
+      borderRadius: 28,
+      borderWidth: 1,
+      ...Platform.select({
+        ios: { shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 14, shadowOffset: { width: 0, height: 4 } },
+        default: {},
+      }),
     },
     tab: {
       flex: 1,
       alignItems: 'center',
-      gap: 4,
-      paddingVertical: 8,
-      borderRadius: 18,
+      gap: 3,
+      paddingVertical: 6,
+      borderRadius: 22,
     },
     tabSelected: { backgroundColor: c.accentSoft },
-    tabLabel: { fontFamily: fonts.medium, fontSize: 14, color: c.muted },
+    tabLabel: { fontFamily: fonts.medium, fontSize: 13, color: c.muted },
     tabLabelSelected: { fontFamily: fonts.semibold, color: c.accentSoftText },
   });

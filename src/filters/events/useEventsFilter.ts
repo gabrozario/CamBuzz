@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { events as allEvents } from '../../../data';
+import { useSchedule } from '../../services/schedule/ScheduleProvider';
 import type { CampusEvent, TimeOfDay } from '../../types';
 import type { DayRoute } from '../../utils/route';
 import { toMinutes } from '../../utils/time';
@@ -19,6 +20,8 @@ export interface EventEntry {
   ended?: boolean;
   /** Mostrar apagado (fora do seu caminho, ou já terminou). */
   dim?: boolean;
+  /** Já está na SUA agenda de hoje ("Add to schedule"): ✓ verde na lista, sem número; no mapa vira bolinha do caminho. */
+  added?: boolean;
 }
 
 export interface EventSection {
@@ -40,6 +43,12 @@ const byStart = (a: CampusEvent, b: CampusEvent) => toMinutes(a.start) - toMinut
 export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Companion[] = []) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
+  // Eventos do campus que você já pôs na agenda de hoje.
+  const { schedule, today } = useSchedule();
+  const addedIds = useMemo(
+    () => new Set(schedule.events.filter((e) => e.campusEventId && e.date === today).map((e) => e.campusEventId!)),
+    [schedule.events, today],
+  );
 
   const matches = useMemo(() => findEventsOnRoute(route, allEvents, now), [route, now]);
   // Dia sem nada na agenda (sem caminho): mostra TODOS os eventos do dia direto.
@@ -103,11 +112,16 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
     }
 
     // Numera na ordem em que aparecem na lista — é o mesmo número do pino no mapa.
+    // Os que já estão na sua agenda ganham ✓ em vez de número (e não contam na numeração).
     let n = 1;
-    for (const s of result) for (const e of s.entries) e.number = n++;
+    for (const s of result)
+      for (const e of s.entries) {
+        if (addedIds.has(e.event.id)) e.added = true;
+        else e.number = n++;
+      }
 
     return { sections: result, entries: result.flatMap((s) => s.entries), upcomingCount: upcoming.length };
-  }, [matches, withFriends, now, showAll, noPlanToday]);
+  }, [matches, withFriends, now, showAll, noPlanToday, addedIds]);
 
   const withFriendsCount = withFriends.size;
 

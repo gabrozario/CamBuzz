@@ -50,7 +50,7 @@ const ICONS: Record<Exclude<SearchIcon, 'friend'>, LucideIcon> = {
 };
 
 /**
- * Tela de busca ("Search campus"): pesquisa tudo do app — amigos, suas aulas, restaurantes,
+ * Tela de busca ("Search CamBuzz"): pesquisa tudo do app — amigos, suas aulas, restaurantes,
  * bibliotecas/impressoras, eventos e prédios. Tocar num resultado leva até ele no mapa
  * (liga o filtro certo, abre a descrição e dá zoom — ver onSearchSelect no MapScreen).
  */
@@ -111,7 +111,7 @@ export function SearchScreen({ visible, onClose, onSelect, friendStatus, now, in
               autoCorrect={false}
               returnKeyType="search"
               onSubmitEditing={() => results[0] && onSelect(results[0].target, results[0])}
-              accessibilityLabel="Search campus"
+              accessibilityLabel="Search CamBuzz"
             />
             {query.length > 0 && (
               <Pressable onPress={() => setQuery('')} hitSlop={10} accessibilityRole="button" accessibilityLabel="Clear search">

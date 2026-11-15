@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { fonts, radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { shiftCoordinate, type RouteStop } from '../../utils/route';
@@ -49,9 +49,17 @@ export function StopMarker({ stop, color, showChip = true, offset = 0, isMe = fa
         </View>
       </Marker>
 
-      {/* Chip com horário/prédio, ancorado logo abaixo do círculo */}
+      {/* Chip com horário/prédio, logo abaixo do círculo (e do anel) */}
       {showChip && (
-        <Marker coordinate={coordinate} anchor={{ x: 0.5, y: 0 }} tracksViewChanges={tracks} zIndex={9} tappable={false}>
+        <Marker
+          coordinate={coordinate}
+          anchor={{ x: 0.5, y: 0 }}
+          // iPhone ignora o anchor e centraliza o marcador no local: desce metade da altura (fixa) do chip.
+          centerOffset={{ x: 0, y: Platform.OS === 'ios' ? CHIP_BOX_HEIGHT / 2 : 0 }}
+          tracksViewChanges={tracks}
+          zIndex={9}
+          tappable={false}
+        >
           <View style={styles.chipBox}>
             <View style={[styles.chip, isPast && styles.past]}>
               <Text style={[styles.chipText, isNow && { color: dotColor }]} numberOfLines={1}>
@@ -67,6 +75,11 @@ export function StopMarker({ stop, color, showChip = true, offset = 0, isMe = fa
 
 const CIRCLE = 26;
 const RING = 46;
+/** Espaço entre o local (centro do círculo) e o topo do chip: logo abaixo do círculo numerado. */
+const CHIP_TOP = CIRCLE / 2 + 3;
+/** Altura fixa do chip (padding 4 + linha 14 + padding 4) e da caixa inteira do marcador. */
+const CHIP_HEIGHT = 22;
+const CHIP_BOX_HEIGHT = CHIP_TOP + CHIP_HEIGHT + 6;
 
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
@@ -88,13 +101,15 @@ const makeStyles = (colors: Palette) =>
   hereRing: { opacity: 0.3 },
   hereCircle: { width: CIRCLE + 4, height: CIRCLE + 4, borderRadius: (CIRCLE + 4) / 2, borderWidth: 3 },
   // paddingTop afasta o chip do círculo; padding lateral dá espaço para a sombra.
-  chipBox: { paddingTop: 22, paddingHorizontal: 6, paddingBottom: 6 },
+  chipBox: { paddingTop: CHIP_TOP, paddingHorizontal: 6, paddingBottom: 6 },
   chip: {
     backgroundColor: colors.surface,
     borderRadius: radius.sm,
     paddingHorizontal: 8,
     paddingVertical: 4,
+    height: CHIP_HEIGHT,
+    justifyContent: 'center',
     ...shadow,
   },
-  chipText: { fontFamily: fonts.semibold, fontSize: 11, color: colors.ink },
+  chipText: { fontFamily: fonts.semibold, fontSize: 11, lineHeight: 14, color: colors.ink },
 });

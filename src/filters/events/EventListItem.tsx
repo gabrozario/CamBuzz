@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react-native';
+import { Check, ChevronRight } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { formatTime } from '../../utils/time';
@@ -24,7 +24,7 @@ export function EventListItem({ entry, onPress, showDivider }: Props) {
       onPress={onPress}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
       accessibilityRole="button"
-      accessibilityLabel={`${number}. ${event.name}, ${formatTime(event.start)}, ${event.locationName}`}
+      accessibilityLabel={`${entry.added ? 'In your schedule' : number}. ${event.name}, ${formatTime(event.start)}, ${event.locationName}`}
     >
       <View style={styles.timeCol}>
         <Text style={styles.time}>{time}</Text>
@@ -34,9 +34,16 @@ export function EventListItem({ entry, onPress, showDivider }: Props) {
       <View style={[styles.body, showDivider && styles.divider]}>
         <View style={styles.textCol}>
           <View style={styles.titleRow}>
-            <View style={[styles.badge, entry.dim && styles.badgeOff]}>
-              <Text style={styles.badgeText}>{number}</Text>
-            </View>
+            {entry.added ? (
+              // Já está na sua agenda: ✓ verde no lugar do número.
+              <View style={[styles.badge, { backgroundColor: colors.added }]}>
+                <Check size={12} color={colors.surface} strokeWidth={3} />
+              </View>
+            ) : (
+              <View style={[styles.badge, entry.dim && styles.badgeOff]}>
+                <Text style={styles.badgeText}>{number}</Text>
+              </View>
+            )}
             <Text style={styles.title} numberOfLines={2}>
               {event.name}
             </Text>

@@ -70,10 +70,10 @@ export const allResourceLocations: ResourceLocation[] = resourceCategories.flatM
  * Para uma apresentação sempre igual, troque por um horário fixo, ex.: '11:15'
  * (igual ao Figma: "Today · 11:15 AM").
  */
-export const DEMO_NOW: string | null = null;
+export const DEMO_NOW: string | null = '10:00';
 
 /**
  * "Hoje" do app. `null` = data REAL do celular (padrão).
  * Para a demo fixa, use '2026-11-16' (segunda-feira com as 5 aulas do mapa).
  */
-export const DEMO_TODAY: ISODate | null = null;
+export const DEMO_TODAY: ISODate | null = '2026-11-16';
