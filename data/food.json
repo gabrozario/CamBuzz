@@ -172,10 +172,6 @@
               ]
             ]
           },
-          "payments": {
-            "diningDollars": true,
-            "buzzcardFunds": true
-          },
           "address": "120 North Avenue NW"
         },
         {
@@ -304,10 +300,6 @@
               ]
             ],
             "Sat": []
-          },
-          "payments": {
-            "diningDollars": true,
-            "buzzcardFunds": true
           },
           "address": "649 Techwood Dr NW, Atlanta, GA 30330"
         },
@@ -447,10 +439,6 @@
                 "21:00"
               ]
             ]
-          },
-          "payments": {
-            "diningDollars": true,
-            "buzzcardFunds": true
           },
           "address": "532 8th St NW"
         }

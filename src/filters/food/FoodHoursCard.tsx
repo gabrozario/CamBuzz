@@ -1,5 +1,6 @@
-import { CircleCheck, CircleX, MapPin } from 'lucide-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { ChevronDown, ChevronUp, CircleCheck, CircleX, MapPin } from 'lucide-react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { FoodLocation } from '../../types';
 import { todayISO, weekdayOf } from '../../utils/dates';
@@ -11,9 +12,11 @@ import { formatDayHours, openStatus, otherDays, weekdayName } from './foodHours'
  * hoje em destaque ("Open now · until 10 PM"), os outros dias pequenos embaixo,
  * e se aceita Dining Dollars / BuzzCard Funds.
  */
-export function FoodHoursCard({ location }: { location: FoodLocation }) {
+export function FoodHoursCard({ location, compact = false }: { location: FoodLocation; compact?: boolean }) {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
+  // Compacto (dining halls): só "Open now · until…" + horários da semana escondidos, para o cardápio aparecer logo.
+  const [showWeek, setShowWeek] = useState(!compact);
   const { hours, payments } = location;
   if (!hours) return null;
 
@@ -35,11 +38,33 @@ export function FoodHoursCard({ location }: { location: FoodLocation }) {
         <View style={[styles.statusDot, { backgroundColor: status.open ? colors.green : colors.error }]} />
         <Text style={[styles.statusText, { color: status.open ? colors.green : colors.error }]}>{status.label}</Text>
       </View>
-      <Text style={styles.todayLabel}>TODAY · {weekdayName(day).toUpperCase()}</Text>
-      <Text style={styles.todayHours}>{formatDayHours(hours[day])}</Text>
+      {!compact && (
+        <>
+          <Text style={styles.todayLabel}>TODAY · {weekdayName(day).toUpperCase()}</Text>
+          <Text style={styles.todayHours}>{formatDayHours(hours[day])}</Text>
+        </>
+      )}
       {location.hoursNote && <Text style={styles.hoursNote}>{location.hoursNote}</Text>}
 
+      {compact && (
+        <Pressable
+          onPress={() => setShowWeek(!showWeek)}
+          hitSlop={8}
+          style={styles.weekToggle}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: showWeek }}
+        >
+          <Text style={styles.weekToggleText}>{showWeek ? 'Hide weekly hours' : 'See weekly hours'}</Text>
+          {showWeek ? (
+            <ChevronUp size={14} color={colors.muted} strokeWidth={2} />
+          ) : (
+            <ChevronDown size={14} color={colors.muted} strokeWidth={2} />
+          )}
+        </Pressable>
+      )}
+
       {/* Outros dias, pequenos */}
+      {showWeek && (
       <View style={styles.week}>
         {otherDays(today).map((d) => (
           <View key={d} style={styles.dayRow}>
@@ -48,6 +73,7 @@ export function FoodHoursCard({ location }: { location: FoodLocation }) {
           </View>
         ))}
       </View>
+      )}
 
       {paymentRows.length > 0 && (
         <>
@@ -70,7 +96,7 @@ export function FoodHoursCard({ location }: { location: FoodLocation }) {
         </>
       )}
 
-      {!!location.address && (
+      {!!location.address && showWeek && (
         <View style={styles.addressRow}>
           <MapPin size={16} color={colors.muted} strokeWidth={1.8} />
           <Text style={styles.address}>{location.address}</Text>
@@ -97,6 +123,8 @@ const makeStyles = (colors: Palette) =>
     todayHours: { fontFamily: fonts.bold, fontSize: 24, color: colors.ink, marginTop: 4 },
     hoursNote: { fontFamily: fonts.medium, fontSize: 12, color: colors.gold, marginTop: 6 },
     week: { marginTop: 14, gap: 6 },
+    weekToggle: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', marginTop: 10 },
+    weekToggleText: { fontFamily: fonts.medium, fontSize: 13, color: colors.muted, textDecorationLine: 'underline' },
     dayRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
     dayName: { fontFamily: fonts.regular, fontSize: 13, color: colors.muted },
     dayHours: { flexShrink: 1, textAlign: 'right', fontFamily: fonts.regular, fontSize: 13, color: colors.muted },

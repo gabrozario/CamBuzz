@@ -14,6 +14,7 @@ interface Props {
 
 const CIRCLE = 30;
 const HALO = 68;
+const SMALL = CIRCLE + 6;
 
 /** Pino circular de recurso no campus (L1, P1, R1...). Selecionado = com halo e chip de nome. */
 export function ResourcePin({ location, color, selected = false, onPress }: Props) {
@@ -29,7 +30,8 @@ export function ResourcePin({ location, color, selected = false, onPress }: Prop
         zIndex={selected ? 30 : 20}
         onPress={onPress}
       >
-        <View style={styles.box}>
+        {/* Área de toque = tamanho do círculo; só cresce (halo) quando selecionado. */}
+        <View style={[styles.box, { width: selected ? HALO : SMALL, height: selected ? HALO : SMALL }]}>
           {selected && <View style={[styles.halo, { backgroundColor: color }]} />}
           <View style={[styles.circle, { backgroundColor: color }]}>
             <Text style={styles.code}>{location.code}</Text>
@@ -42,7 +44,8 @@ export function ResourcePin({ location, color, selected = false, onPress }: Prop
           coordinate={location.coordinate}
           anchor={{ x: 0.5, y: 1 }}
           tracksViewChanges={tracks}
-          zIndex={31}
+          // Abaixo do pino (30): no Android "tappable" não funciona e o chip roubaria o toque do pino.
+          zIndex={29}
           tappable={false}
         >
           <View style={styles.chipBox}>
@@ -60,7 +63,7 @@ export function ResourcePin({ location, color, selected = false, onPress }: Prop
 
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
-  box: { width: HALO, height: HALO, alignItems: 'center', justifyContent: 'center' },
+  box: { alignItems: 'center', justifyContent: 'center' },
   halo: {
     position: 'absolute',
     width: HALO,

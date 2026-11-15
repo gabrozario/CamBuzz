@@ -16,6 +16,7 @@ export function EventPin({ entry, selected = false, onPress }: Props) {
   const friendDots = entry.friends.slice(0, 3).map((f) => ({ id: f.person.id, color: f.person.color }));
   const tracks = useTracksViewChanges([selected, entry.number, !!entry.match, friendDots.map((d) => d.id).join()]);
   const offRoute = !entry.match;
+  const boxSize = selected ? HALO : SMALL;
 
   return (
     <>
@@ -26,14 +27,16 @@ export function EventPin({ entry, selected = false, onPress }: Props) {
         zIndex={selected ? 30 : 20}
         onPress={onPress}
       >
-        <View style={styles.box}>
+        {/* A "foto" do marcador tem o tamanho do que se vê: só cresce (halo) quando selecionado.
+            Assim a área de toque não invade os pinos vizinhos. */}
+        <View style={[styles.box, { width: boxSize, height: boxSize }]}>
           {selected && <View style={styles.halo} />}
           <View style={[styles.circle, offRoute && styles.offRoute]}>
             <Text style={styles.number}>{entry.number}</Text>
           </View>
           {/* Bolinhas com a cor dos amigos que podem ir junto */}
           {friendDots.length > 0 && (
-            <View style={styles.friendDots}>
+            <View style={[styles.friendDots, { top: boxSize / 2 - CIRCLE / 2 - 4, left: boxSize / 2 + 6 }]}>
               {friendDots.map((d) => (
                 <View key={d.id} style={[styles.friendDot, { backgroundColor: d.color }]} />
               ))}
@@ -48,7 +51,8 @@ export function EventPin({ entry, selected = false, onPress }: Props) {
           coordinate={entry.event.coordinate}
           anchor={{ x: 0.5, y: 1 }}
           tracksViewChanges={tracks}
-          zIndex={31}
+          // Abaixo do pino (30): no Android "tappable" não funciona e o chip roubaria o toque do pino.
+          zIndex={29}
           tappable={false}
         >
           <View style={styles.chipBox}>
@@ -66,10 +70,12 @@ export function EventPin({ entry, selected = false, onPress }: Props) {
 
 const CIRCLE = 30;
 const HALO = 72;
+/** Pino não selecionado: círculo + espaço para as bolinhas dos amigos. */
+const SMALL = CIRCLE + 16;
 
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
-  box: { width: HALO, height: HALO, alignItems: 'center', justifyContent: 'center' },
+  box: { alignItems: 'center', justifyContent: 'center' },
   halo: {
     position: 'absolute',
     width: HALO,
@@ -90,7 +96,7 @@ const makeStyles = (colors: Palette) =>
   },
   offRoute: { backgroundColor: colors.muted },
   // Canto superior direito do círculo (o box tem 72 de lado; o círculo, 30, centralizado).
-  friendDots: { position: 'absolute', top: HALO / 2 - CIRCLE / 2 - 4, left: HALO / 2 + 6, flexDirection: 'row' },
+  friendDots: { position: 'absolute', flexDirection: 'row' },
   friendDot: { width: 11, height: 11, borderRadius: 6, borderWidth: 1.5, borderColor: colors.surface, marginLeft: -3 },
   number: { fontFamily: fonts.semibold, fontSize: 13, color: colors.onInk },
   // paddingBottom afasta o chip do halo; padding lateral dá espaço para a sombra.

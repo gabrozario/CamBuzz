@@ -212,6 +212,10 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
 
 ### Pinos e ordem de amigos
 - **Todo pino de filtro abre a descrição dele** (evento → detalhe do evento; restaurante → horário/pagamento; biblioteca/CRC → ocupação; impressora → `ResourceLocationDetails`). Se o filtro do pino estava em segundo plano, ele vem para a frente (`focusFilter` em `useActiveFilters`) e a descrição aberta nos outros filtros fecha.
+- **Pinos tocáveis no Android (regras):**
+  - A "foto" do marcador (o `<View>` dentro do `<Marker>`) define a área de toque. Mantenha do tamanho do que se vê; halo/área grande só quando selecionado.
+  - `tappable={false}` **não funciona no Android**: marcadores decorativos (chips com nome/horário) roubam toques. Deixe-os com `zIndex` MENOR que os pinos tocáveis.
+  - Pinos colados no zoom atual viram um grupo ("12") — `clusterOnScreen` (`utils/cluster.ts`) + `ClusterPin`; tocar dá zoom (`useMapViewport().zoomTo`). Use isso em toda camada nova de pinos.
 - **Ao desligar um filtro, ele volta ao estado inicial** (`reset()` de cada hook: nada marcado/aberto; Friends volta a mostrar só "You").
 - **Reordenar amigos:** na aba Friends, segure um amigo (~0,3 s) e arraste (`components/DraggableList.tsx`, reutilizável). A ordem é salva por `reorderFriends(ids)` no `friendsService`. "You" fica sempre no topo.
 

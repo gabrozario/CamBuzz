@@ -19,10 +19,12 @@ interface Props {
   padding?: EdgePadding;
   /** Camadas desenhadas no mapa (caminhos, marcadores de eventos, amigos...). */
   children?: ReactNode;
+  /** Chamado quando a pessoa termina de mover/dar zoom (usado para agrupar pinos colados). */
+  onRegionChangeComplete?: (region: Region) => void;
 }
 
 /** O mapa base do campus, com o estilo bege do Figma (ou verde-escuro no modo escuro). Não sabe nada sobre filtros. */
-export function CampusMap({ ref, initialRegion = GT_REGION, padding, children }: Props) {
+export function CampusMap({ ref, initialRegion = GT_REGION, padding, children, onRegionChangeComplete }: Props) {
   const { mapStyle, colors, isDark } = useAppTheme();
   return (
     <MapView
@@ -36,6 +38,7 @@ export function CampusMap({ ref, initialRegion = GT_REGION, padding, children }:
       customMapStyle={mapStyle}
       userInterfaceStyle={isDark ? 'dark' : 'light'}
       initialRegion={initialRegion}
+      onRegionChangeComplete={onRegionChangeComplete}
       mapPadding={padding}
       showsPointsOfInterests={false}
       showsBuildings
