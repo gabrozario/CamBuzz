@@ -6,9 +6,11 @@ import { RobotoSlab_600SemiBold } from '@expo-google-fonts/roboto-slab/600SemiBo
 import { RobotoSlab_700Bold } from '@expo-google-fonts/roboto-slab/700Bold';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { IntroVideo } from './src/components/IntroVideo';
 import { ToastProvider } from './src/components/ui/Toast';
 import { AuthFlow } from './src/screens/auth/AuthFlow';
 import { RootScreen } from './src/screens/RootScreen';
@@ -20,6 +22,8 @@ import { colors, ThemeProvider, useAppTheme } from './src/theme';
 export default function App() {
   // Carrega as fontes (Roboto + Roboto Slab). Enquanto carrega, mostra só o fundo.
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_500Medium, RobotoSlab_600SemiBold, RobotoSlab_700Bold });
+  // Vídeo de abertura (toda vez que o app abre). O app carrega por baixo enquanto ele toca.
+  const [introDone, setIntroDone] = useState(false);
 
   return (
     // GestureHandlerRootView é exigido pelo @gorhom/bottom-sheet (usado nas próximas etapas).
@@ -35,6 +39,7 @@ export default function App() {
             </FriendsProvider>
           </AuthProvider>
         </ThemeProvider>
+        {!introDone && <IntroVideo onDone={() => setIntroDone(true)} />}
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

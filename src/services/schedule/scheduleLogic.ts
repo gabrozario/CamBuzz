@@ -1,5 +1,6 @@
 import type {
   ClassSession,
+  LatLng,
   CourseMeeting,
   EnrolledCourse,
   EventDraft,
@@ -114,6 +115,8 @@ export interface ScheduleBlock {
   endsAt: TimeOfDay;
   color: string;
   buildingId?: string;
+  /** Posição exata de um evento sem prédio (ao ar livre). */
+  coordinate?: LatLng;
   room?: string;
 }
 
@@ -156,16 +159,17 @@ export function blocksOnDate(schedule: MySchedule, iso: ISODate): ScheduleBlock[
         endsAt: event.end,
         color: EVENT_COLOR,
         buildingId: event.buildingId,
+        coordinate: event.coordinate,
       });
     }
   }
   return blocks.sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
 }
 
-/** Paradas do dia para o MAPA: aulas + eventos que têm prédio conhecido. */
+/** Paradas do dia para o MAPA: aulas + eventos com prédio conhecido OU com posição (ao ar livre). */
 export function classesOnDate(schedule: MySchedule, iso: ISODate): ClassSession[] {
   return blocksOnDate(schedule, iso)
-    .filter((b) => b.buildingId)
+    .filter((b) => b.buildingId || b.coordinate)
     .map((b) => {
       const course = b.type === 'course' ? schedule.courses.find((c) => c.id === b.sourceId) : undefined;
       return {
@@ -173,12 +177,22 @@ export function classesOnDate(schedule: MySchedule, iso: ISODate): ClassSession[
         course: b.label,
         title: course?.title ?? b.label,
         kind: b.type === 'course' ? (b.detail as ClassSession['kind']) : 'Event',
-        buildingId: b.buildingId!,
+        buildingId: b.buildingId ?? `place:${b.key}`,
         room: b.room,
         start: b.start,
         end: b.end,
+        // Sem prédio: o caminho usa a posição exata, com o local/nome do evento como "prédio".
+        place:
+          !b.buildingId && b.coordinate
+            ? { name: b.detail || b.label, shortName: shortPlaceName(b.detail || b.label), coordinate: b.coordinate }
+            : undefined,
       };
     });
+}
+
+/** "Tech Green · near the fountain" → "Tech Green" (nome curto para o chip no mapa). */
+function shortPlaceName(text: string): string {
+  return text.split('·')[0].trim().slice(0, 24);
 }
 
 // ---------------- Conflitos ----------------

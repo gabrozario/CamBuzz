@@ -48,7 +48,6 @@ export function EventsSheet({ state, onClose, onIndexChange }: Props) {
       ref={sheetRef}
       title="Events"
       subtitle={subtitle}
-      note="Sample events"
       customHeader={selected ? <EventDetailsHeader entry={selected} onBack={state.clearSelection} /> : undefined}
       onClose={onClose}
       onIndexChange={onIndexChange}

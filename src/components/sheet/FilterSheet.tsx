@@ -35,7 +35,7 @@ interface Props {
   ref?: Ref<FilterSheetHandle>;
   title: string;
   subtitle?: string;
-  /** Texto pequeno à direita do subtítulo (ex.: "Sample events"). */
+  /** Texto pequeno à direita do subtítulo (ex.: "Updated 5 min ago"). */
   note?: string;
   /** Oculta o chevron de recolher/expandir (ex.: telas de Campus resources e Food options no Figma). */
   hideChevron?: boolean;
