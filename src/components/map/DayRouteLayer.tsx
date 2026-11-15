@@ -15,6 +15,8 @@ interface Props {
   showChips?: boolean;
   /** Deslocamento (em "passos" de ~11 m) para não sobrepor o caminho de outra pessoa. */
   offset?: number;
+  /** É o SEU caminho: o ponto "agora" vira o "você está aqui" (azul, por cima de tudo). */
+  isMe?: boolean;
 }
 
 /**
@@ -29,6 +31,7 @@ export function DayRouteLayer({
   showMarkers = true,
   showChips = true,
   offset = 0,
+  isMe = false,
 }: Props) {
   const { colors } = useAppTheme();
   const shift = (path: typeof route.legs[number]['path']) => path.map((p) => shiftCoordinate(p, offset));
@@ -62,7 +65,7 @@ export function DayRouteLayer({
           ))}
       {showMarkers &&
         route.stops.map((stop) => (
-          <StopMarker key={stop.session.id} stop={stop} color={color} showChip={showChips} offset={offset} />
+          <StopMarker key={stop.session.id} stop={stop} color={color} showChip={showChips} offset={offset} isMe={isMe} />
         ))}
     </>
   );

@@ -12,6 +12,8 @@ interface FriendsContextValue {
   addFriendByEmail: (email: string) => Promise<AddFriendResult>;
   acceptInviteLink: (link: string) => Promise<AddFriendResult>;
   removeFriend: (friendId: string) => Promise<boolean>;
+  /** Nova ordem da lista de amigos (arrastar na aba Friends). */
+  reorderFriends: (friendIds: string[]) => void;
   /** Settings → "Edit name & email". Retorna a mensagem de erro, ou null se deu certo. */
   updateProfile: (changes: Pick<UserProfile, 'name' | 'email'>) => Promise<string | null>;
 }
@@ -73,6 +75,13 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
     [refresh],
   );
 
+  const reorderFriends = useCallback((friendIds: string[]) => {
+    // Muda na tela na hora; o serviço guarda a ordem.
+    const position = new Map(friendIds.map((id, i) => [id, i]));
+    setFriends((prev) => [...prev].sort((a, b) => (position.get(a.id) ?? 999) - (position.get(b.id) ?? 999)));
+    friendsService.reorderFriends(friendIds);
+  }, []);
+
   const updateProfile = useCallback(async (changes: Pick<UserProfile, 'name' | 'email'>) => {
     const result = await friendsService.updateProfile(changes);
     if (!result.ok) return result.error;
@@ -89,9 +98,10 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
       addFriendByEmail,
       acceptInviteLink,
       removeFriend,
+      reorderFriends,
       updateProfile,
     }),
-    [me, friends, pendingRequests, addFriendByEmail, acceptInviteLink, removeFriend, updateProfile],
+    [me, friends, pendingRequests, addFriendByEmail, acceptInviteLink, removeFriend, reorderFriends, updateProfile],
   );
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;

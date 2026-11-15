@@ -1,7 +1,41 @@
 import type { ReactNode, Ref } from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, type EdgePadding, type LatLng, type Region } from 'react-native-maps';
+import MapView, {
+  PROVIDER_GOOGLE,
+  type EdgePadding,
+  type LatLng,
+  type MKPointOfInterestCategoryType,
+  type Region,
+} from 'react-native-maps';
 import { useAppTheme } from '../../theme';
+
+/**
+ * iPhone (Apple Maps): quais nomes de lugares aparecem (somem no zoom out e aparecem no zoom in, como no Maps).
+ * Mesma ideia do Android (theme/mapStyle.ts): mostra campus, prédios públicos e lugares de referência,
+ * esconde comércio (restaurantes, lojas, bancos...) para não brigar com os nossos pinos.
+ * Sem isto, `showsPointsOfInterests={false}` sumiria com TODOS os nomes no iPhone.
+ */
+const IOS_PLACE_LABELS: MKPointOfInterestCategoryType[] = [
+  'university',
+  'school',
+  'library',
+  'museum',
+  'theater',
+  'musicVenue',
+  'conventionCenter',
+  'stadium',
+  'fitnessCenter',
+  'park',
+  'landmark',
+  'nationalMonument',
+  'hospital',
+  'pharmacy',
+  'police',
+  'fireStation',
+  'postOffice',
+  'hotel',
+];
+
 
 /**
  * Cantos do campus principal da Georgia Tech (aprox.): North Ave (sul) até a 10th St (norte),
@@ -31,10 +65,12 @@ interface Props {
   padding?: EdgePadding;
   /** Camadas desenhadas no mapa (caminhos, marcadores de eventos, amigos...). */
   children?: ReactNode;
+  /** Chamado quando a pessoa termina de mover/dar zoom (usado para agrupar pinos colados). */
+  onRegionChangeComplete?: (region: Region) => void;
 }
 
 /** O mapa base do campus, com o estilo bege do Figma (ou verde-escuro no modo escuro). Não sabe nada sobre filtros. */
-export function CampusMap({ ref, initialRegion = GT_REGION, onMapReady, padding, children }: Props) {
+export function CampusMap({ ref, initialRegion = GT_REGION, onMapReady, padding, children, onRegionChangeComplete }: Props) {
   const { mapStyle, colors, isDark } = useAppTheme();
   return (
     <MapView
@@ -49,8 +85,11 @@ export function CampusMap({ ref, initialRegion = GT_REGION, onMapReady, padding,
       userInterfaceStyle={isDark ? 'dark' : 'light'}
       initialRegion={initialRegion}
       onMapReady={onMapReady}
+      onRegionChangeComplete={onRegionChangeComplete}
       mapPadding={padding}
       showsPointsOfInterests={false}
+      // Só vale no iPhone (Apple Maps) e tem prioridade sobre a linha de cima lá.
+      pointsOfInterestFilter={Platform.OS === 'ios' ? IOS_PLACE_LABELS : undefined}
       showsBuildings
       showsCompass={false}
       showsMyLocationButton={false}

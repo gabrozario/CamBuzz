@@ -32,6 +32,7 @@ export function PeopleLayer({ state }: Props) {
           nextLegColor={day.person.color}
           showChips={single}
           offset={i - (days.length - 1) / 2}
+          isMe={day.person.isMe}
         />
       ))}
       {shared.map((s) => (

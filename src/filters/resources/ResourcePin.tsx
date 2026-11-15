@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
+import { PlacePin, placePinSize } from '../../components/map/PlacePin';
 import { useTracksViewChanges } from '../../components/map/useTracksViewChanges';
-import { fonts, radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../../theme';
+import { fonts, radius, shadow, useThemedStyles, type Palette } from '../../theme';
 import type { ResourceLocation } from '../../types';
 
 interface Props {
@@ -12,29 +13,23 @@ interface Props {
   onPress: () => void;
 }
 
-const CIRCLE = 30;
-const HALO = 68;
-
-/** Pino circular de recurso no campus (L1, P1, R1...). Selecionado = com halo e chip de nome. */
+/** Alfinete de um recurso/comida no campus (L1, P1, C3...). Selecionado = maior, com o nome em cima. */
 export function ResourcePin({ location, color, selected = false, onPress }: Props) {
   const styles = useThemedStyles(makeStyles);
   const tracks = useTracksViewChanges([selected, location.id, location.code, color]);
+  const pinHeight = placePinSize(selected).height;
 
   return (
     <>
+      {/* anchor y: 1 → a PONTA do alfinete fica no local */}
       <Marker
         coordinate={location.coordinate}
-        anchor={{ x: 0.5, y: 0.5 }}
+        anchor={{ x: 0.5, y: 1 }}
         tracksViewChanges={tracks}
         zIndex={selected ? 30 : 20}
         onPress={onPress}
       >
-        <View style={styles.box}>
-          {selected && <View style={[styles.halo, { backgroundColor: color }]} />}
-          <View style={[styles.circle, { backgroundColor: color }]}>
-            <Text style={styles.code}>{location.code}</Text>
-          </View>
-        </View>
+        <PlacePin label={location.code} color={color} selected={selected} />
       </Marker>
 
       {selected && (
@@ -42,10 +37,11 @@ export function ResourcePin({ location, color, selected = false, onPress }: Prop
           coordinate={location.coordinate}
           anchor={{ x: 0.5, y: 1 }}
           tracksViewChanges={tracks}
-          zIndex={31}
+          // Abaixo do alfinete (30): no Android "tappable" não funciona e o chip roubaria o toque.
+          zIndex={29}
           tappable={false}
         >
-          <View style={styles.chipBox}>
+          <View style={[styles.chipBox, { paddingBottom: pinHeight + 4 }]}>
             <View style={styles.chip}>
               <Text style={styles.chipText} numberOfLines={1}>
                 {location.name}
@@ -60,38 +56,14 @@ export function ResourcePin({ location, color, selected = false, onPress }: Prop
 
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
-  box: { width: HALO, height: HALO, alignItems: 'center', justifyContent: 'center' },
-  halo: {
-    position: 'absolute',
-    width: HALO,
-    height: HALO,
-    borderRadius: HALO / 2,
-    opacity: 0.2,
-  },
-  circle: {
-    width: CIRCLE,
-    height: CIRCLE,
-    borderRadius: CIRCLE / 2,
-    borderWidth: 2,
-    borderColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadow,
-  },
-  code: {
-    fontFamily: fonts.bold,
-    fontSize: 12,
-    color: colors.white,
-    textAlign: 'center',
-  },
-  chipBox: { paddingBottom: HALO / 2 + 2, paddingHorizontal: 6, paddingTop: 6 },
-  chip: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.sm,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    maxWidth: 240,
-    ...shadow,
-  },
-  chipText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.ink },
-});
+    chipBox: { paddingHorizontal: 6, paddingTop: 6 },
+    chip: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.sm,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      maxWidth: 240,
+      ...shadow,
+    },
+    chipText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.ink },
+  });

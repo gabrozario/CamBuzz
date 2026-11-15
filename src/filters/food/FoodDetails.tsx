@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { FoodItem, FoodLocation } from '../../types';
+import { FoodHoursCard } from './FoodHoursCard';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -18,7 +19,7 @@ interface HeaderProps {
   onBack: () => void;
 }
 
-/** Cabeçalho fixo do detalhe: "‹ Food options", nome do local e "Dining hall · North Avenue". */
+/** Cabeçalho fixo do detalhe: "‹ Food", nome do local e "Dining hall · North Avenue". */
 export function FoodDetailsHeader({ location, onBack }: HeaderProps) {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
@@ -29,10 +30,10 @@ export function FoodDetailsHeader({ location, onBack }: HeaderProps) {
         hitSlop={12}
         style={styles.backRow}
         accessibilityRole="button"
-        accessibilityLabel="Back to food options"
+        accessibilityLabel="Back to food"
       >
         <ChevronLeft size={20} color={colors.ink} strokeWidth={2} />
-        <Text style={styles.backLabel}>Food options</Text>
+        <Text style={styles.backLabel}>Food</Text>
       </Pressable>
       <Text style={styles.title} numberOfLines={2}>
         {location.name}
@@ -44,20 +45,35 @@ export function FoodDetailsHeader({ location, onBack }: HeaderProps) {
   );
 }
 
-/** Página do local: cardápio do dia por seção (Breakfast/Lunch/Dinner...) com a nutrição de cada item. */
+/**
+ * Página do local:
+ * - Restaurantes/cafés: horário (hoje em destaque + outros dias) e pagamento — SEM cardápio.
+ * - Dining halls: horário + cardápio do dia (de exemplo) com a nutrição de cada item.
+ * - Vending: só o cardápio.
+ */
 export function FoodDetails({ location }: { location: FoodLocation }) {
   const styles = useThemedStyles(makeStyles);
+  const menu = location.menu ?? [];
   return (
     <SheetScrollView contentContainerStyle={styles.content}>
+      {/* Com cardápio (dining halls): horário compacto, para "Menu for today" já aparecer na aba em 35%. */}
+      <FoodHoursCard location={location} compact={menu.length > 0} />
+      {location.hours && menu.length > 0 && <View style={styles.sectionGap} />}
+
+      {menu.length > 0 && (
+        <>
       <Text style={styles.menuTitle}>Menu for today</Text>
       <Text style={styles.menuSubtitle}>
-        {todayLabel()} · {location.menuNote}
+        {todayLabel()}
+        {location.menuNote ? ` · ${location.menuNote}` : ''}
       </Text>
-      <Text style={styles.scrollHint} numberOfLines={1}>
-        {location.scrollHint}
-      </Text>
+      {!!location.scrollHint && (
+        <Text style={styles.scrollHint} numberOfLines={1}>
+          {location.scrollHint}
+        </Text>
+      )}
 
-      {location.menu.map((section) => (
+      {menu.map((section) => (
         <View key={section.id}>
           <View style={styles.banner}>
             <Text style={styles.bannerText}>{section.label}</Text>
@@ -70,9 +86,15 @@ export function FoodDetails({ location }: { location: FoodLocation }) {
           ))}
         </View>
       ))}
+        </>
+      )}
 
       {/* Rodapé dentro da lista: algo "fixo" embaixo ficaria fora da tela com a aba em 35%. */}
-      <Text style={styles.footerNote}>Example menu & nutrition</Text>
+      <Text style={styles.footerNote}>
+        {[location.hours && 'Hours & payment from dining.gatech.edu · holiday hours may differ', menu.length > 0 && 'Example menu & nutrition']
+          .filter(Boolean)
+          .join(' · ')}
+      </Text>
     </SheetScrollView>
   );
 }
@@ -112,6 +134,7 @@ const makeStyles = (colors: Palette) =>
   subtitle: { fontFamily: fonts.regular, fontSize: 14, color: colors.muted, marginTop: 4 },
 
   content: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 32 },
+  sectionGap: { height: 1, backgroundColor: colors.divider, marginVertical: 14 },
   menuTitle: { fontFamily: fonts.bold, fontSize: 20, color: colors.ink },
   menuSubtitle: { fontFamily: fonts.regular, fontSize: 13, color: colors.muted, marginTop: 4 },
   scrollHint: { fontFamily: fonts.medium, fontSize: 12, color: colors.gold, marginTop: 6, marginBottom: 14 },

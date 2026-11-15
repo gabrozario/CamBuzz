@@ -26,6 +26,8 @@ export interface FriendsService {
   acceptInviteLink(link: string): Promise<AddFriendResult>;
   /** Desfaz a amizade (a pessoa some da sua lista e você da dela). */
   removeFriend(friendId: string): Promise<{ ok: true } | { ok: false; error: string }>;
+  /** Salva a ordem da sua lista de amigos (ids na ordem nova; os mais importantes primeiro). */
+  reorderFriends(friendIds: string[]): Promise<{ ok: true }>;
   /** Settings → "Edit name & email". */
   updateProfile(changes: Pick<UserProfile, 'name' | 'email'>): Promise<{ ok: true; me: UserProfile } | { ok: false; error: string }>;
 }
@@ -110,6 +112,14 @@ export const mockFriendsService: FriendsService = {
     await wait(300);
     if (!friendsState.some((f) => f.id === friendId)) return { ok: false, error: 'Friend not found.' };
     friendsState = friendsState.filter((f) => f.id !== friendId);
+    return { ok: true };
+  },
+
+  async reorderFriends(friendIds) {
+    const position = new Map(friendIds.map((id, i) => [id, i]));
+    friendsState = [...friendsState].sort(
+      (a, b) => (position.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (position.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+    );
     return { ok: true };
   },
 

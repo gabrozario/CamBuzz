@@ -1,16 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import type MapView from 'react-native-maps';
+import type { Region } from 'react-native-maps';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackPill } from '../components/BackPill';
 import { AddFriendModal } from '../components/friends/AddFriendModal';
 import { CampusMap, GT_CAMPUS_BOUNDS, GT_REGION } from '../components/map/CampusMap';
 import { DayRouteLayer } from '../components/map/DayRouteLayer';
 import { FilterBar } from '../components/FilterBar';
-import { InfoChip } from '../components/InfoChip';
+import { MyRouteCard, type LegendEntry } from '../components/MyRouteCard';
 import { MapTopBar } from '../components/MapTopBar';
-import { RouteLegend, type LegendEntry } from '../components/RouteLegend';
-import { SHEET_COLLAPSED_HEIGHT, SHEET_MID, SHEET_MID_FRACTION } from '../components/sheet/FilterSheet';
+import { FloatingBarContext, useFloatingBarController } from '../components/floatingBar';
+import { MapViewportContext, type MapViewportValue } from '../components/map/mapViewport';
+import { SearchPin } from '../components/map/SearchPin';
+import { SearchScreen } from '../search/SearchScreen';
+import type { SearchItem, SearchTarget } from '../search/searchIndex';
+import { foodCategories, getBuilding, resourceCategories } from '../../data';
+import { BottomClearanceContext } from '../components/sheet/bottomClearance';
+import { SHEET_MID, sheetHeightAt } from '../components/sheet/FilterSheet';
 import { EventsLayer } from '../filters/events/EventsLayer';
 import { EventsSheet } from '../filters/events/EventsSheet';
 import type { Companion } from '../filters/events/eventsWithFriends';
@@ -39,8 +47,15 @@ const FILTERS_WITH_SHEET: FilterKey[] = ['events', 'people', 'resources', 'food'
 /** Array vazio fixo (um `[]` novo a cada render faria os useMemo recalcularem sempre). */
 const NO_DAYS: PersonDay[] = [];
 
+/** Altura mínima (dp) de mapa livre usada para enquadrar o caminho/pinos (evita zoom out exagerado). */
+const MIN_FIT_HEIGHT = 240;
+
+/** Margem (dp) ao dar zoom num grupo de pinos (grande, para os pinos ficarem bem separados). */
+const ZOOM_PADDING = { top: 80, right: 80, bottom: 80, left: 80 };
+
 /** Margem (dp) usada ao enquadrar pontos no mapa. */
-const FIT_PADDING = { top: 40, right: 40, bottom: 40, left: 40 };
+// Só o necessário para os pinos (círculos de ~30 dp) não ficarem cortados na borda.
+const FIT_PADDING = { top: 24, right: 28, bottom: 24, left: 28 };
 /** Margem pequena ao enquadrar o campus: mostra o campus todo sem sobrar cidade em volta. */
 const CAMPUS_PADDING = { top: 8, right: 8, bottom: 8, left: 8 };
 
@@ -62,15 +77,26 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
-  const { active, toggle } = useActiveFilters();
-  const [focus, setFocus] = useState<FilterKey | null>(null);
+  // Até 2 filtros ligados; `focus` = o que você está vendo (a aba dele fica aberta).
+  const { active, focus, press, remove, activate, focusFilter } = useActiveFilters();
   const [mapHeight, setMapHeight] = useState(0);
+  const [mapWidth, setMapWidth] = useState(0);
+  const [barHeight, setBarHeight] = useState(76); // medido no onLayout da barra
   const [sheetIndex, setSheetIndex] = useState(-1); // -1 = sem aba aberta
   const [addFriendOpen, setAddFriendOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  /** Alfinete de destaque da busca (prédio, aula, onde um amigo está). */
+  const [searchPin, setSearchPin] = useState<{ coordinate: LatLng; label: string; color?: string } | null>(null);
+  /** Busca atual (aparece na barra com um X) e qual filtro ela ligou (para desligar no X). */
+  const [currentSearch, setCurrentSearch] = useState<{
+    label: string;
+    target: SearchTarget;
+    activatedFilter: FilterKey | null;
+  } | null>(null);
 
   const now = nowTime();
   // Suas paradas de hoje vêm da agenda (My schedule): aulas + eventos com prédio.
-  const { todayClasses } = useSchedule();
+  const { todayClasses, schedule } = useSchedule();
   const baseUserRoute = useMemo(() => buildDayRoute(todayClasses, now), [todayClasses, now]);
   const [userRoute, setUserRoute] = useState<DayRoute>(baseUserRoute);
 
@@ -89,9 +115,13 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const stopCoords = useMemo(() => userRoute.stops.map((s) => s.building.coordinate), [userRoute]);
 
   // ---- Filtro People ----
-  const people = usePeopleFilter(now);
+  // Pílula "My Route": o seu caminho do dia (começa DESLIGADO ao abrir o app).
+  const [myRouteOn, setMyRouteOn] = useState(false);
+  const people = usePeopleFilter(now, myRouteOn);
   const peopleOn = active.includes('people');
   const visibleDays = peopleOn ? people.visibleDays : NO_DAYS;
+  // Quem tem caminho desenhado agora: amigos visíveis (Friends) e/ou você (My Route).
+  const shownDays = peopleOn ? visibleDays : myRouteOn ? people.days.filter((d) => d.person.isMe) : NO_DAYS;
 
   // ---- Filtro Events (+ amigos visíveis, se People estiver ligado) ----
   const companions: Companion[] = useMemo(
@@ -114,49 +144,89 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const selectedFood = foodOn ? food.selectedLocation : null;
 
   // ---- Qual aba aparece ----
-  const lastWithSheet = [...active].reverse().find((k) => FILTERS_WITH_SHEET.includes(k));
-  const sheetFilter = focus && active.includes(focus) ? focus : lastWithSheet;
-
-  /** Toque na barra: liga/desliga; se o filtro já está ligado mas a aba dele não está à frente, só traz a aba. */
-  const onFilterPress = useCallback(
-    (key: FilterKey) => {
-      if (active.includes(key) && sheetFilter !== key && FILTERS_WITH_SHEET.includes(key)) {
-        setFocus(key);
-        return;
-      }
-      if (!active.includes(key)) setFocus(key);
-      toggle(key);
-    },
-    [active, sheetFilter, toggle],
-  );
+  const sheetFilter = focus && FILTERS_WITH_SHEET.includes(focus) ? focus : null;
 
   useEffect(() => {
     setSheetIndex(sheetFilter ? SHEET_MID : -1);
   }, [sheetFilter]);
 
-  // Ao desligar os filtros, limpa as seleções.
+  // Ao desligar um filtro, ele "esquece" tudo (nada marcado, nada aberto).
+  // Ao ligar de novo, começa do zero — ex.: os restaurantes só aparecem se você marcar de novo.
   useEffect(() => {
-    if (!eventsOn) events.clearSelection();
+    if (!eventsOn) events.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventsOn]);
 
   useEffect(() => {
-    if (!resourcesOn) resources.clearSelection();
+    if (!resourcesOn) resources.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resourcesOn]);
 
   useEffect(() => {
-    if (!foodOn) food.clearSelection();
+    if (!foodOn) food.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [foodOn]);
 
+  useEffect(() => {
+    if (!peopleOn) people.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [peopleOn]);
+
+  // Tocou num pino (evento, restaurante, recurso...) → a aba DESSE filtro vem para a frente,
+  // já mostrando a descrição dele — mesmo que outro filtro estivesse em foco.
+  useEffect(() => {
+    if (selectedEvent) focusFilter('events');
+  }, [selectedEvent?.event.id, focusFilter]);
+  useEffect(() => {
+    if (selectedFood) focusFilter('food');
+  }, [selectedFood?.id, focusFilter]);
+  useEffect(() => {
+    if (selectedResource || selectedBuildingDetails) focusFilter('resources');
+  }, [selectedResource?.id, selectedBuildingDetails?.buildingId, focusFilter]);
+
+  // Mudou o filtro em foco → fecha a descrição aberta nos OUTROS (ex.: não fica "‹ All events" sobre a aba de comida).
+  useEffect(() => {
+    if (focus !== 'events') events.clearSelection();
+    if (focus !== 'food') food.clearSelection();
+    if (focus !== 'resources') resources.clearSelection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus]);
+
   // Espaço que a aba ocupa embaixo do mapa — o Google Maps centraliza o conteúdo acima dela.
-  const sheetHeight =
-    sheetIndex < 0 ? 0 : sheetIndex === 0 ? SHEET_COLLAPSED_HEIGHT : Math.round(mapHeight * SHEET_MID_FRACTION);
-  const paddingBottom = sheetIndex < 0 ? 90 : sheetHeight + (sheetFilter === 'people' ? 80 : 0);
+  // Barra de filtros "voadora": distância até a borda de baixo e quanto ela cobre da tela.
+  const barBottom = Math.max(insets.bottom, spacing.md) + spacing.sm;
+  const clearance = barHeight + barBottom + spacing.sm;
+  const sheetHeight = sheetHeightAt(sheetIndex, mapHeight, clearance);
+  // Para ENQUADRAR o mapa, a aba em tela cheia conta como a do meio (senão não sobra mapa nenhum
+  // e o Google Maps dá um zoom out gigante para "caber" o caminho).
+  const sheetCover = sheetHeightAt(Math.min(sheetIndex, SHEET_MID), mapHeight, clearance);
+  // Encolhe ao rolar uma lista para baixo; volta ao rolar para cima.
+  const floatingBar = useFloatingBarController(barHeight, barBottom);
+
+  // Trocou de filtro, abriu/fechou ou mudou a altura da aba → a barra volta ao tamanho normal.
+  const expandBar = floatingBar.control.expand;
+  useEffect(() => {
+    expandBar();
+  }, [sheetFilter, sheetIndex, expandBar]);
+  const paddingTop = insets.top + 130; // barra de busca + chips
+  // + espaço do cartão "My Route" (com legenda quando há caminho no mapa), que fica logo acima da barra/aba.
+  const routeCardSpace = shownDays.length > 0 ? 84 : 52;
+  const wantedBottom = (sheetIndex < 0 ? clearance : sheetCover) + routeCardSpace;
+  // Sempre sobra pelo menos MIN_FIT_HEIGHT de mapa livre entre o topo e a aba para enquadrar.
+  const paddingBottom = Math.max(0, Math.min(wantedBottom, mapHeight - paddingTop - MIN_FIT_HEIGHT));
   const mapPadding = useMemo(
-    () => ({ top: insets.top + 130, bottom: paddingBottom, left: 16, right: 16 }),
-    [insets.top, paddingBottom],
+    () => ({ top: paddingTop, bottom: paddingBottom, left: 16, right: 16 }),
+    [paddingTop, paddingBottom],
+  );
+
+  // ---- Parte visível do mapa (para agrupar pinos colados) + zoom num grupo ----
+  const [viewport, setViewport] = useState<Region | null>(null);
+  const zoomTo = useCallback((coords: LatLng[]) => {
+    if (coords.length) mapRef.current?.fitToCoordinates(coords, { edgePadding: ZOOM_PADDING, animated: true });
+  }, []);
+  const viewportValue = useMemo<MapViewportValue>(
+    () => ({ viewport, width: mapWidth, height: mapHeight, zoomTo }),
+    [viewport, mapWidth, mapHeight, zoomTo],
   );
 
   // ---- Câmera: enquadra o que importa conforme o estado ----
@@ -197,17 +267,17 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
         mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 400);
         return;
       }
-      const routeCoords = peopleOn
-        ? visibleDays.flatMap((d) => d.route.stops.map((s) => s.building.coordinate))
-        : stopCoords;
-      const eventCoords = eventsOn ? events.entries.map((e) => e.event.coordinate) : [];
-      const resourceCoords = resourcesOn ? resources.activeLocations.map((l) => l.coordinate) : [];
-      const foodCoords = foodOn ? food.activeLocations.map((l) => l.coordinate) : [];
-      // Nenhum filtro ligado (tela inicial) → campus inteiro. Com filtros → enquadra o que eles mostram.
-      const anyFilterOn = eventsOn || peopleOn || resourcesOn || foodOn;
-      const allCoords = [...routeCoords, ...eventCoords, ...resourceCoords, ...foodCoords];
-      if (!anyFilterOn || !allCoords.length) fitCampus(true);
-      else fit(allCoords);
+      // Enquadra SÓ o que é do filtro que você está vendo (ex.: restaurantes marcados), bem justo.
+      // Sem nada marcado nele (ou sem filtro — a tela inicial), mostra o campus inteiro.
+      const coordsByFilter: Record<FilterKey, LatLng[]> = {
+        events: events.entries.map((e) => e.event.coordinate),
+        resources: resources.activeLocations.map((l) => l.coordinate),
+        food: food.activeLocations.map((l) => l.coordinate),
+        people: visibleDays.flatMap((d) => d.route.stops.map((s) => s.building.coordinate)),
+      };
+      const focusCoords = focus ? coordsByFilter[focus] : [];
+      if (focusCoords.length) fit(focusCoords);
+      else fitCampus(true);
     }, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -224,7 +294,148 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     foodOn,
     selectedFood?.id,
     food.activeLocations.length,
+    focus,
+    myRouteOn,
   ]);
+
+  // ---- Busca ----
+  /** Onde cada amigo está agora (aparece embaixo do nome nos resultados). */
+  const friendStatus = useMemo(
+    () => Object.fromEntries(people.days.filter((d) => !d.person.isMe).map((d) => [d.person.id, d.status])),
+    [people.days],
+  );
+
+  /** Move a câmera até um ponto (depois do enquadramento automático, que roda ~300 ms após mudar filtro). */
+  const flyTo = useCallback((coordinate: LatLng, delay = 450) => {
+    setTimeout(() => {
+      mapRef.current?.animateToRegion({ ...coordinate, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 500);
+    }, delay);
+  }, []);
+
+  /** Tocou num resultado: liga o filtro certo, abre a descrição e/ou leva a câmera até lá. */
+  const onSearchSelect = (target: SearchTarget, item: SearchItem) => {
+    setSearchOpen(false);
+    setSearchPin(null);
+    // Lembra a busca (aparece na barra) e se ela ligou um filtro que estava desligado.
+    const filterOf: Partial<Record<SearchTarget['type'], FilterKey>> = {
+      resource: 'resources',
+      food: 'food',
+      event: 'events',
+      friend: 'people',
+    };
+    const filter = target.type === 'category' ? target.filter : filterOf[target.type];
+    setCurrentSearch({
+      label: item.title,
+      target,
+      activatedFilter: filter && !active.includes(filter) ? filter : null,
+    });
+    switch (target.type) {
+      case 'resource': {
+        const loc = resourceCategories.flatMap((c) => c.locations).find((l) => l.id === target.locationId);
+        if (!loc) return;
+        activate('resources');
+        resources.showLocation(loc); // só o alfinete dele; a câmera vai até ele (efeito da câmera)
+        return;
+      }
+      case 'food': {
+        const loc = foodCategories.flatMap((c) => c.locations).find((l) => l.id === target.locationId);
+        if (!loc) return;
+        activate('food');
+        food.openOnly(loc); // só o alfinete dele ("Return" volta com nada marcado)
+        return;
+      }
+      case 'event':
+        activate('events');
+        events.openEvent(target.eventId);
+        return;
+      case 'friend': {
+        activate('people');
+        people.show(target.friendId);
+        // Onde ele deve estar agora: aula atual → próxima → última do dia.
+        const day = people.days.find((d) => d.person.id === target.friendId);
+        const stops = day?.route.stops ?? [];
+        const stop =
+          stops.find((s) => s.status === 'now') ?? stops.find((s) => s.status === 'upcoming') ?? stops[stops.length - 1];
+        if (day && stop) {
+          const when = stop.status === 'now' ? 'now' : stop.status === 'upcoming' ? `at ${formatTime(stop.session.start)}` : 'last class';
+          setSearchPin({
+            coordinate: stop.building.coordinate,
+            label: `${day.person.shortName} · ${stop.building.shortName} ${when}`,
+            color: day.person.color,
+          });
+          flyTo(stop.building.coordinate, 650);
+        }
+        return;
+      }
+      case 'course': {
+        const course = schedule.courses.find((c) => c.id === target.courseId);
+        if (!course) return;
+        const m = course.meetings[0];
+        const b = getBuilding(m.buildingId);
+        setSearchPin({ coordinate: b.coordinate, label: `${course.code} · ${b.shortName}${m.room ? ` ${m.room}` : ''}`, color: course.color });
+        flyTo(b.coordinate, 50);
+        return;
+      }
+      case 'building': {
+        const b = getBuilding(target.buildingId);
+        setSearchPin({ coordinate: b.coordinate, label: b.name });
+        flyTo(b.coordinate, 50);
+        return;
+      }
+      case 'category':
+        activate(target.filter);
+        if (target.filter === 'food' && target.categoryId) food.showCategory(target.categoryId);
+        if (target.filter === 'resources' && target.categoryId) resources.showCategory(target.categoryId);
+        return;
+    }
+  };
+
+  /** X da busca na barra: tira o alfinete/descrição do resultado (e desliga o filtro se foi a busca que ligou). */
+  const clearSearch = () => {
+    if (!currentSearch) return;
+    const { target, activatedFilter } = currentSearch;
+    setCurrentSearch(null);
+    setSearchPin(null);
+    if (target.type === 'food') food.clearSelection();
+    if (target.type === 'resource') resources.clearSelection();
+    if (target.type === 'event') events.clearSelection();
+    if (activatedFilter && active.includes(activatedFilter)) remove(activatedFilter);
+  };
+
+  // A busca sai da barra sozinha quando o resultado não está mais na tela
+  // (tocou em "‹ Return", fechou o filtro, abriu outra coisa...).
+  useEffect(() => {
+    if (!currentSearch) return;
+    const t = currentSearch.target;
+    const stillShowing =
+      t.type === 'food'
+        ? selectedFood?.id === t.locationId
+        : t.type === 'resource'
+          ? selectedResource?.id === t.locationId
+          : t.type === 'event'
+            ? selectedEvent?.event.id === t.eventId
+            : t.type === 'category'
+              ? active.includes(t.filter)
+              : !!searchPin; // prédio, aula, amigo
+    if (!stillShowing) setCurrentSearch(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFood?.id, selectedResource?.id, selectedEvent?.event.id, searchPin, active]);
+
+  // Mexeu nos filtros pela barra → tira o alfinete da busca.
+  const onBarPress = useCallback(
+    (key: FilterKey) => {
+      setSearchPin(null);
+      press(key);
+    },
+    [press],
+  );
+  const onBarRemove = useCallback(
+    (key: FilterKey) => {
+      setSearchPin(null);
+      remove(key);
+    },
+    [remove],
+  );
 
   // Botão "voltar" do Android: detalhe → lista → fecha a aba.
   useEffect(() => {
@@ -247,7 +458,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
         return true;
       }
       if (sheetFilter) {
-        toggle(sheetFilter);
+        remove(sheetFilter);
         return true;
       }
       return false;
@@ -260,95 +471,131 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     selectedFood,
     selectedEvent,
     sheetFilter,
-    toggle,
+    remove,
     events.clearSelection,
     resources.closeDetails,
     resources.clearSelection,
     food.clearSelection,
   ]);
 
-  // ---- Textos sobre o mapa ----
-  let dayLabel = `Your day · Today · ${formatTime(now)}`;
-  if (peopleOn) {
-    const n = visibleDays.length;
-    if (n === 0) dayLabel = `Today · ${formatTime(now)}`;
-    else if (n === 1 && !visibleDays[0].person.isMe)
-      dayLabel = `${visibleDays[0].person.shortName}'s day · Today · ${formatTime(now)}`;
-    else if (n > 1) dayLabel = `Today · ${formatTime(now)} · ${n} people`;
-  }
-
-  const legendEntries: LegendEntry[] = peopleOn
-    ? visibleDays.map((d) => ({ label: d.person.shortName, color: d.person.color }))
-    : [{ label: 'You', color: colors.green }];
-  legendEntries.push({ label: 'Next leg', color: colors.ink, thick: true });
-  // Legenda: sem aba, ou acima da aba People (como no Figma). Escondida no detalhe de evento e recursos.
-  const showLegend =
-    !selectedEvent &&
-    !selectedBuildingDetails &&
-    !selectedFood &&
-    (!sheetFilter || (sheetFilter === 'people' && sheetIndex > 0 && sheetIndex < 2));
-  const legendBottom = sheetFilter ? sheetHeight + spacing.md : spacing.md;
+  // ---- Cartão "My Route" + legenda (canto inferior esquerdo) ----
+  const inDetail = !!(selectedEvent || selectedBuildingDetails || selectedResource || selectedFood);
+  // Legenda só quando há caminho no mapa (e não no detalhe de um lugar, para não poluir).
+  const legendEntries: LegendEntry[] =
+    shownDays.length > 0 && !inDetail
+      ? [
+          ...shownDays.map((d) => ({ label: d.person.shortName, color: d.person.color })),
+          { label: 'Next leg', color: colors.ink, thick: true },
+        ]
+      : [];
+  // Some com a aba em tela cheia; senão fica logo acima da aba (ou da barra de filtros).
+  const showRouteCard = !(sheetFilter && sheetIndex >= 2);
+  const routeCardBottom = sheetFilter ? sheetHeight + spacing.md : clearance + spacing.xs;
 
   return (
     <View style={styles.screen}>
-      <View style={styles.mapArea} onLayout={(e) => setMapHeight(e.nativeEvent.layout.height)}>
+      <View
+        style={styles.mapArea}
+        onLayout={(e) => {
+          setMapHeight(e.nativeEvent.layout.height);
+          setMapWidth(e.nativeEvent.layout.width);
+        }}
+      >
+        <MapViewportContext.Provider value={viewportValue}>
         {/* Abre já no campus inteiro (initialRegion) e reenquadra certinho quando o mapa termina de carregar. */}
-        <CampusMap ref={mapRef} initialRegion={GT_REGION} onMapReady={() => fitCampus(false)} padding={mapPadding}>
+        <CampusMap
+          ref={mapRef}
+          initialRegion={GT_REGION}
+          onMapReady={() => fitCampus(false)}
+          padding={mapPadding}
+          onRegionChangeComplete={setViewport}
+        >
           {peopleOn ? (
             <PeopleLayer state={people} />
           ) : (
-            <DayRouteLayer route={userRoute} color={colors.green} highlightNextLeg />
+            myRouteOn && <DayRouteLayer route={userRoute} color={colors.green} highlightNextLeg isMe />
           )}
           {eventsOn && <EventsLayer state={events} />}
           {resourcesOn && <ResourcesLayer state={resources} />}
           {foodOn && <FoodLayer state={food} />}
+          {searchPin && (
+            <SearchPin
+              coordinate={searchPin.coordinate}
+              label={searchPin.label}
+              color={searchPin.color}
+              onPress={() => setSearchPin(null)}
+            />
+          )}
         </CampusMap>
+        </MapViewportContext.Provider>
 
         <MapTopBar
           topInset={insets.top}
           onAddFriend={() => setAddFriendOpen(true)}
+          onOpenSearch={() => setSearchOpen(true)}
+          searchLabel={currentSearch?.label}
+          onClearSearch={clearSearch}
           onOpenSchedule={onOpenSchedule}
           onOpenSettings={onOpenSettings}
           leftAccessory={
             selectedEvent ? <BackPill label="All events" onPress={events.clearSelection} /> : undefined
           }
         >
-          {!selectedEvent && !selectedBuildingDetails && !selectedFood && <InfoChip label={dayLabel} />}
         </MapTopBar>
 
-        {showLegend && (
-          <View style={[styles.legend, { bottom: legendBottom }]} pointerEvents="none">
-            <RouteLegend entries={legendEntries} />
+        {showRouteCard && (
+          <View style={[styles.routeCard, { bottom: routeCardBottom }]} pointerEvents="box-none">
+            <MyRouteCard value={myRouteOn} onChange={setMyRouteOn} entries={legendEntries} />
           </View>
         )}
 
-        {/* A aba fica dentro da área do mapa, então sobe até a barra de filtros sem cobri-la. */}
+        {/* A aba vai até o fim da tela, por trás da barra voadora (o espaço coberto vem do contexto). */}
+        <BottomClearanceContext.Provider value={clearance}>
+        <FloatingBarContext.Provider value={floatingBar.control}>
         {sheetFilter === 'events' && (
-          <EventsSheet state={events} onClose={() => toggle('events')} onIndexChange={setSheetIndex} />
+          <EventsSheet state={events} onClose={() => remove('events')} onIndexChange={setSheetIndex} />
         )}
         {sheetFilter === 'resources' && (
           <ResourcesSheet
             state={resources}
-            onClose={() => toggle('resources')}
+            onClose={() => remove('resources')}
             onIndexChange={setSheetIndex}
           />
         )}
         {sheetFilter === 'food' && (
-          <FoodSheet state={food} onClose={() => toggle('food')} onIndexChange={setSheetIndex} />
+          <FoodSheet state={food} onClose={() => remove('food')} onIndexChange={setSheetIndex} />
         )}
         {sheetFilter === 'people' && (
           <PeopleSheet
             state={people}
-            onClose={() => toggle('people')}
+            onClose={() => remove('people')}
             onIndexChange={setSheetIndex}
             onAddFriend={() => setAddFriendOpen(true)}
           />
         )}
+        </FloatingBarContext.Provider>
+        </BottomClearanceContext.Provider>
+
+        {/* Barra de filtros "voadora" (como a do Instagram): flutua por cima do mapa e da aba. */}
+        <Animated.View
+          style={[styles.floatingBar, { bottom: barBottom }, floatingBar.animatedStyle]}
+          pointerEvents="box-none"
+          onLayout={(e) => setBarHeight(Math.round(e.nativeEvent.layout.height))}
+        >
+          <FilterBar active={active} focus={focus} onPress={onBarPress} onRemove={onBarRemove} />
+        </Animated.View>
       </View>
 
-      <FilterBar active={active} onPress={onFilterPress} bottomInset={insets.bottom} />
-
       <AddFriendModal visible={addFriendOpen} onClose={() => setAddFriendOpen(false)} />
+
+      <SearchScreen
+        visible={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelect={onSearchSelect}
+        friendStatus={friendStatus}
+        now={now}
+        initialQuery={currentSearch?.label}
+      />
     </View>
   );
 }
@@ -356,5 +603,6 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
 const makeStyles = (colors: Palette) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.mapBackground },
   mapArea: { flex: 1 },
-  legend: { position: 'absolute', left: 18, right: 18 },
+  routeCard: { position: 'absolute', left: 14, right: 14 },
+  floatingBar: { position: 'absolute', left: 14, right: 14 },
 });
