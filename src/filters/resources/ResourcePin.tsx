@@ -5,7 +5,8 @@ import { colors, fonts, radius, shadow } from '../../theme';
 import type { ResourceLocation } from '../../types';
 
 interface Props {
-  location: ResourceLocation;
+  /** Qualquer local com código e coordenada (também usado pelo filtro Food options). */
+  location: Pick<ResourceLocation, 'id' | 'code' | 'name' | 'coordinate'>;
   color: string;
   selected?: boolean;
   onPress: () => void;
