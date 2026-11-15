@@ -1,17 +1,20 @@
-import { Check } from 'lucide-react-native';
+import { Check, Minus } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { colors } from '../theme';
 
 interface Props {
-  checked: boolean;
+  checked?: boolean;
+  indeterminate?: boolean;
   color?: string; // cor de preenchimento quando marcado
 }
 
-/** Checkbox quadrado com cantos arredondados (tela People / Food options do Figma). Só visual — o toque fica na linha. */
-export function Checkbox({ checked, color = colors.ink }: Props) {
+/** Checkbox quadrado com cantos arredondados (tela People / Campus resources / Food options do Figma). Só visual — o toque fica na linha. */
+export function Checkbox({ checked = false, indeterminate = false, color = colors.ink }: Props) {
+  const isFilled = checked || indeterminate;
   return (
-    <View style={[styles.box, checked ? { backgroundColor: color, borderColor: color } : styles.unchecked]}>
+    <View style={[styles.box, isFilled ? { backgroundColor: color, borderColor: color } : styles.unchecked]}>
       {checked && <Check size={16} color={colors.white} strokeWidth={2.6} />}
+      {indeterminate && !checked && <Minus size={16} color={colors.white} strokeWidth={2.8} />}
     </View>
   );
 }

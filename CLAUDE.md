@@ -18,7 +18,8 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 6. ⏳ Telas **My schedule** e **Settings** (Figma: `Schedule · …`, `Settings · …`) — botões do topo já existem, sem tela ainda
 7. ⏳ Busca ("Search campus") — só visual por enquanto
 
-**Depois (não fazer agora; estrutura já preparada):** filtros **Food options** (Dining) e **Campus resources** (Libraries/Printers). Eles já aparecem na barra com `status: 'planned'` em `src/filters/filterConfig.ts`.
+8. ✅ Filtro **Food options**: Dining hall (D1, D2), Restaurants/Coffees (C1–C3), Vending machines (V1–V3); cada local abre o cardápio do dia com nutrição (Figma `Food details · …`)
+9. ✅ Filtro **Resources** (Libraries/Printers/CRC)
 
 ## Regras técnicas
 
@@ -84,6 +85,7 @@ data/                        # DADOS FALSOS (sem backend)
   events.json                # 12 eventos do dia (prédios e barracas ao ar livre)
   me.json                    # o usuário logado (Alex Morgan): nome, email, slug do convite
   directory.json             # outros usuários do app, ainda não amigos (Sam, Chris) — para a demo de adicionar
+  food.json                  # Food options: categorias, locais (D1, C1, V1...) e cardápio/nutrição de exemplo
   index.ts                   # exporta os dados tipados + getBuilding() + DEMO_NOW
 figma-designs/               # PNGs do Figma (design oficial)
 src/
@@ -135,8 +137,19 @@ src/filters/people/
   SharedBuildingCallout.tsx  # card "Clough Commons / You now · Maya 11:30" (com 2+ pessoas)
   PeopleSheet.tsx      # ABA: lista com checkbox + pedidos pendentes + "Add friends"
   PersonRow.tsx        #   linha de uma pessoa
-src/filters/food/      # depois
-src/filters/resources/ # depois
+src/filters/food/      # ✅ filtro Food options (mesma lógica de seleção do Resources)
+  useFoodFilter.ts         # ESTADO: categorias marcadas/expandidas, local aberto
+  FoodLayer.tsx            # MAPA: pinos D/C/V (reusa ResourcePin)
+  FoodSheet.tsx            # ABA: "Select all" + categorias, ou o cardápio do local
+  FoodCategoryRow.tsx      #   categoria com checkbox, bolinha e locais expansíveis (tocar → cardápio)
+  FoodDetails.tsx          #   "‹ Food options" + "Menu for today" por refeição, com calorias/proteína/carbs/açúcar
+src/filters/resources/ # ✅ filtro Campus resources (Libraries, Printers, CRC + detalhes de ocupação de prédios)
+  useResourcesFilter.ts    # ESTADO: seleção, expansão, detalhes do prédio
+  ResourcesLayer.tsx       # MAPA: pinos de recursos ativos (L1..L3, P1..P3, R1)
+  ResourcePin.tsx          #   pino circular colorido com código (+ halo e chip de nome quando selecionado)
+  ResourcesSheet.tsx       # ABA: lista de categorias ("Select all", Libraries, Printers, CRC) ou detalhe do prédio
+  ResourceCategoryRow.tsx  #   linha de categoria com checkbox, dot colorido e sub-locais expansíveis
+  CampusDetails.tsx        #   detalhe de ocupação por andar (Clough Commons) com barras coloridas e foto CC0
 ```
 No `MapScreen`: chame o hook do filtro, renderize a camada dentro do `<CampusMap>` quando `active.includes('<key>')`,
 adicione a key em `FILTERS_WITH_SHEET` e renderize a aba quando `sheetFilter === '<key>'`.

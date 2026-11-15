@@ -115,5 +115,91 @@ export interface Person {
   schedule: ClassSession[];
 }
 
+/** Localização ou ponto específico de um recurso no campus (ex.: "L1" - Clough Commons). */
+export interface ResourceLocation {
+  id: string; // ex.: "culc-lib"
+  code: string; // ex.: "L1", "P2", "R1"
+  name: string; // ex.: "Clough Commons"
+  buildingId: string;
+  coordinate: LatLng;
+  hasDetails?: boolean;
+  details?: string[];
+  buzzCardRestricted?: boolean;
+}
+
+/** Categoria de recurso do campus (Libraries, Printers, Campus Recreation Center). */
+export interface ResourceCategory {
+  id: 'libraries' | 'printers' | 'recreation';
+  name: string;
+  color: string;
+  locations: ResourceLocation[];
+}
+
+export type OccupancyStatus = 'Busy' | 'Moderate' | 'Quiet';
+
+export interface FloorSpaceOccupancy {
+  id: string;
+  name: string;
+  status: OccupancyStatus;
+  percentage: number;
+}
+
+export interface FloorOccupancy {
+  floor: number;
+  label: string;
+  spaces: FloorSpaceOccupancy[];
+}
+
+export interface BuildingOccupancyDetails {
+  buildingId: string;
+  buildingName: string;
+  subtitle: string;
+  photoAttribution: string;
+  floors: FloorOccupancy[];
+}
+
+/** Um prato/produto do cardápio, com a nutrição exibida no detalhe (Figma: "Food details · …"). */
+export interface FoodItem {
+  id: string;
+  name: string; // ex.: "Scrambled eggs"
+  portion: string; // ex.: "1 serving"
+  tag: string; // ex.: "Eggs", "Vegan", "Grill"
+  calories: number;
+  protein: number; // gramas
+  carbs: number; // gramas
+  sugars: number; // gramas
+}
+
+/** Uma seção do cardápio (ex.: "Breakfast · 7–10:30 AM", "Drinks", "Snacks"). */
+export interface FoodMenuSection {
+  id: string;
+  label: string;
+  items: FoodItem[];
+}
+
+/** Um local de comida (D1, C2, V3...). */
+export interface FoodLocation {
+  id: string;
+  code: string; // ex.: "D1"
+  name: string; // ex.: "North Avenue Dining Hall"
+  kind: string; // ex.: "Dining hall", "Coffee shop", "Vending machine"
+  area: string; // ex.: "North Avenue"
+  buildingId: string;
+  coordinate: LatLng;
+  /** Complemento do subtítulo do cardápio (ex.: "All meals"). */
+  menuNote: string;
+  /** Dica no rodapé do detalhe (ex.: "Scroll for breakfast, lunch & dinner ↓"). */
+  scrollHint: string;
+  menu: FoodMenuSection[];
+}
+
+/** Categoria de comida (Dining hall, Restaurants/Coffees, Vending machines). */
+export interface FoodCategory {
+  id: 'dining' | 'restaurants' | 'vending';
+  name: string;
+  color: string;
+  locations: FoodLocation[];
+}
+
 /** Chaves dos filtros da barra inferior. */
 export type FilterKey = 'events' | 'resources' | 'food' | 'people';

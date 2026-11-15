@@ -23,8 +23,8 @@ export function FilterBar({ active, onPress, bottomInset }: Props) {
             accessibilityState={{ selected: isActive }}
             style={({ pressed }) => [styles.item, isActive && styles.itemActive, pressed && styles.pressed]}
           >
-            <Icon size={24} color={isActive ? colors.ink : colors.muted} strokeWidth={1.6} />
-            <Text style={[styles.label, isActive && styles.labelActive]} numberOfLines={1} adjustsFontSizeToFit>
+            <Icon size={22} color={isActive ? colors.ink : colors.muted} strokeWidth={1.6} />
+            <Text style={[styles.label, isActive && styles.labelActive]} numberOfLines={1}>
               {label}
             </Text>
           </Pressable>
