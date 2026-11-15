@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { Alert, BackHandler, StyleSheet, View } from 'react-native';
 import type MapView from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { schedule } from '../../data';
@@ -27,6 +27,7 @@ import { ResourcesLayer } from '../filters/resources/ResourcesLayer';
 import { ResourcesSheet } from '../filters/resources/ResourcesSheet';
 import { useResourcesFilter } from '../filters/resources/useResourcesFilter';
 import { useActiveFilters } from '../hooks/useActiveFilters';
+import { useAuth } from '../services/auth/AuthProvider';
 import { colors, spacing } from '../theme';
 import type { FilterKey, LatLng } from '../types';
 import { buildDayRoute, regionFor } from '../utils/route';
@@ -55,6 +56,22 @@ export function MapScreen() {
   const [mapHeight, setMapHeight] = useState(0);
   const [sheetIndex, setSheetIndex] = useState(-1); // -1 = sem aba aberta
   const [addFriendOpen, setAddFriendOpen] = useState(false);
+  const auth = useAuth();
+
+  // Provisório até existir a tela Settings: mostra a conta e permite sair (ou entrar, se convidado).
+  const openAccountMenu = useCallback(() => {
+    if (auth.user) {
+      Alert.alert(auth.user.name, `Signed in as ${auth.user.email}`, [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Log out', style: 'destructive', onPress: () => auth.logOut() },
+      ]);
+    } else {
+      Alert.alert('Browsing as guest', 'Log in or create an account to save your schedule.', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Log in / Sign up', onPress: () => auth.logOut() },
+      ]);
+    }
+  }, [auth]);
 
   const now = nowTime();
   const userRoute = useMemo(() => buildDayRoute(schedule.classes, now), [now]);
@@ -269,9 +286,9 @@ export function MapScreen() {
         <MapTopBar
           topInset={insets.top}
           onAddFriend={() => setAddFriendOpen(true)}
-          // Próxima etapa: telas "My schedule" e "Settings" (já estão no /figma-designs).
+          // Próxima etapa: telas "My schedule" e "Settings" (já estão no /figma-designs). Por ora, Settings abre o menu da conta.
           onOpenSchedule={undefined}
-          onOpenSettings={undefined}
+          onOpenSettings={openAccountMenu}
           leftAccessory={
             selectedEvent ? <BackPill label="All events" onPress={events.clearSelection} /> : undefined
           }
