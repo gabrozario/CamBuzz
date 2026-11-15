@@ -47,6 +47,20 @@ function legPath(a: Building, b: Building): LatLng[] {
   return [a.coordinate, elbow, b.coordinate];
 }
 
+/** O "prédio" de uma parada: o prédio de verdade, ou o lugar sem prédio (evento ao ar livre). */
+function stopBuilding(session: ClassSession): Building {
+  if (session.place) {
+    return {
+      id: session.buildingId,
+      name: session.place.name,
+      shortName: session.place.shortName,
+      category: 'outdoor',
+      coordinate: session.place.coordinate,
+    };
+  }
+  return getBuilding(session.buildingId);
+}
+
 /** Monta as paradas e trechos de um dia a partir de uma lista de aulas. */
 export function buildDayRoute(classes: ClassSession[], now: TimeOfDay): DayRoute {
   const nowMin = toMinutes(now);
@@ -56,7 +70,7 @@ export function buildDayRoute(classes: ClassSession[], now: TimeOfDay): DayRoute
     const start = toMinutes(session.start);
     const end = toMinutes(session.end);
     const status = nowMin >= end ? 'past' : nowMin >= start ? 'now' : 'upcoming';
-    return { index, session, building: getBuilding(session.buildingId), status };
+    return { index, session, building: stopBuilding(session), status };
   });
 
   // O próximo trecho é o que termina na primeira aula que ainda não começou.

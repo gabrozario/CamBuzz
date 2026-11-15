@@ -6,7 +6,7 @@ import { IconButton, ICON_BUTTON_SIZE } from './IconButton';
 
 interface Props {
   topInset: number;
-  /** Substitui o botão "adicionar amigo" (ex.: "‹ All events" no detalhe de um evento). */
+  /** Substitui o botão "adicionar amigo" (opcional). */
   leftAccessory?: ReactNode;
   /** Conteúdo ao lado do botão "adicionar amigo" (ex.: chip "Your day · 11:15 AM"). */
   children?: ReactNode;

@@ -202,6 +202,11 @@ O filtro "People" aparece para o usuário como **Friends** (a key no código con
 A lista é agrupada por janela; "Show all events" mostra também os que não cabem (pinos cinza).
 No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
 
+### Detalhe do evento
+- Cabeçalho: "‹" (volta para a lista) + categoria + nome, e à direita **"Add to schedule"** (`AddToScheduleButton.tsx`): põe o evento na sua agenda de HOJE (checagem de conflito de sempre; o evento guarda `campusEventId`). Depois vira "✓ Added" — tocar oferece tirar da agenda.
+- Não há botão "‹ All events" no topo do mapa (o "‹" da aba basta; o botão de adicionar amigo fica sempre lá).
+- **Nomes de eventos em Title Case** ("Pickup Volleyball", "Bake Sale for Hurricane Relief"): palavras pequenas no meio em minúsculas, siglas intactas.
+
 ### Nome dos lugares no mapa (com zoom)
 - Eventos, restaurantes/cafés, dining halls e bibliotecas mostram o NOME embaixo do alfinete quando você dá zoom (estilo dos nomes do Google/Apple Maps) e somem ao afastar. Impressoras, vending e CRC não.
 - O zoom é acompanhado DURANTE o gesto (`onRegionChange`), então os nomes aparecem/somem na hora; o estado só muda ao cruzar o limite (`LABELS_SHOW_DELTA` / `LABELS_HIDE_DELTA` em `components/map/mapViewport.ts`, com folga para não piscar). Número maior = aparecem mais cedo.
@@ -209,7 +214,8 @@ No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
 - Nome grande → apelido: campo opcional `shortName` em `events.json` e `food.json`; sem apelido, `mapLabel` (`utils/mapLabel.ts`) corta numa palavra inteira com "…".
 
 ### Dia sem nada na agenda
-- Tocar em **My Route** mostra o aviso "You have nothing on your schedule today" (não liga; se o dia esvaziar com ele ligado, desliga sozinho).
+- Tocar em **My Route** checa a sua agenda NAQUELE momento (`blocksOnDate`/`classesOnDate` em `onMyRouteChange`): sem nada hoje → "You have nothing on your schedule today"; com coisas hoje mas nenhuma com lugar no mapa → "Today's plans don't have a place on the map yet". Se o dia esvaziar com ele ligado, desliga sozinho.
+- Eventos SEM prédio mas com posição (ex.: eventos ao ar livre adicionados pelo "Add to schedule") também viram parada do caminho (`ClassSession.place`).
 - O filtro **Events** mostra TODOS os eventos do dia direto ("Showing all events of the day"): "All events today" (alfinetes normais) e "Earlier today" (os que já acabaram, apagados, "Ended"). O botão "Only show events on my route" some.
 
 ### Events + People ("ir junto com um amigo") — `eventsWithFriends.ts`

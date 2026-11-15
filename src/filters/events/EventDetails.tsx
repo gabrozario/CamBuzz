@@ -4,6 +4,7 @@ import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { formatTime } from '../../utils/time';
 import { detourLabel, windowTitle } from './eventsOnRoute';
+import { AddToScheduleButton } from './AddToScheduleButton';
 import type { EventEntry } from './useEventsFilter';
 
 interface HeaderProps {
@@ -14,7 +15,8 @@ interface HeaderProps {
 
 /**
  * Cabeçalho fixo do detalhe (vai no lugar do título da aba, via `customHeader`):
- * setinha "‹" no canto superior esquerdo + categoria + nome do evento.
+ * setinha "‹" no canto superior esquerdo + categoria + nome do evento e, à direita do nome,
+ * "Add to schedule" (põe o evento na sua agenda de hoje).
  * Fica sempre visível e serve para arrastar a aba.
  */
 export function EventDetailsHeader({ entry, onBack }: HeaderProps) {
@@ -34,9 +36,12 @@ export function EventDetailsHeader({ entry, onBack }: HeaderProps) {
         </Pressable>
         <Text style={styles.category}>{entry.event.category}</Text>
       </View>
-      <Text style={styles.title} numberOfLines={2}>
-        {entry.event.name}
-      </Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.title} numberOfLines={2}>
+          {entry.event.name}
+        </Text>
+        <AddToScheduleButton event={entry.event} />
+      </View>
     </View>
   );
 }
@@ -114,7 +119,9 @@ const makeStyles = (colors: Palette) =>
   topRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: -6 },
   backBtn: { padding: 2 },
   category: { fontFamily: fonts.medium, fontSize: 13, color: colors.gold },
-  title: { fontFamily: fonts.bold, fontSize: 26, color: colors.ink, marginTop: 6 },
+  // Nome à esquerda, "Add to schedule" à direita.
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6 },
+  title: { flex: 1, fontFamily: fonts.bold, fontSize: 26, color: colors.ink },
   fitCard: {
     flexDirection: 'row',
     alignItems: 'center',
