@@ -90,11 +90,9 @@ export function FoodDetails({ location }: { location: FoodLocation }) {
       )}
 
       {/* Rodapé dentro da lista: algo "fixo" embaixo ficaria fora da tela com a aba em 35%. */}
-      <Text style={styles.footerNote}>
-        {[location.hours && 'Hours & payment from dining.gatech.edu · holiday hours may differ', menu.length > 0 && 'Example menu & nutrition']
-          .filter(Boolean)
-          .join(' · ')}
-      </Text>
+      {location.hours && (
+        <Text style={styles.footerNote}>Hours & payment from dining.gatech.edu · holiday hours may differ</Text>
+      )}
     </SheetScrollView>
   );
 }
