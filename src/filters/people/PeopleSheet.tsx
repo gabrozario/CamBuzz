@@ -1,5 +1,6 @@
 import { Clock, UserPlus } from 'lucide-react-native';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { DraggableList } from '../../components/DraggableList';
 import { FilterSheet } from '../../components/sheet/FilterSheet';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { useFriends } from '../../services/friends/FriendsProvider';
@@ -18,9 +19,11 @@ interface Props {
 export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Props) {
   const { colors } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
-  const { pendingRequests, removeFriend } = useFriends();
+  const { pendingRequests, removeFriend, reorderFriends } = useFriends();
   const { days, visibleIds, toggle } = state;
   const n = visibleIds.size;
+  const meDay = days.find((d) => d.person.isMe);
+  const friendDays = days.filter((d) => !d.person.isMe);
   const subtitle = `${n} selected · ${n > 1 ? 'Compare your day' : "Today's schedule"}`;
 
   // Pede confirmação antes de remover (evita remover alguém sem querer).
@@ -34,15 +37,28 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
   return (
     <FilterSheet title="Friends" subtitle={subtitle} onClose={onClose} onIndexChange={onIndexChange}>
       <SheetScrollView contentContainerStyle={styles.content}>
-        {days.map((day) => (
-          <PersonRow
-            key={day.person.id}
-            day={day}
-            checked={visibleIds.has(day.person.id)}
-            onToggle={() => toggle(day.person.id)}
-            onRemove={day.person.isMe ? undefined : () => confirmRemove(day.person.id, day.person.name)}
-          />
-        ))}
+        {/* "You" fica sempre no topo */}
+        {meDay && (
+          <PersonRow day={meDay} checked={visibleIds.has('me')} onToggle={() => toggle('me')} />
+        )}
+
+        {/* Amigos: segure e arraste para colocar os mais importantes em cima */}
+        <DraggableList
+          items={friendDays}
+          keyOf={(day) => day.person.id}
+          onReorder={reorderFriends}
+          renderItem={(day, dragging) => (
+            <PersonRow
+              day={day}
+              checked={visibleIds.has(day.person.id)}
+              onToggle={() => toggle(day.person.id)}
+              onRemove={() => confirmRemove(day.person.id, day.person.name)}
+              draggable={friendDays.length > 1}
+              dragging={dragging}
+            />
+          )}
+        />
+        {friendDays.length > 1 && <Text style={styles.hint}>Hold and drag a friend to reorder</Text>}
 
         {/* Pedidos enviados por email que ainda não foram aceitos */}
         {pendingRequests.map((r) => (
@@ -77,5 +93,6 @@ const makeStyles = (colors: Palette) =>
   pendingSub: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
   addRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, padding: 12, marginTop: 4 },
   addText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.ink },
+  hint: { fontFamily: fonts.regular, fontSize: 12, color: colors.subtle, marginHorizontal: 24, marginTop: 6 },
   footnote: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted, marginHorizontal: 24, marginTop: 16 },
 });

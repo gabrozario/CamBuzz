@@ -1,4 +1,4 @@
-import { UserMinus } from 'lucide-react-native';
+import { GripVertical, UserMinus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Checkbox } from '../../components/Checkbox';
 import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
@@ -10,21 +10,34 @@ interface Props {
   onToggle: () => void;
   /** Se presente, mostra o botão de remover amigo (não aparece para "You"). */
   onRemove?: () => void;
+  /** Mostra o "pegador" (⋮⋮): dá para segurar e arrastar para reordenar. */
+  draggable?: boolean;
+  /** Está sendo arrastado agora (fica "levantado"). */
+  dragging?: boolean;
 }
 
 /** Linha da lista People: checkbox na cor da pessoa, nome, status e "Next: ..." (Figma). */
-export function PersonRow({ day, checked, onToggle, onRemove }: Props) {
+export function PersonRow({ day, checked, onToggle, onRemove, draggable = false, dragging = false }: Props) {
   const { colors, tint } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
   const { person, status, next } = day;
   return (
     <Pressable
       onPress={onToggle}
-      style={({ pressed }) => [styles.row, checked && { backgroundColor: tint(person.color, 0.1) }, pressed && styles.pressed]}
+      // Segurar = começar a arrastar (não marca/desmarca o checkbox ao soltar).
+      onLongPress={draggable ? () => {} : undefined}
+      delayLongPress={300}
+      style={({ pressed }) => [
+        styles.row,
+        checked && { backgroundColor: tint(person.color, 0.1) },
+        dragging && styles.dragging,
+        pressed && !dragging && styles.pressed,
+      ]}
       accessibilityRole="checkbox"
       accessibilityState={{ checked }}
       accessibilityLabel={`${checked ? 'Hide' : 'Show'} ${person.isMe ? 'your' : `${person.shortName}'s`} route`}
     >
+      {draggable && <GripVertical size={18} color={colors.subtle} strokeWidth={1.8} style={styles.grip} />}
       <Checkbox checked={checked} color={person.color} />
       <View style={styles.body}>
         <View style={styles.topLine}>
@@ -70,6 +83,15 @@ const makeStyles = (colors: Palette) =>
     borderRadius: radius.md,
   },
   pressed: { opacity: 0.75 },
+  dragging: {
+    backgroundColor: colors.surface,
+    shadowColor: '#233A43',
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
+  },
+  grip: { marginLeft: -6, marginRight: -6 },
   body: { flex: 1, gap: 3 },
   topLine: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   name: { flexShrink: 1, fontFamily: fonts.semibold, fontSize: 17, color: colors.ink },

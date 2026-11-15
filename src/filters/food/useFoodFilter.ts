@@ -19,6 +19,8 @@ export interface FoodFilterState {
   /** Abre o cardápio do local (e liga a categoria dele, para o pino aparecer no mapa). */
   openLocation: (location: FoodLocation) => void;
   clearSelection: () => void;
+  /** Volta tudo ao início (nada marcado, nada expandido) — chamado ao desligar o filtro. */
+  reset: () => void;
 }
 
 function toggleInSet(prev: Set<string>, id: string): Set<string> {
@@ -61,6 +63,12 @@ export function useFoodFilter(): FoodFilterState {
 
   const clearSelection = useCallback(() => setSelectedLocation(null), []);
 
+  const reset = useCallback(() => {
+    setSelectedCategories(new Set());
+    setExpandedCategories(new Set());
+    setSelectedLocation(null);
+  }, []);
+
   return {
     categories,
     selectedCategories,
@@ -76,5 +84,6 @@ export function useFoodFilter(): FoodFilterState {
     toggleSelectAll,
     openLocation,
     clearSelection,
+    reset,
   };
 }

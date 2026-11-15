@@ -210,6 +210,11 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
 - **Demo (serviço falso):** Google/Microsoft são simulados e entram como Alex Morgan (`data/me.json`). Login por email aceita qualquer senha para contas existentes (`alex.morgan@gatech.edu` ou as criadas no cadastro). O mock **não guarda senhas**.
 - **Para o futuro:** criar `apiAuthService` com as mesmas funções de `AuthService` (servidor confere senha e devolve token); Google/Microsoft reais com `expo-auth-session` (os client IDs ficam em config, nunca segredos no código — e o login real provavelmente exige um development build em vez do Expo Go). Depois, `FriendsProvider` e a agenda devem usar `useAuth().user` no lugar de `data/me.json`, e a agenda passa a ser salva por conta.
 
+### Pinos e ordem de amigos
+- **Todo pino de filtro abre a descrição dele** (evento → detalhe do evento; restaurante → horário/pagamento; biblioteca/CRC → ocupação; impressora → `ResourceLocationDetails`). Se o filtro do pino estava em segundo plano, ele vem para a frente (`focusFilter` em `useActiveFilters`) e a descrição aberta nos outros filtros fecha.
+- **Ao desligar um filtro, ele volta ao estado inicial** (`reset()` de cada hook: nada marcado/aberto; Friends volta a mostrar só "You").
+- **Reordenar amigos:** na aba Friends, segure um amigo (~0,3 s) e arraste (`components/DraggableList.tsx`, reutilizável). A ordem é salva por `reorderFriends(ids)` no `friendsService`. "You" fica sempre no topo.
+
 ## Amigos (link de convite + email)
 - Cada conta tem **email** e um **link de convite** próprio: `cambuzz.app/friends/<inviteSlug>` (`src/config.ts`, domínio provisório).
 - Popup "Add Friends" (botão de pessoa com "+" no topo, ou "Add friends" na aba People): tocar no link **copia** (expo-clipboard); o ícone ao lado abre o **compartilhar** do Android. Embaixo, o campo de **email** envia um pedido de amizade.

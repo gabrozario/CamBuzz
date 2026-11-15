@@ -90,6 +90,11 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
 
   const selected = entries.find((e) => e.event.id === selectedId) ?? null;
   const clearSelection = useCallback(() => setSelectedId(null), []);
+  /** Volta ao início (nenhum evento aberto, "Show all" desligado) — chamado ao desligar o filtro. */
+  const reset = useCallback(() => {
+    setSelectedId(null);
+    setShowAll(false);
+  }, []);
 
   return {
     sections,
@@ -102,6 +107,7 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
     selected,
     select: setSelectedId,
     clearSelection,
+    reset,
     showAll,
     setShowAll,
   };

@@ -40,7 +40,12 @@ export function useActiveFilters() {
     });
   }, []);
 
+  /** Traz um filtro JÁ LIGADO para a frente (ex.: tocou num pino dele no mapa). */
+  const focusFilter = useCallback((key: FilterKey) => {
+    setState((s) => (s.active.includes(key) && s.focus !== key ? { ...s, focus: key } : s));
+  }, []);
+
   const clear = useCallback(() => setState({ active: [], focus: null }), []);
 
-  return { active, focus, press, remove, clear };
+  return { active, focus, press, remove, focusFilter, clear };
 }

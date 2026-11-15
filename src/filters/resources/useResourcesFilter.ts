@@ -21,6 +21,8 @@ export interface ResourcesFilterState {
   openDetails: (buildingId: string, specificLoc?: ResourceLocation) => void;
   closeDetails: () => void;
   clearSelection: () => void;
+  /** Volta tudo ao início (nada marcado, nada expandido) — chamado ao desligar o filtro. */
+  reset: () => void;
 }
 
 /** Hook que gerencia o estado do filtro Campus Resources. */
@@ -104,6 +106,13 @@ export function useResourcesFilter(): ResourcesFilterState {
     setSelectedBuildingDetails(null);
   }, []);
 
+  const reset = useCallback(() => {
+    setSelectedCategories(new Set());
+    setExpandedCategories(new Set());
+    setSelectedLocation(null);
+    setSelectedBuildingDetails(null);
+  }, []);
+
   return {
     categories,
     selectedCategories,
@@ -123,5 +132,6 @@ export function useResourcesFilter(): ResourcesFilterState {
     openDetails,
     closeDetails,
     clearSelection,
+    reset,
   };
 }
