@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { DayRouteLayer } from '../../components/map/DayRouteLayer';
+import { useAppTheme } from '../../theme';
 import { sharedBuildings } from './peopleDay';
 import { SharedBuildingCallout } from './SharedBuildingCallout';
 import type { PeopleFilterState } from './usePeopleFilter';
@@ -17,7 +18,8 @@ interface Props {
 export function PeopleLayer({ state }: Props) {
   const days = state.visibleDays;
   const single = days.length === 1;
-  const shared = useMemo(() => (single ? [] : sharedBuildings(days)), [days, single]);
+  const { colors } = useAppTheme();
+  const shared = useMemo(() => (single ? [] : sharedBuildings(days, colors.ink)), [days, single, colors.ink]);
 
   return (
     <>

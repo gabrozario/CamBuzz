@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAppTheme } from '../../theme';
 
 /**
  * No Android, marcadores com visual próprio são "fotografados" como imagem.
@@ -7,14 +8,16 @@ import { useEffect, useState } from 'react';
  * desligamos — senão o mapa fica lento.
  *
  * Uso: `const tracks = useTracksViewChanges([selected]);` e `<Marker tracksViewChanges={tracks}>`.
+ * Trocar o modo claro/escuro também "tira a foto" de novo (as cores mudam).
  */
 export function useTracksViewChanges(deps: unknown[] = []) {
   const [tracks, setTracks] = useState(true);
+  const { isDark } = useAppTheme();
   useEffect(() => {
     setTracks(true);
     const t = setTimeout(() => setTracks(false), 800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [...deps, isDark]);
   return tracks;
 }

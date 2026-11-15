@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Checkbox } from '../../components/Checkbox';
-import { colors, fonts } from '../../theme';
+import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { ResourceCategory, ResourceLocation } from '../../types';
 
 interface Props {
@@ -24,6 +24,8 @@ export function ResourceCategoryRow({
   onSelectLocation,
   selectedLocationId,
 }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const count = category.locations.length;
   const isSingle = count === 1;
 
@@ -110,7 +112,8 @@ export function ResourceCategoryRow({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   container: {
     paddingVertical: 10,
     paddingHorizontal: 24,

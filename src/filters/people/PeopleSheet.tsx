@@ -3,7 +3,7 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { FilterSheet } from '../../components/sheet/FilterSheet';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { useFriends } from '../../services/friends/FriendsProvider';
-import { colors, fonts } from '../../theme';
+import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { PersonRow } from './PersonRow';
 import type { PeopleFilterState } from './usePeopleFilter';
 
@@ -16,6 +16,8 @@ interface Props {
 
 /** A aba do filtro People: você + amigos, cada um com checkbox para mostrar/esconder o caminho. */
 export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const { pendingRequests, removeFriend } = useFriends();
   const { days, visibleIds, toggle } = state;
   const n = visibleIds.size;
@@ -66,7 +68,8 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   content: { paddingTop: 8, paddingBottom: 32, gap: 4 },
   pending: { flexDirection: 'row', alignItems: 'center', gap: 14, marginHorizontal: 16, padding: 12 },
   pendingText: { flex: 1, gap: 2 },

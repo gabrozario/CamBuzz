@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useFriends } from '../../services/friends/FriendsProvider';
 import { displayLink } from '../../services/friends/invite';
-import { colors, fonts, radius } from '../../theme';
+import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 
 interface Props {
   visible: boolean;
@@ -29,6 +29,8 @@ type Feedback = { kind: 'success' | 'error'; text: string } | null;
  * 1) copiar seu link de convite; 2) colar o email de um amigo.
  */
 export function AddFriendModal({ visible, onClose }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const { inviteLink, addFriendByEmail } = useFriends();
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState('');
@@ -146,7 +148,7 @@ export function AddFriendModal({ visible, onClose }: Props) {
                     accessibilityRole="button"
                     accessibilityLabel="Send friend request"
                   >
-                    <ArrowRight size={20} color={colors.white} strokeWidth={2} />
+                    <ArrowRight size={20} color={colors.onInk} strokeWidth={2} />
                   </Pressable>
                 )
               )}
@@ -163,7 +165,8 @@ export function AddFriendModal({ visible, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   flex: { flex: 1 },
   backdrop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(35, 58, 67, 0.35)' },
   center: { flex: 1, justifyContent: 'center', paddingHorizontal: 20 },
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 22,
     paddingBottom: 24,
-    shadowColor: colors.ink,
+    shadowColor: '#233A43',
     shadowOpacity: 0.15,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 8 },

@@ -1,5 +1,5 @@
 import { Polyline } from 'react-native-maps';
-import { colors } from '../../theme';
+import { useAppTheme } from '../../theme';
 import { shiftCoordinate, type DayRoute } from '../../utils/route';
 import { StopMarker } from './StopMarker';
 
@@ -25,11 +25,12 @@ export function DayRouteLayer({
   route,
   color,
   highlightNextLeg = false,
-  nextLegColor = colors.ink,
+  nextLegColor,
   showMarkers = true,
   showChips = true,
   offset = 0,
 }: Props) {
+  const { colors } = useAppTheme();
   const shift = (path: typeof route.legs[number]['path']) => path.map((p) => shiftCoordinate(p, offset));
 
   return (
@@ -52,7 +53,7 @@ export function DayRouteLayer({
             <Polyline
               key={`next-${leg.to.session.id}`}
               coordinates={shift(leg.path)}
-              strokeColor={nextLegColor}
+              strokeColor={nextLegColor ?? colors.ink}
               strokeWidth={8}
               lineCap="round"
               lineJoin="round"

@@ -33,8 +33,8 @@ export function RootScreen() {
 
   return (
     <View style={styles.root}>
-      {/* O mapa ainda não tem modo escuro, então a barra de status fica escura nele. */}
-      <StatusBar style={screen !== 'map' && isDark ? 'light' : 'dark'} />
+      {/* Ícones da barra de status: claros no modo escuro, escuros no claro. */}
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <MapScreen
         focused={screen === 'map'}
         onOpenSchedule={() => setScreen('schedule')}

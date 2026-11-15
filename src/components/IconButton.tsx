@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet } from 'react-native';
-import { colors, radius, shadow } from '../theme';
+import { radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../theme';
 
 interface Props {
   icon: LucideIcon;
@@ -10,6 +10,8 @@ interface Props {
 
 /** Botão quadrado branco flutuante sobre o mapa (calendário, configurações, adicionar amigo). */
 export function IconButton({ icon: Icon, onPress, accessibilityLabel }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <Pressable
       onPress={onPress}
@@ -24,7 +26,8 @@ export function IconButton({ icon: Icon, onPress, accessibilityLabel }: Props) {
 
 export const ICON_BUTTON_SIZE = 48;
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   button: {
     width: ICON_BUTTON_SIZE,
     height: ICON_BUTTON_SIZE,

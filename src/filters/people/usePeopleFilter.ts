@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFriends } from '../../services/friends/FriendsProvider';
 import { friendSessionsOnDate } from '../../services/schedule/scheduleLogic';
 import { useSchedule } from '../../services/schedule/ScheduleProvider';
+import { useAppTheme } from '../../theme';
 import type { TimeOfDay } from '../../types';
 import { buildPersonDay, personFromFriend, personFromMe, type PersonDay } from './peopleDay';
 
@@ -12,16 +13,20 @@ import { buildPersonDay, personFromFriend, personFromMe, type PersonDay } from '
 export function usePeopleFilter(now: TimeOfDay) {
   const { friends } = useFriends();
   const { todayClasses, friendEvents, today } = useSchedule();
+  // Cores do tema: verde do "You" e amigos um pouco mais claros no modo escuro.
+  const { colors, vivid } = useAppTheme();
   const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set(['me']));
 
   // Você: agenda de hoje. Amigos: aulas deles + eventos que aceitaram (ex.: um convite seu).
   const days: PersonDay[] = useMemo(
     () =>
       [
-        personFromMe(todayClasses),
-        ...friends.map((f) => personFromFriend({ ...f, schedule: friendSessionsOnDate(f, friendEvents[f.id] ?? [], today) })),
+        personFromMe(todayClasses, colors.green),
+        ...friends.map((f) =>
+          personFromFriend({ ...f, color: vivid(f.color), schedule: friendSessionsOnDate(f, friendEvents[f.id] ?? [], today) }),
+        ),
       ].map((p) => buildPersonDay(p, now)),
-    [friends, friendEvents, todayClasses, today, now],
+    [friends, friendEvents, todayClasses, today, now, colors.green, vivid],
   );
 
   // Amigo recém-adicionado (pelo popup) já aparece selecionado; amigo removido sai da seleção.

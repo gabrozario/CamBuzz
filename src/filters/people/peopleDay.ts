@@ -1,7 +1,6 @@
 import type { Building, Friend, Person, TimeOfDay } from '../../types';
 import { buildDayRoute, type DayRoute, type RouteStop } from '../../utils/route';
 import { formatTime, formatTimeShort } from '../../utils/time';
-import { colors } from '../../theme';
 
 /** O dia de uma pessoa já calculado: caminho + textos de status. */
 export interface PersonDay {
@@ -13,8 +12,9 @@ export interface PersonDay {
   next?: string;
 }
 
-export function personFromMe(schedule: Person['schedule']): Person {
-  return { id: 'me', name: 'You', shortName: 'You', color: colors.green, isMe: true, schedule };
+/** `color` = verde do tema (useAppTheme().colors.green). */
+export function personFromMe(schedule: Person['schedule'], color: string): Person {
+  return { id: 'me', name: 'You', shortName: 'You', color, isMe: true, schedule };
 }
 
 export function personFromFriend(f: Friend): Person {
@@ -66,7 +66,7 @@ export interface SharedBuilding {
  * Mostra só prédios compartilhados por 2+ pessoas ou onde alguém está agora,
  * para o mapa não ficar poluído.
  */
-export function sharedBuildings(days: PersonDay[]): SharedBuilding[] {
+export function sharedBuildings(days: PersonDay[], defaultColor: string): SharedBuilding[] {
   const byBuilding = new Map<string, { building: Building; parts: { day: PersonDay; stop: RouteStop }[] }>();
   for (const day of days) {
     for (const stop of day.route.stops) {
@@ -85,7 +85,7 @@ export function sharedBuildings(days: PersonDay[]): SharedBuilding[] {
     const line = parts
       .map((p) => `${p.day.person.shortName} ${p.stop.status === 'now' ? 'now' : formatTimeShort(p.stop.session.start)}`)
       .join(' · ');
-    result.push({ building, line, color: nowPart ? nowPart.day.person.color : colors.ink });
+    result.push({ building, line, color: nowPart ? nowPart.day.person.color : defaultColor });
   }
   return result;
 }

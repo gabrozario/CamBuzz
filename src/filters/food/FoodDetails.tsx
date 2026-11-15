@@ -2,7 +2,7 @@ import { ChevronLeft } from 'lucide-react-native';
 import { Fragment } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
-import { colors, fonts, radius } from '../../theme';
+import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { FoodItem, FoodLocation } from '../../types';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -20,6 +20,8 @@ interface HeaderProps {
 
 /** Cabeçalho fixo do detalhe: "‹ Food options", nome do local e "Dining hall · North Avenue". */
 export function FoodDetailsHeader({ location, onBack }: HeaderProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.header}>
       <Pressable
@@ -44,6 +46,7 @@ export function FoodDetailsHeader({ location, onBack }: HeaderProps) {
 
 /** Página do local: cardápio do dia por seção (Breakfast/Lunch/Dinner...) com a nutrição de cada item. */
 export function FoodDetails({ location }: { location: FoodLocation }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <SheetScrollView contentContainerStyle={styles.content}>
       <Text style={styles.menuTitle}>Menu for today</Text>
@@ -75,6 +78,7 @@ export function FoodDetails({ location }: { location: FoodLocation }) {
 }
 
 function MenuItemRow({ item }: { item: FoodItem }) {
+  const styles = useThemedStyles(makeStyles);
   const stats = [
     { value: `${item.calories}`, label: 'Calories' },
     { value: `${item.protein} g`, label: 'Protein' },
@@ -99,7 +103,8 @@ function MenuItemRow({ item }: { item: FoodItem }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   header: { paddingHorizontal: 24, paddingTop: 4, paddingBottom: 8 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: -6, marginBottom: 8 },
   backLabel: { fontFamily: fonts.medium, fontSize: 14, color: colors.ink },

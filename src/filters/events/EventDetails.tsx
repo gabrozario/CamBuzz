@@ -1,7 +1,7 @@
 import { ChevronLeft, Footprints, Users } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
-import { colors, fonts, radius, tint } from '../../theme';
+import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { formatTime } from '../../utils/time';
 import { detourLabel, windowTitle } from './eventsOnRoute';
 import type { EventEntry } from './useEventsFilter';
@@ -18,6 +18,8 @@ interface HeaderProps {
  * Fica sempre visível e serve para arrastar a aba.
  */
 export function EventDetailsHeader({ entry, onBack }: HeaderProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.header}>
       <View style={styles.topRow}>
@@ -41,6 +43,8 @@ export function EventDetailsHeader({ entry, onBack }: HeaderProps) {
 
 /** Corpo rolável do detalhe de um evento (tela "Event details" do Figma). */
 export function EventDetails({ entry }: { entry: EventEntry }) {
+  const { colors, tint } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const { event, match } = entry;
 
   return (
@@ -103,7 +107,8 @@ export function EventDetails({ entry }: { entry: EventEntry }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   header: { paddingHorizontal: 24, paddingTop: 4, paddingBottom: 8 },
   content: { paddingHorizontal: 24, paddingTop: 4, paddingBottom: 40 },
   topRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: -6 },

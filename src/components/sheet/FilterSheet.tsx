@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp, X } from 'lucide-react-native';
 import { useCallback, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, fonts } from '../../theme';
+import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 
 /**
  * Alturas da aba (índices usados em snapToIndex):
@@ -61,6 +61,8 @@ export function FilterSheet({
   onIndexChange,
   children,
 }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const sheetRef = useRef<BottomSheet>(null);
   const [index, setIndex] = useState(SHEET_MID);
@@ -112,7 +114,7 @@ export function FilterSheet({
         )}
       </View>
     ),
-    [customHeader, title, hideChevron, collapsed, toggleCollapsed, onClose, subtitle, note],
+    [customHeader, title, hideChevron, collapsed, toggleCollapsed, onClose, subtitle, note, styles, colors],
   );
 
   return (
@@ -137,12 +139,13 @@ export function FilterSheet({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   background: { backgroundColor: colors.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28 },
   handleArea: { paddingTop: 10, paddingBottom: 4 },
   indicator: { alignSelf: 'center', backgroundColor: colors.handle, width: 44, height: 4, borderRadius: 2, marginBottom: 6 },
   shadow: {
-    shadowColor: colors.ink,
+    shadowColor: '#233A43',
     shadowOpacity: 0.1,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: -2 },

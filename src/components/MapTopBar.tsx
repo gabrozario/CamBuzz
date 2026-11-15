@@ -1,7 +1,7 @@
 import { CalendarDays, Search, Settings, UserPlus } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, radius, shadow, spacing } from '../theme';
+import { fonts, radius, shadow, spacing, useAppTheme, useThemedStyles, type Palette } from '../theme';
 import { IconButton, ICON_BUTTON_SIZE } from './IconButton';
 
 interface Props {
@@ -24,6 +24,8 @@ export function MapTopBar({
   onOpenSettings,
   onAddFriend,
 }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={[styles.container, { paddingTop: topInset + spacing.md }]} pointerEvents="box-none">
       <View style={styles.row}>
@@ -45,7 +47,8 @@ export function MapTopBar({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   container: {
     position: 'absolute',
     top: 0,

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Checkbox } from '../../components/Checkbox';
 import { FilterSheet, SHEET_MID, type FilterSheetHandle } from '../../components/sheet/FilterSheet';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
-import { colors, fonts } from '../../theme';
+import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { ResourceLocation } from '../../types';
 import { CampusDetails, CampusDetailsHeader } from './CampusDetails';
 import { ResourceCategoryRow } from './ResourceCategoryRow';
@@ -17,6 +17,7 @@ interface Props {
 
 /** Aba do filtro Campus Resources: lista de categorias com sub-locais ou detalhe do prédio. */
 export function ResourcesSheet({ state, onClose, onIndexChange }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const sheetRef = useRef<FilterSheetHandle>(null);
   const {
     categories,
@@ -123,7 +124,8 @@ export function ResourcesSheet({ state, onClose, onIndexChange }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   content: {
     paddingTop: 4,
     paddingBottom: 36,

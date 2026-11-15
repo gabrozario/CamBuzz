@@ -203,7 +203,7 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
 - **Modelo:** `MySchedule` = cursos (`EnrolledCourse`: section, professor, encontros semanais com dias/horário/prédio) + eventos (`PersonalEvent`: dia, horário, `repeat`, local, convites). Cursos só acontecem entre `termStart` e `termEnd`.
 - **O mapa** usa `useSchedule().todayClasses` (aulas + eventos **com prédio** de hoje). Adicionou algo hoje → aparece no caminho do dia.
 - **Add Course:** código → "Find sections" (sugere enquanto digita) → toque na section = entra direto na agenda. Se já tem o curso, troca de section. Section que bate com algo mostra aviso em vermelho.
-- **Add Event:** nome, dia, From/To (seletor nativo `@react-native-community/datetimepicker`), Repeat (uma vez, todo dia, dias úteis, semanal, mensal), local (reconhece prédio → aparece no mapa). Done → se bater com algo: **Replace / Keep both / Cancel**.
+- **Add Event:** nome, dia (caixa de calendário `CalendarSelect`), From/To (caixa de horários `TimeSelect`, de 15 em 15 min), Repeat (uma vez, todo dia, dias úteis, semanal, mensal), local (reconhece prédio → aparece no mapa). Done → se bater com algo: **Replace / Keep both / Cancel**.
   - *Replace* = o novo ganha: curso x curso → o antigo sai; evento de uma vez → sai; o resto → só os dias em conflito são pulados (`skipDates`).
   - Conflitos de coisas que se repetem são procurados até 120 dias à frente (`CONFLICT_HORIZON_DAYS`).
 - **Invite friends:** lista os amigos com "Free · …" / "Busy · CS 1332 until 1:20 PM" (puxa a agenda deles; na demo as aulas do `friends.json` valem de seg a sex). Na demo, quem está livre **aceita sozinho ~3,5 s depois** e o evento entra no dia dele (aparece no filtro People).
@@ -213,7 +213,22 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
 
 ## Settings e modo escuro
 - Conta: nome/email vêm de `useFriends().me`; "Edit name & email" chama `updateProfile` (o link de convite não muda).
-- **Modo escuro**: `ThemeProvider` (em memória). Hoje vale para **Schedule, Settings e seus popups**. O **mapa e as abas dos filtros ainda são só claros** — para converter uma tela: `const { c } = useAppTheme()` + `const styles = useMemo(() => makeStyles(c), [c])` (modelo: `SettingsScreen.tsx`). O mapa escuro precisaria de um segundo `customMapStyle`.
+- **Modo escuro vale para o app inteiro** (mapa, barra, abas dos filtros, popups, Schedule, Settings). Fica em memória (`ThemeProvider`).
+- **Regra para TODO componente novo** (senão ele fica claro no modo escuro):
+  ```tsx
+  import { useAppTheme, useThemedStyles, type Palette } from '../theme';
+  export function MeuComponente() {
+    const { colors } = useAppTheme();            // cores do modo atual (mesmas chaves de colors.ts)
+    const styles = useThemedStyles(makeStyles);  // estilos refeitos ao trocar o modo
+    ...
+  }
+  const makeStyles = (colors: Palette) => StyleSheet.create({ ... colors.surface ... });
+  ```
+  - Não importe `colors` direto de `theme` dentro de componentes (é sempre a paleta clara).
+  - Texto/ícone sobre fundo `ink` (pinos) → `colors.onInk`. Fundo suave de uma cor → `useAppTheme().tint(cor)`.
+  - Cores de dados (amigos) no mapa → `useAppTheme().vivid(cor)` (mais claras no escuro).
+  - Telas Schedule/Settings usam a paleta `c` (`AppColors`) do mesmo hook.
+- Mapa: `useAppTheme().mapStyle` (`campusMapStyle` / `campusMapStyleDark` em `mapStyle.ts`).
 
 ## Convenções
 - Horários são strings `"HH:MM"` 24h; converta com `toMinutes()` para comparar.

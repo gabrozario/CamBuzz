@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Checkbox } from '../../components/Checkbox';
 import { FilterSheet, SHEET_MID, type FilterSheetHandle } from '../../components/sheet/FilterSheet';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
-import { colors, fonts } from '../../theme';
+import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { FoodCategoryRow } from './FoodCategoryRow';
 import { FoodDetails, FoodDetailsHeader } from './FoodDetails';
 import type { FoodFilterState } from './useFoodFilter';
@@ -16,6 +16,7 @@ interface Props {
 
 /** ABA do filtro Food options: lista de categorias ou o cardápio do local selecionado. */
 export function FoodSheet({ state, onClose, onIndexChange }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const sheetRef = useRef<FilterSheetHandle>(null);
   const {
     categories,
@@ -96,7 +97,8 @@ export function FoodSheet({ state, onClose, onIndexChange }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   content: { paddingTop: 4, paddingBottom: 36 },
   selectAllRow: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 24, paddingVertical: 12 },
   selectAllText: { fontFamily: fonts.semibold, fontSize: 16, color: colors.ink },
