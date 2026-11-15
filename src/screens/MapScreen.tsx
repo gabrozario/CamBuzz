@@ -26,10 +26,11 @@ import { ResourcesLayer } from '../filters/resources/ResourcesLayer';
 import { ResourcesSheet } from '../filters/resources/ResourcesSheet';
 import { useResourcesFilter } from '../filters/resources/useResourcesFilter';
 import { useActiveFilters } from '../hooks/useActiveFilters';
+import { enhanceDayRouteWithORS } from '../services/routing/openRouteService';
 import { useSchedule } from '../services/schedule/ScheduleProvider';
 import { spacing, useAppTheme, useThemedStyles, type Palette } from '../theme';
 import type { FilterKey, LatLng } from '../types';
-import { buildDayRoute, regionFor } from '../utils/route';
+import { buildDayRoute, regionFor, type DayRoute } from '../utils/route';
 import { formatTime, nowTime } from '../utils/time';
 
 /** Filtros que já têm aba (bottom sheet) implementada. */
@@ -68,7 +69,21 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const now = nowTime();
   // Suas paradas de hoje vêm da agenda (My schedule): aulas + eventos com prédio.
   const { todayClasses } = useSchedule();
-  const userRoute = useMemo(() => buildDayRoute(todayClasses, now), [todayClasses, now]);
+  const baseUserRoute = useMemo(() => buildDayRoute(todayClasses, now), [todayClasses, now]);
+  const [userRoute, setUserRoute] = useState<DayRoute>(baseUserRoute);
+
+  useEffect(() => {
+    let isMounted = true;
+    setUserRoute(baseUserRoute);
+    enhanceDayRouteWithORS(baseUserRoute)
+      .then((enhanced) => {
+        if (isMounted) setUserRoute(enhanced);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [baseUserRoute]);
   const stopCoords = useMemo(() => userRoute.stops.map((s) => s.building.coordinate), [userRoute]);
   const initialRegion = useMemo(() => regionFor(stopCoords), [stopCoords]);
 

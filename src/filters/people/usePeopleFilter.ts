@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFriends } from '../../services/friends/FriendsProvider';
+import { enhanceDayRouteWithORS } from '../../services/routing/openRouteService';
 import { friendSessionsOnDate } from '../../services/schedule/scheduleLogic';
 import { useSchedule } from '../../services/schedule/ScheduleProvider';
 import { useAppTheme } from '../../theme';
@@ -9,6 +10,8 @@ import { buildPersonDay, personFromFriend, personFromMe, type PersonDay } from '
 /**
  * Estado do filtro People: o dia de cada pessoa (você + amigos) e quem está
  * visível no mapa. Começa só com "You" visível, como no Figma.
+ * As rotas a pé entre aulas são calculadas via OpenRouteService (HeiGIT)
+ * para refletir os caminhos e calçadas reais do campus da Georgia Tech.
  */
 export function usePeopleFilter(now: TimeOfDay) {
   const { friends } = useFriends();
@@ -18,7 +21,7 @@ export function usePeopleFilter(now: TimeOfDay) {
   const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set(['me']));
 
   // Você: agenda de hoje. Amigos: aulas deles + eventos que aceitaram (ex.: um convite seu).
-  const days: PersonDay[] = useMemo(
+  const baseDays: PersonDay[] = useMemo(
     () =>
       [
         personFromMe(todayClasses, colors.green),
@@ -28,6 +31,36 @@ export function usePeopleFilter(now: TimeOfDay) {
       ].map((p) => buildPersonDay(p, now)),
     [friends, friendEvents, todayClasses, today, now, colors.green, vivid],
   );
+
+  const [days, setDays] = useState<PersonDay[]>(baseDays);
+
+  // Enriquece as rotas de todas as pessoas com a API do OpenRouteService
+  useEffect(() => {
+    let isMounted = true;
+    setDays(baseDays);
+
+    async function loadRealisticRoutes() {
+      const enhanced = await Promise.all(
+        baseDays.map(async (day) => {
+          try {
+            const enhancedRoute = await enhanceDayRouteWithORS(day.route);
+            return { ...day, route: enhancedRoute };
+          } catch {
+            return day;
+          }
+        }),
+      );
+      if (isMounted) {
+        setDays(enhanced);
+      }
+    }
+
+    loadRealisticRoutes();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [baseDays]);
 
   // Amigo recém-adicionado (pelo popup) já aparece selecionado; amigo removido sai da seleção.
   const knownIds = useRef(new Set(friends.map((f) => f.id)));

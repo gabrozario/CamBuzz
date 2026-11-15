@@ -62,7 +62,7 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
           <Text style={styles.addText}>Add friends</Text>
         </Pressable>
 
-        <Text style={styles.footnote}>Example schedules · Walking routes are illustrative</Text>
+        <Text style={styles.footnote}>Example schedules · Walking routes powered by OpenRouteService</Text>
       </SheetScrollView>
     </FilterSheet>
   );

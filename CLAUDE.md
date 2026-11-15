@@ -77,7 +77,7 @@ Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 ## Estrutura de pastas
 
 ```
-App.tsx                      # fontes + providers (gesture handler, safe area, tema, amigos, agenda, toast) → RootScreen
+App.tsx                      # fontes + providers (gesture handler, safe area, tema, auth, amigos, agenda, toast) → AuthFlow ou RootScreen
 data/                        # DADOS FALSOS (sem backend)
   buildings.json             # ~16 prédios da GT com coordenadas aproximadas
   schedule.json              # SUA agenda semanal: cursos (section + dias) e eventos pessoais. Segunda 16/11 = 5 aulas do mapa
@@ -95,6 +95,11 @@ src/
   types/index.ts             # Building, ClassSession, Friend, UserProfile, FriendRequest, Person, CampusEvent...
   theme/                     # colors.ts (+ tint(), mixHex(), coursePalette), typography.ts (Inter), mapStyle.ts
     ThemeProvider.tsx        #   modo claro/escuro: useAppTheme() → { c, isDark, courseBg(), courseText() }
+  services/auth/             # "backend" de contas (hoje falso) — ver seção Contas
+    authService.ts           #   interface AuthService + mockAuthService (sessão no AsyncStorage)
+    AuthProvider.tsx         #   contexto React: useAuth() → status, user, logIn, signUp, logOut...
+  screens/auth/              # WelcomeScreen (boas-vindas), AuthFormScreen (login/cadastro), AuthFlow (troca entre elas)
+  components/auth/           # AuthButton, AuthTextField, ProviderLogos (Google/Microsoft), WelcomeIllustration (mapa em SVG)
   services/friends/          # "backend" de amigos (hoje falso) — ver seção Amigos
     friendsService.ts        #   interface FriendsService + mockFriendsService
     FriendsProvider.tsx      #   contexto React: useFriends() em qualquer tela
@@ -186,6 +191,14 @@ No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
 Com os dois filtros ligados, para cada evento do **seu** caminho aplicamos a mesma regra ao dia de cada amigo **visível**.
 Se o evento também cabe no dia do amigo e vocês ficariam lá ao mesmo tempo por ≥ 10 min, ele aparece:
 bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "Together 1:20 – 2:00 PM · 40 min".
+
+## Contas (login / cadastro / convidado)
+- Ao abrir o app, `App.tsx` lê a sessão salva (`useAuth().status`): **logado** → mapa direto; **ninguém** → tela de boas-vindas (Create account / Log in / Continue as guest).
+- **Convidado** vai direto ao mapa, mas não é salvo: na próxima abertura volta a tela de boas-vindas. Convidado não salva agenda.
+- Login/cadastro com **email + senha** ou **Google / Microsoft**. Sessão salva com `@react-native-async-storage/async-storage`.
+- **Settings** tem o botão **Log out** (convidado vê "Log in or sign up"); os dois voltam para a tela de boas-vindas.
+- **Demo (serviço falso):** Google/Microsoft são simulados e entram como Alex Morgan (`data/me.json`). Login por email aceita qualquer senha para contas existentes (`alex.morgan@gatech.edu` ou as criadas no cadastro). O mock **não guarda senhas**.
+- **Para o futuro:** criar `apiAuthService` com as mesmas funções de `AuthService` (servidor confere senha e devolve token); Google/Microsoft reais com `expo-auth-session` (os client IDs ficam em config, nunca segredos no código — e o login real provavelmente exige um development build em vez do Expo Go). Depois, `FriendsProvider` e a agenda devem usar `useAuth().user` no lugar de `data/me.json`, e a agenda passa a ser salva por conta.
 
 ## Amigos (link de convite + email)
 - Cada conta tem **email** e um **link de convite** próprio: `cambuzz.app/friends/<inviteSlug>` (`src/config.ts`, domínio provisório).
