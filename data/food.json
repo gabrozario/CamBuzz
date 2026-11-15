@@ -1,0 +1,278 @@
+{
+  "categories": [
+    {
+      "id": "dining",
+      "name": "Dining hall",
+      "color": "#806C3C",
+      "locations": [
+        {
+          "id": "north-ave-dining",
+          "code": "D1",
+          "name": "North Avenue Dining Hall",
+          "kind": "Dining hall",
+          "area": "North Avenue",
+          "buildingId": "north-ave-dining",
+          "coordinate": { "latitude": 33.77125, "longitude": -84.3915 },
+          "menuNote": "All meals",
+          "scrollHint": "Scroll for breakfast, lunch & dinner ↓",
+          "menu": [
+            {
+              "id": "breakfast",
+              "label": "Breakfast · 7–10:30 AM",
+              "items": [
+                { "id": "na-eggs", "name": "Scrambled eggs", "portion": "1 serving", "tag": "Eggs", "calories": 180, "protein": 12, "carbs": 2, "sugars": 1 },
+                { "id": "na-oatmeal", "name": "Oatmeal with berries", "portion": "1 bowl", "tag": "Vegan", "calories": 240, "protein": 7, "carbs": 44, "sugars": 9 },
+                { "id": "na-pancakes", "name": "Buttermilk pancakes", "portion": "2 pancakes", "tag": "Vegetarian", "calories": 310, "protein": 8, "carbs": 52, "sugars": 12 }
+              ]
+            },
+            {
+              "id": "lunch",
+              "label": "Lunch · 11 AM–2 PM",
+              "items": [
+                { "id": "na-chicken", "name": "Grilled chicken breast", "portion": "1 portion", "tag": "Grill", "calories": 220, "protein": 41, "carbs": 0, "sugars": 0 },
+                { "id": "na-veg-bowl", "name": "Roasted vegetable bowl", "portion": "1 bowl", "tag": "Vegan", "calories": 380, "protein": 11, "carbs": 58, "sugars": 8 },
+                { "id": "na-pizza", "name": "Margherita pizza", "portion": "2 slices", "tag": "Pizza", "calories": 520, "protein": 22, "carbs": 64, "sugars": 6 }
+              ]
+            },
+            {
+              "id": "dinner",
+              "label": "Dinner · 5–8 PM",
+              "items": [
+                { "id": "na-salmon", "name": "Baked salmon", "portion": "1 fillet", "tag": "Seafood", "calories": 290, "protein": 34, "carbs": 0, "sugars": 0 },
+                { "id": "na-pasta", "name": "Penne marinara", "portion": "1 plate", "tag": "Vegetarian", "calories": 430, "protein": 14, "carbs": 78, "sugars": 10 },
+                { "id": "na-stirfry", "name": "Tofu stir-fry", "portion": "1 bowl", "tag": "Vegan", "calories": 350, "protein": 18, "carbs": 40, "sugars": 7 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "brittain",
+          "code": "D2",
+          "name": "Brittain Dining Hall",
+          "kind": "Dining hall",
+          "area": "East Campus",
+          "buildingId": "brittain",
+          "coordinate": { "latitude": 33.7727, "longitude": -84.39135 },
+          "menuNote": "All meals",
+          "scrollHint": "Scroll for breakfast, lunch & dinner ↓",
+          "menu": [
+            {
+              "id": "breakfast",
+              "label": "Breakfast · 7–10 AM",
+              "items": [
+                { "id": "br-burrito", "name": "Breakfast burrito", "portion": "1 burrito", "tag": "Eggs", "calories": 410, "protein": 19, "carbs": 42, "sugars": 3 },
+                { "id": "br-yogurt", "name": "Greek yogurt parfait", "portion": "1 cup", "tag": "Vegetarian", "calories": 210, "protein": 15, "carbs": 28, "sugars": 18 }
+              ]
+            },
+            {
+              "id": "lunch",
+              "label": "Lunch · 11 AM–2:30 PM",
+              "items": [
+                { "id": "br-burger", "name": "Classic cheeseburger", "portion": "1 burger", "tag": "Grill", "calories": 560, "protein": 31, "carbs": 38, "sugars": 7 },
+                { "id": "br-salad", "name": "Chicken Caesar salad", "portion": "1 bowl", "tag": "Salad bar", "calories": 330, "protein": 28, "carbs": 14, "sugars": 3 }
+              ]
+            },
+            {
+              "id": "dinner",
+              "label": "Dinner · 4:30–8 PM",
+              "items": [
+                { "id": "br-tacos", "name": "Black bean tacos", "portion": "2 tacos", "tag": "Vegan", "calories": 360, "protein": 13, "carbs": 54, "sugars": 4 },
+                { "id": "br-roast", "name": "Herb roasted turkey", "portion": "1 portion", "tag": "Entrée", "calories": 260, "protein": 36, "carbs": 6, "sugars": 2 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restaurants",
+      "name": "Restaurants/Coffees",
+      "color": "#477969",
+      "locations": [
+        {
+          "id": "student-center-food",
+          "code": "C1",
+          "name": "Student Center Food Court",
+          "kind": "Restaurant",
+          "area": "John Lewis Student Center",
+          "buildingId": "student-center",
+          "coordinate": { "latitude": 33.77385, "longitude": -84.39885 },
+          "menuNote": "Full menu",
+          "scrollHint": "Scroll for mains & sides ↓",
+          "menu": [
+            {
+              "id": "mains",
+              "label": "Mains · 10:30 AM–9 PM",
+              "items": [
+                { "id": "sc-wrap", "name": "Chicken wrap", "portion": "1 wrap", "tag": "Grill", "calories": 480, "protein": 32, "carbs": 41, "sugars": 4 },
+                { "id": "sc-rice", "name": "Teriyaki rice bowl", "portion": "1 bowl", "tag": "Asian", "calories": 590, "protein": 27, "carbs": 86, "sugars": 15 },
+                { "id": "sc-falafel", "name": "Falafel pita", "portion": "1 pita", "tag": "Vegan", "calories": 450, "protein": 15, "carbs": 58, "sugars": 5 }
+              ]
+            },
+            {
+              "id": "sides",
+              "label": "Sides",
+              "items": [
+                { "id": "sc-fries", "name": "Seasoned fries", "portion": "1 medium", "tag": "Vegan", "calories": 340, "protein": 4, "carbs": 44, "sugars": 0 },
+                { "id": "sc-fruit", "name": "Fruit cup", "portion": "1 cup", "tag": "Vegan", "calories": 90, "protein": 1, "carbs": 23, "sugars": 18 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "clough-cafe",
+          "code": "C2",
+          "name": "Clough Café",
+          "kind": "Coffee shop",
+          "area": "Clough Commons",
+          "buildingId": "culc",
+          "coordinate": { "latitude": 33.7748, "longitude": -84.3966 },
+          "menuNote": "Full menu",
+          "scrollHint": "Scroll for drinks & bakery ↓",
+          "menu": [
+            {
+              "id": "drinks",
+              "label": "Drinks · 7:30 AM–6 PM",
+              "items": [
+                { "id": "cc-latte", "name": "Oat milk latte", "portion": "12 oz", "tag": "Espresso", "calories": 170, "protein": 3, "carbs": 24, "sugars": 12 },
+                { "id": "cc-coldbrew", "name": "Cold brew", "portion": "16 oz", "tag": "Coffee", "calories": 5, "protein": 0, "carbs": 0, "sugars": 0 },
+                { "id": "cc-chai", "name": "Chai tea latte", "portion": "12 oz", "tag": "Tea", "calories": 190, "protein": 6, "carbs": 33, "sugars": 30 }
+              ]
+            },
+            {
+              "id": "bakery",
+              "label": "Bakery",
+              "items": [
+                { "id": "cc-muffin", "name": "Blueberry muffin", "portion": "1 muffin", "tag": "Vegetarian", "calories": 380, "protein": 5, "carbs": 54, "sugars": 29 },
+                { "id": "cc-bagel", "name": "Everything bagel", "portion": "1 bagel", "tag": "Vegan", "calories": 290, "protein": 11, "carbs": 56, "sugars": 6 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "library-coffee",
+          "code": "C3",
+          "name": "Library Coffee Bar",
+          "kind": "Coffee shop",
+          "area": "Price Gilbert Library",
+          "buildingId": "library",
+          "coordinate": { "latitude": 33.7742, "longitude": -84.3954 },
+          "menuNote": "Full menu",
+          "scrollHint": "Scroll for drinks & snacks ↓",
+          "menu": [
+            {
+              "id": "drinks",
+              "label": "Drinks · 8 AM–10 PM",
+              "items": [
+                { "id": "lc-americano", "name": "Americano", "portion": "12 oz", "tag": "Espresso", "calories": 15, "protein": 1, "carbs": 2, "sugars": 0 },
+                { "id": "lc-mocha", "name": "Mocha", "portion": "12 oz", "tag": "Espresso", "calories": 260, "protein": 9, "carbs": 35, "sugars": 30 }
+              ]
+            },
+            {
+              "id": "snacks",
+              "label": "Snacks",
+              "items": [
+                { "id": "lc-cookie", "name": "Chocolate chip cookie", "portion": "1 cookie", "tag": "Vegetarian", "calories": 220, "protein": 3, "carbs": 30, "sugars": 18 },
+                { "id": "lc-sandwich", "name": "Turkey & swiss sandwich", "portion": "1 sandwich", "tag": "Deli", "calories": 420, "protein": 27, "carbs": 38, "sugars": 5 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vending",
+      "name": "Vending machines",
+      "color": "#526F8A",
+      "locations": [
+        {
+          "id": "skiles-vending",
+          "code": "V1",
+          "name": "Skiles · Ground floor",
+          "kind": "Vending machine",
+          "area": "Skiles Classroom Building",
+          "buildingId": "skiles",
+          "coordinate": { "latitude": 33.7736, "longitude": -84.39605 },
+          "menuNote": "In stock now",
+          "scrollHint": "Scroll for snacks & drinks ↓",
+          "menu": [
+            {
+              "id": "snacks",
+              "label": "Snacks · Open 24/7",
+              "items": [
+                { "id": "v1-chips", "name": "Potato chips", "portion": "1 bag", "tag": "Snack", "calories": 160, "protein": 2, "carbs": 15, "sugars": 0 },
+                { "id": "v1-bar", "name": "Granola bar", "portion": "1 bar", "tag": "Snack", "calories": 190, "protein": 4, "carbs": 29, "sugars": 11 }
+              ]
+            },
+            {
+              "id": "drinks",
+              "label": "Drinks",
+              "items": [
+                { "id": "v1-water", "name": "Bottled water", "portion": "16.9 oz", "tag": "Drink", "calories": 0, "protein": 0, "carbs": 0, "sugars": 0 },
+                { "id": "v1-soda", "name": "Cola", "portion": "20 oz", "tag": "Drink", "calories": 240, "protein": 0, "carbs": 65, "sugars": 65 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "klaus-vending",
+          "code": "V2",
+          "name": "Klaus · Atrium",
+          "kind": "Vending machine",
+          "area": "Klaus Advanced Computing Building",
+          "buildingId": "klaus",
+          "coordinate": { "latitude": 33.777, "longitude": -84.3964 },
+          "menuNote": "In stock now",
+          "scrollHint": "Scroll for snacks & drinks ↓",
+          "menu": [
+            {
+              "id": "snacks",
+              "label": "Snacks · 7 AM–11 PM",
+              "items": [
+                { "id": "v2-trail", "name": "Trail mix", "portion": "1 bag", "tag": "Snack", "calories": 280, "protein": 8, "carbs": 24, "sugars": 14 },
+                { "id": "v2-pretzels", "name": "Pretzels", "portion": "1 bag", "tag": "Snack", "calories": 110, "protein": 3, "carbs": 23, "sugars": 1 }
+              ]
+            },
+            {
+              "id": "drinks",
+              "label": "Drinks",
+              "items": [
+                { "id": "v2-tea", "name": "Unsweetened iced tea", "portion": "16 oz", "tag": "Drink", "calories": 0, "protein": 0, "carbs": 0, "sugars": 0 },
+                { "id": "v2-energy", "name": "Energy drink", "portion": "12 oz", "tag": "Drink", "calories": 160, "protein": 0, "carbs": 42, "sugars": 39 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "vanleer-vending",
+          "code": "V3",
+          "name": "Van Leer · Lobby",
+          "kind": "Vending machine",
+          "area": "Van Leer Building",
+          "buildingId": "van-leer",
+          "coordinate": { "latitude": 33.77595, "longitude": -84.39745 },
+          "menuNote": "In stock now",
+          "scrollHint": "Scroll for snacks & drinks ↓",
+          "menu": [
+            {
+              "id": "snacks",
+              "label": "Snacks · Open 24/7",
+              "items": [
+                { "id": "v3-crackers", "name": "Cheese crackers", "portion": "1 pack", "tag": "Snack", "calories": 190, "protein": 4, "carbs": 23, "sugars": 2 },
+                { "id": "v3-candy", "name": "Chocolate bar", "portion": "1 bar", "tag": "Snack", "calories": 230, "protein": 3, "carbs": 28, "sugars": 24 }
+              ]
+            },
+            {
+              "id": "drinks",
+              "label": "Drinks",
+              "items": [
+                { "id": "v3-sparkling", "name": "Sparkling water", "portion": "12 oz", "tag": "Drink", "calories": 0, "protein": 0, "carbs": 0, "sugars": 0 },
+                { "id": "v3-juice", "name": "Orange juice", "portion": "10 oz", "tag": "Drink", "calories": 140, "protein": 2, "carbs": 33, "sugars": 28 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -16,6 +16,9 @@ import { EventsLayer } from '../filters/events/EventsLayer';
 import { EventsSheet } from '../filters/events/EventsSheet';
 import type { Companion } from '../filters/events/eventsWithFriends';
 import { useEventsFilter } from '../filters/events/useEventsFilter';
+import { FoodLayer } from '../filters/food/FoodLayer';
+import { FoodSheet } from '../filters/food/FoodSheet';
+import { useFoodFilter } from '../filters/food/useFoodFilter';
 import type { PersonDay } from '../filters/people/peopleDay';
 import { PeopleLayer } from '../filters/people/PeopleLayer';
 import { PeopleSheet } from '../filters/people/PeopleSheet';
@@ -30,7 +33,7 @@ import { buildDayRoute, regionFor } from '../utils/route';
 import { formatTime, nowTime } from '../utils/time';
 
 /** Filtros que já têm aba (bottom sheet) implementada. */
-const FILTERS_WITH_SHEET: FilterKey[] = ['events', 'people', 'resources'];
+const FILTERS_WITH_SHEET: FilterKey[] = ['events', 'people', 'resources', 'food'];
 
 /** Array vazio fixo (um `[]` novo a cada render faria os useMemo recalcularem sempre). */
 const NO_DAYS: PersonDay[] = [];
@@ -78,6 +81,11 @@ export function MapScreen() {
   const selectedResource = resourcesOn ? resources.selectedLocation : null;
   const selectedBuildingDetails = resourcesOn ? resources.selectedBuildingDetails : null;
 
+  // ---- Filtro Food options ----
+  const food = useFoodFilter();
+  const foodOn = active.includes('food');
+  const selectedFood = foodOn ? food.selectedLocation : null;
+
   // ---- Qual aba aparece ----
   const lastWithSheet = [...active].reverse().find((k) => FILTERS_WITH_SHEET.includes(k));
   const sheetFilter = focus && active.includes(focus) ? focus : lastWithSheet;
@@ -110,6 +118,11 @@ export function MapScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resourcesOn]);
 
+  useEffect(() => {
+    if (!foodOn) food.clearSelection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [foodOn]);
+
   // Espaço que a aba ocupa embaixo do mapa — o Google Maps centraliza o conteúdo acima dela.
   const sheetHeight =
     sheetIndex < 0 ? 0 : sheetIndex === 0 ? SHEET_COLLAPSED_HEIGHT : Math.round(mapHeight * SHEET_MID_FRACTION);
@@ -137,6 +150,11 @@ export function MapScreen() {
           return;
         }
       }
+      if (selectedFood) {
+        const { latitude, longitude } = selectedFood.coordinate;
+        mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 400);
+        return;
+      }
       if (selectedResource) {
         const { latitude, longitude } = selectedResource.coordinate;
         mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.004 }, 400);
@@ -152,7 +170,8 @@ export function MapScreen() {
         : stopCoords;
       const eventCoords = eventsOn ? events.entries.map((e) => e.event.coordinate) : [];
       const resourceCoords = resourcesOn ? resources.activeLocations.map((l) => l.coordinate) : [];
-      const allCoords = [...routeCoords, ...eventCoords, ...resourceCoords];
+      const foodCoords = foodOn ? food.activeLocations.map((l) => l.coordinate) : [];
+      const allCoords = [...routeCoords, ...eventCoords, ...resourceCoords, ...foodCoords];
       fit(allCoords.length ? allCoords : stopCoords);
     }, 300);
     return () => clearTimeout(t);
@@ -167,6 +186,9 @@ export function MapScreen() {
     selectedResource?.id,
     selectedBuildingDetails?.buildingId,
     resources.activeLocations.length,
+    foodOn,
+    selectedFood?.id,
+    food.activeLocations.length,
   ]);
 
   // Botão "voltar" do Android: detalhe → lista → fecha a aba.
@@ -178,6 +200,10 @@ export function MapScreen() {
       }
       if (selectedResource) {
         resources.clearSelection();
+        return true;
+      }
+      if (selectedFood) {
+        food.clearSelection();
         return true;
       }
       if (selectedEvent) {
@@ -194,12 +220,14 @@ export function MapScreen() {
   }, [
     selectedBuildingDetails,
     selectedResource,
+    selectedFood,
     selectedEvent,
     sheetFilter,
     toggle,
     events.clearSelection,
     resources.closeDetails,
     resources.clearSelection,
+    food.clearSelection,
   ]);
 
   // ---- Textos sobre o mapa ----
@@ -220,6 +248,7 @@ export function MapScreen() {
   const showLegend =
     !selectedEvent &&
     !selectedBuildingDetails &&
+    !selectedFood &&
     (!sheetFilter || (sheetFilter === 'people' && sheetIndex > 0 && sheetIndex < 2));
   const legendBottom = sheetFilter ? sheetHeight + spacing.md : spacing.md;
 
@@ -234,6 +263,7 @@ export function MapScreen() {
           )}
           {eventsOn && <EventsLayer state={events} />}
           {resourcesOn && <ResourcesLayer state={resources} />}
+          {foodOn && <FoodLayer state={food} />}
         </CampusMap>
 
         <MapTopBar
@@ -246,7 +276,7 @@ export function MapScreen() {
             selectedEvent ? <BackPill label="All events" onPress={events.clearSelection} /> : undefined
           }
         >
-          {!selectedEvent && !selectedBuildingDetails && <InfoChip label={dayLabel} />}
+          {!selectedEvent && !selectedBuildingDetails && !selectedFood && <InfoChip label={dayLabel} />}
         </MapTopBar>
 
         {showLegend && (
@@ -265,6 +295,9 @@ export function MapScreen() {
             onClose={() => toggle('resources')}
             onIndexChange={setSheetIndex}
           />
+        )}
+        {sheetFilter === 'food' && (
+          <FoodSheet state={food} onClose={() => toggle('food')} onIndexChange={setSheetIndex} />
         )}
         {sheetFilter === 'people' && (
           <PeopleSheet
