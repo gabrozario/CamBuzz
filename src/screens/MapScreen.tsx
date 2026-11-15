@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import type MapView from 'react-native-maps';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackPill } from '../components/BackPill';
 import { AddFriendModal } from '../components/friends/AddFriendModal';
@@ -10,7 +11,9 @@ import { FilterBar } from '../components/FilterBar';
 import { InfoChip } from '../components/InfoChip';
 import { MapTopBar } from '../components/MapTopBar';
 import { RouteLegend, type LegendEntry } from '../components/RouteLegend';
-import { SHEET_COLLAPSED_HEIGHT, SHEET_MID, SHEET_MID_FRACTION } from '../components/sheet/FilterSheet';
+import { FloatingBarContext, useFloatingBarController } from '../components/floatingBar';
+import { BottomClearanceContext } from '../components/sheet/bottomClearance';
+import { SHEET_MID, sheetHeightAt } from '../components/sheet/FilterSheet';
 import { EventsLayer } from '../filters/events/EventsLayer';
 import { EventsSheet } from '../filters/events/EventsSheet';
 import type { Companion } from '../filters/events/eventsWithFriends';
@@ -60,9 +63,10 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
-  const { active, toggle } = useActiveFilters();
-  const [focus, setFocus] = useState<FilterKey | null>(null);
+  // Até 2 filtros ligados; `focus` = o que você está vendo (a aba dele fica aberta).
+  const { active, focus, press, remove } = useActiveFilters();
   const [mapHeight, setMapHeight] = useState(0);
+  const [barHeight, setBarHeight] = useState(76); // medido no onLayout da barra
   const [sheetIndex, setSheetIndex] = useState(-1); // -1 = sem aba aberta
   const [addFriendOpen, setAddFriendOpen] = useState(false);
 
@@ -113,21 +117,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   const selectedFood = foodOn ? food.selectedLocation : null;
 
   // ---- Qual aba aparece ----
-  const lastWithSheet = [...active].reverse().find((k) => FILTERS_WITH_SHEET.includes(k));
-  const sheetFilter = focus && active.includes(focus) ? focus : lastWithSheet;
-
-  /** Toque na barra: liga/desliga; se o filtro já está ligado mas a aba dele não está à frente, só traz a aba. */
-  const onFilterPress = useCallback(
-    (key: FilterKey) => {
-      if (active.includes(key) && sheetFilter !== key && FILTERS_WITH_SHEET.includes(key)) {
-        setFocus(key);
-        return;
-      }
-      if (!active.includes(key)) setFocus(key);
-      toggle(key);
-    },
-    [active, sheetFilter, toggle],
-  );
+  const sheetFilter = focus && FILTERS_WITH_SHEET.includes(focus) ? focus : null;
 
   useEffect(() => {
     setSheetIndex(sheetFilter ? SHEET_MID : -1);
@@ -150,9 +140,19 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   }, [foodOn]);
 
   // Espaço que a aba ocupa embaixo do mapa — o Google Maps centraliza o conteúdo acima dela.
-  const sheetHeight =
-    sheetIndex < 0 ? 0 : sheetIndex === 0 ? SHEET_COLLAPSED_HEIGHT : Math.round(mapHeight * SHEET_MID_FRACTION);
-  const paddingBottom = sheetIndex < 0 ? 90 : sheetHeight + (sheetFilter === 'people' ? 80 : 0);
+  // Barra de filtros "voadora": distância até a borda de baixo e quanto ela cobre da tela.
+  const barBottom = Math.max(insets.bottom, spacing.md) + spacing.sm;
+  const clearance = barHeight + barBottom + spacing.sm;
+  const sheetHeight = sheetHeightAt(sheetIndex, mapHeight, clearance);
+  // Encolhe ao rolar uma lista para baixo; volta ao rolar para cima.
+  const floatingBar = useFloatingBarController(barHeight, barBottom);
+
+  // Trocou de filtro, abriu/fechou ou mudou a altura da aba → a barra volta ao tamanho normal.
+  const expandBar = floatingBar.control.expand;
+  useEffect(() => {
+    expandBar();
+  }, [sheetFilter, sheetIndex, expandBar]);
+  const paddingBottom = sheetIndex < 0 ? clearance + 10 : sheetHeight + (sheetFilter === 'people' ? 80 : 0);
   const mapPadding = useMemo(
     () => ({ top: insets.top + 130, bottom: paddingBottom, left: 16, right: 16 }),
     [insets.top, paddingBottom],
@@ -238,7 +238,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
         return true;
       }
       if (sheetFilter) {
-        toggle(sheetFilter);
+        remove(sheetFilter);
         return true;
       }
       return false;
@@ -251,7 +251,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     selectedFood,
     selectedEvent,
     sheetFilter,
-    toggle,
+    remove,
     events.clearSelection,
     resources.closeDetails,
     resources.clearSelection,
@@ -278,7 +278,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
     !selectedBuildingDetails &&
     !selectedFood &&
     (!sheetFilter || (sheetFilter === 'people' && sheetIndex > 0 && sheetIndex < 2));
-  const legendBottom = sheetFilter ? sheetHeight + spacing.md : spacing.md;
+  const legendBottom = sheetFilter ? sheetHeight + spacing.md : clearance + spacing.xs;
 
   return (
     <View style={styles.screen}>
@@ -312,31 +312,42 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           </View>
         )}
 
-        {/* A aba fica dentro da área do mapa, então sobe até a barra de filtros sem cobri-la. */}
+        {/* A aba vai até o fim da tela, por trás da barra voadora (o espaço coberto vem do contexto). */}
+        <BottomClearanceContext.Provider value={clearance}>
+        <FloatingBarContext.Provider value={floatingBar.control}>
         {sheetFilter === 'events' && (
-          <EventsSheet state={events} onClose={() => toggle('events')} onIndexChange={setSheetIndex} />
+          <EventsSheet state={events} onClose={() => remove('events')} onIndexChange={setSheetIndex} />
         )}
         {sheetFilter === 'resources' && (
           <ResourcesSheet
             state={resources}
-            onClose={() => toggle('resources')}
+            onClose={() => remove('resources')}
             onIndexChange={setSheetIndex}
           />
         )}
         {sheetFilter === 'food' && (
-          <FoodSheet state={food} onClose={() => toggle('food')} onIndexChange={setSheetIndex} />
+          <FoodSheet state={food} onClose={() => remove('food')} onIndexChange={setSheetIndex} />
         )}
         {sheetFilter === 'people' && (
           <PeopleSheet
             state={people}
-            onClose={() => toggle('people')}
+            onClose={() => remove('people')}
             onIndexChange={setSheetIndex}
             onAddFriend={() => setAddFriendOpen(true)}
           />
         )}
-      </View>
+        </FloatingBarContext.Provider>
+        </BottomClearanceContext.Provider>
 
-      <FilterBar active={active} onPress={onFilterPress} bottomInset={insets.bottom} />
+        {/* Barra de filtros "voadora" (como a do Instagram): flutua por cima do mapa e da aba. */}
+        <Animated.View
+          style={[styles.floatingBar, { bottom: barBottom }, floatingBar.animatedStyle]}
+          pointerEvents="box-none"
+          onLayout={(e) => setBarHeight(Math.round(e.nativeEvent.layout.height))}
+        >
+          <FilterBar active={active} focus={focus} onPress={press} onRemove={remove} />
+        </Animated.View>
+      </View>
 
       <AddFriendModal visible={addFriendOpen} onClose={() => setAddFriendOpen(false)} />
     </View>
@@ -348,4 +359,5 @@ const makeStyles = (colors: Palette) =>
   screen: { flex: 1, backgroundColor: colors.mapBackground },
   mapArea: { flex: 1 },
   legend: { position: 'absolute', left: 18, right: 18 },
+  floatingBar: { position: 'absolute', left: 14, right: 14 },
 });

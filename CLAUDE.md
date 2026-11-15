@@ -18,7 +18,11 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 6. ✅ Telas **My schedule** (Week/Block View, Add Course, Add Event, convidar amigos) e **Settings** (conta + modo claro/escuro) (Etapa 4)
 7. ⏳ Busca ("Search campus") — só visual por enquanto
 
-8. ✅ Filtro **Food options**: Dining hall (D1, D2), Restaurants/Coffees (C1–C3), Vending machines (V1–V3); cada local abre o cardápio do dia com nutrição (Figma `Food details · …`)
+8. ✅ Filtro **Food options**:
+   - **Dining halls** (D1 North Ave, D2 Brittain, D3 West Village): horário real + cardápio de exemplo com nutrição (Figma `Food details · …`).
+   - **Restaurants/Coffees** (C1–C25): TODOS os restaurantes/cafés do campus, Student Center e Tech Square, com dados reais de dining.gatech.edu — horário dos 7 dias (hoje em destaque, outros dias menores), Dining Dollars e BuzzCard Funds. **Sem cardápio** (decisão do time).
+   - Vending machines (V1–V3): cardápio de exemplo.
+   - Horários = "Normal Hours" do site; feriados/férias podem mudar. Lógica de aberto/fechado em `src/filters/food/foodHours.ts`.
 9. ✅ Filtro **Resources** (Libraries/Printers/CRC)
 
 ## Regras técnicas
@@ -66,7 +70,9 @@ Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 - Visual calmo, "mapa ilustrado" bege/verde, muito espaço em branco, cantos bem arredondados, sombras quase invisíveis.
 - **Fonte Inter**: títulos de aba em Bold ~26px (`Events`, `People`), itens em SemiBold ~16px, texto secundário Regular ~14px em `muted`.
 - **Topo**: botão quadrado branco de agenda (48×48, raio 16), campo "Search campus" com borda fina (raio 20), botão de configurações; abaixo, botão "adicionar amigo". Chips brancos de info ao lado (ex.: "Your day · Today · 11:15 AM").
-- **Barra inferior**: 4 itens (ícone + label): Events, Campus resources, Food options, People. Selecionado = fundo `activeTab` em pílula + label SemiBold `ink`.
+- **Barra de filtros "voadora"** (estilo Instagram): pílula flutuante com sombra, por cima do mapa e da aba. 4 itens: Events, Resources, Food options, Friends. Em foco = pílula `activeTab` com borda + label Bold `ink`; ligado em segundo plano = apagado + ×.
+- **A aba vai até o fim da tela, por trás da barra.** O MapScreen mede a barra e passa o espaço coberto via `BottomClearanceContext` (`components/sheet/bottomClearance.ts`); `FilterSheet` soma isso às alturas e `SheetScrollView` deixa esse espaço no fim da lista. **Use sempre `SheetScrollView`** — senão o último item fica atrás da barra.
+- A barra tem fundo de vidro meio transparente (`colors.floatingBar`) e **encolhe/desce ao rolar uma lista para baixo**, voltando ao rolar para cima (`components/floatingBar.ts`; o `SheetScrollView` já avisa a rolagem). No Android ela não tem sombra (elevation + transparência fica manchado) — por isso a aba também não usa elevation no Android.
 - **Bottom sheet**: fundo `surface`, cantos superiores ~28px, pegador cinza, título grande + subtítulo ("Today · 6 events"), botões chevron e X à direita. Listas com separadores finos.
 - **Lista de eventos**: horário em `gold` à esquerda ("3:00" grande + "PM" pequeno), título SemiBold, local em `muted`, categoria em `gold`, chevron `>` à direita.
 - **Pinos de eventos**: círculos `ink` com número branco e borda branca. **Pinos de recursos**: círculos com código ("D1", "L2", "P1") na cor da categoria.
@@ -87,7 +93,8 @@ data/                        # DADOS FALSOS (sem backend)
   events.json                # 12 eventos do dia (prédios e barracas ao ar livre)
   me.json                    # o usuário logado (Alex Morgan): nome, email, slug do convite
   directory.json             # outros usuários do app, ainda não amigos (Sam, Chris) — para a demo de adicionar
-  food.json                  # Food options: categorias, locais (D1, C1, V1...) e cardápio/nutrição de exemplo
+  food.json                  # Food options: dining halls (horário real + cardápio exemplo), 25 restaurantes reais
+                             #   (horário semanal, Dining Dollars/BuzzCard, endereço — fonte dining.gatech.edu), vending
   index.ts                   # exporta os dados tipados + getBuilding() + DEMO_NOW + DEMO_TODAY
 figma-designs/               # PNGs do Figma (design oficial)
 src/
@@ -116,7 +123,7 @@ src/
     buildingSearch.ts        # reconhece um prédio da GT num texto livre ("Clough Commons 102" → culc)
     route.ts                 # buildDayRoute (paradas + trechos + "next leg"), regionFor, WAYPOINTS
     geo.ts                   # distâncias em metros, ponto mais próximo num caminho, minutos a pé
-  hooks/useActiveFilters.ts  # quais filtros estão ligados (Events+People combinam)
+  hooks/useActiveFilters.ts  # quais filtros estão ligados (até 2, qualquer combinação) e qual está em foco
   filters/
     filterConfig.ts          # lista dos 4 filtros (label, ícone, combinável, status)
     events/                  # ✅ filtro de Eventos (ver abaixo)
@@ -178,7 +185,10 @@ src/filters/resources/ # ✅ filtro Campus resources (Libraries, Printers, CRC +
 No `MapScreen`: chame o hook do filtro, renderize a camada dentro do `<CampusMap>` quando `active.includes('<key>')`,
 adicione a key em `FILTERS_WITH_SHEET` e renderize a aba quando `sheetFilter === '<key>'`.
 Só uma aba aparece por vez, mas as camadas de todos os filtros ligados aparecem juntas no mapa.
-Com dois filtros ligados, tocar num deles na barra **traz a aba dele para frente** (não desliga); tocar de novo desliga.
+**Até 2 filtros ligados, qualquer combinação** (`MAX_ACTIVE_FILTERS`). Ligar um 3º tira o que está em segundo plano.
+Na barra: o filtro **em foco** (aba aberta) fica escuro com borda; o de **segundo plano** fica apagado com um **×**.
+Tocar no escuro desliga; tocar no apagado traz ele para frente; tocar no × desliga direto.
+O filtro "People" aparece para o usuário como **Friends** (a key no código continua `'people'`).
 
 ### Regra "evento no caminho" (`eventsOnRoute.ts`)
 1. O dia vira **janelas livres**: entre cada par de aulas (você caminhando do prédio A ao B, de `fim de A` até `início de B`) e **depois da última aula** (2h30).

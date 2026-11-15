@@ -32,7 +32,7 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
   };
 
   return (
-    <FilterSheet title="People" subtitle={subtitle} onClose={onClose} onIndexChange={onIndexChange}>
+    <FilterSheet title="Friends" subtitle={subtitle} onClose={onClose} onIndexChange={onIndexChange}>
       <SheetScrollView contentContainerStyle={styles.content}>
         {days.map((day) => (
           <PersonRow
