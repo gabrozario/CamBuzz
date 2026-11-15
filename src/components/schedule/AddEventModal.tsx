@@ -1,4 +1,3 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { CalendarDays, Clock } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -9,15 +8,17 @@ import { useSchedule } from '../../services/schedule/ScheduleProvider';
 import { fonts, useAppTheme, type AppColors } from '../../theme';
 import type { EventDraft, RepeatRule, TimeOfDay } from '../../types';
 import { matchBuilding } from '../../utils/buildingSearch';
-import { dateToTime, formatDate, parseISODate, timeToDate, toISODate } from '../../utils/dates';
+import { formatDate } from '../../utils/dates';
 import { formatTime, toMinutes } from '../../utils/time';
 import { AppButton } from '../ui/AppButton';
 import { DialogCard } from '../ui/DialogCard';
 import { FieldGroup, FieldLabel, FormInput, PickerField } from '../ui/FormField';
 import { useToast } from '../ui/Toast';
+import { CalendarSelect } from './CalendarSelect';
 import { InviteFriendsList } from './InviteFriendsList';
 import { LocationField } from './LocationField';
 import { RepeatSelect } from './RepeatSelect';
+import { TimeSelect } from './TimeSelect';
 
 interface Props {
   visible: boolean;
@@ -81,17 +82,25 @@ export function AddEventModal({ visible, onClose }: Props) {
 
   const invitedNames = friends.filter((f) => invited.includes(f.id)).map((f) => f.name.split(' ')[0]);
 
-  const onPicked = (kind: PickerKind, value: Date) => {
+  /** Abre/fecha uma caixa de seleção (só uma aberta por vez). */
+  const togglePicker = (kind: PickerKind) => setPicker((p) => (p === kind ? null : kind));
+
+  const pickDate = (iso: string) => {
+    setDate(iso);
     setPicker(null);
     setError(null);
-    if (kind === 'date') return setDate(toISODate(value));
-    const time = dateToTime(value);
+  };
+
+  const pickTime = (kind: 'start' | 'end', time: TimeOfDay) => {
+    setError(null);
     if (kind === 'start') {
       setStart(time);
       // "To" automático: 1 hora depois (se ainda não escolhido ou ficou antes do início).
       if (!end || toMinutes(end) <= toMinutes(time)) setEnd(plusOneHour(time));
+      setPicker(null);
     } else {
       setEnd(time);
+      setPicker(null);
     }
   };
 
@@ -134,8 +143,6 @@ export function AddEventModal({ visible, onClose }: Props) {
       ? `${joinNames(invitedNames)} ${invitedNames.length === 1 ? 'is' : 'are'} selected for this event.`
       : 'Choose who you’d like to bring along.';
 
-  const pickerValue = picker === 'date' ? parseISODate(date) : timeToDate(picker === 'end' ? end : start);
-
   return (
     <DialogCard
       visible={visible}
@@ -174,9 +181,11 @@ export function AddEventModal({ visible, onClose }: Props) {
               value={`${formatDate(date)}${date === today ? ' · Today' : ''}`}
               placeholder="Select day"
               icon={CalendarDays}
-              onPress={() => setPicker('date')}
+              active={picker === 'date'}
+              onPress={() => togglePicker('date')}
               accessibilityLabel="Select day"
             />
+            {picker === 'date' && <CalendarSelect value={date} minDate={today} today={today} onChange={pickDate} />}
           </FieldGroup>
 
           <FieldGroup>
@@ -188,7 +197,8 @@ export function AddEventModal({ visible, onClose }: Props) {
                   value={start && formatTime(start)}
                   placeholder="Select time"
                   icon={Clock}
-                  onPress={() => setPicker('start')}
+                  active={picker === 'start'}
+                  onPress={() => togglePicker('start')}
                   accessibilityLabel="Start time"
                 />
               </View>
@@ -198,11 +208,21 @@ export function AddEventModal({ visible, onClose }: Props) {
                   value={end && formatTime(end)}
                   placeholder="Select time"
                   icon={Clock}
-                  onPress={() => setPicker('end')}
+                  active={picker === 'end'}
+                  onPress={() => togglePicker('end')}
                   accessibilityLabel="End time"
                 />
               </View>
             </View>
+            {picker === 'start' && <TimeSelect value={start} onChange={(t) => pickTime('start', t)} />}
+            {picker === 'end' && (
+              <TimeSelect
+                value={end}
+                after={start}
+                scrollTo={start ? plusOneHour(start) : '10:00'}
+                onChange={(t) => pickTime('end', t)}
+              />
+            )}
           </FieldGroup>
 
           <FieldGroup>
@@ -231,15 +251,6 @@ export function AddEventModal({ visible, onClose }: Props) {
         </>
       )}
 
-      {picker && (
-        <DateTimePicker
-          value={pickerValue}
-          mode={picker === 'date' ? 'date' : 'time'}
-          minimumDate={picker === 'date' ? parseISODate(today) : undefined}
-          onValueChange={(_, value) => onPicked(picker, value)}
-          onDismiss={() => setPicker(null)}
-        />
-      )}
     </DialogCard>
   );
 }

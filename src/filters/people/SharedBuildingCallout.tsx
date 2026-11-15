@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { useTracksViewChanges } from '../../components/map/useTracksViewChanges';
-import { colors, fonts, radius, shadow } from '../../theme';
+import { fonts, radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { SharedBuilding } from './peopleDay';
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 
 /** Card branco embaixo de um prédio: "Clough Commons / You now · Maya 11:30" (Figma "People · You and Maya"). */
 export function SharedBuildingCallout({ shared }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const tracks = useTracksViewChanges([shared.line, shared.color]);
   return (
     <Marker
@@ -33,7 +34,8 @@ export function SharedBuildingCallout({ shared }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   // paddingTop afasta o card dos círculos do prédio; padding lateral dá espaço para a sombra.
   box: { paddingTop: 24, paddingHorizontal: 6, paddingBottom: 6 },
   card: {

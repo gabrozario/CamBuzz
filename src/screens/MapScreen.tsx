@@ -27,7 +27,7 @@ import { ResourcesSheet } from '../filters/resources/ResourcesSheet';
 import { useResourcesFilter } from '../filters/resources/useResourcesFilter';
 import { useActiveFilters } from '../hooks/useActiveFilters';
 import { useSchedule } from '../services/schedule/ScheduleProvider';
-import { colors, spacing } from '../theme';
+import { spacing, useAppTheme, useThemedStyles, type Palette } from '../theme';
 import type { FilterKey, LatLng } from '../types';
 import { buildDayRoute, regionFor } from '../utils/route';
 import { formatTime, nowTime } from '../utils/time';
@@ -55,6 +55,8 @@ interface Props {
 }
 
 export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
   const { active, toggle } = useActiveFilters();
@@ -326,7 +328,8 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.mapBackground },
   mapArea: { flex: 1 },
   legend: { position: 'absolute', left: 18, right: 18 },

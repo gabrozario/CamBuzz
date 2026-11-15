@@ -21,19 +21,22 @@ interface PickerProps {
   placeholder: string;
   onPress: () => void;
   icon?: LucideIcon;
+  /** Caixa de opções aberta (borda destacada). */
+  active?: boolean;
   accessibilityLabel: string;
 }
 
 /** Campo que abre um seletor ao tocar ("Select time", "Select day", "Repeat"). */
-export function PickerField({ value, placeholder, onPress, icon: Icon, accessibilityLabel }: PickerProps) {
+export function PickerField({ value, placeholder, onPress, icon: Icon, active, accessibilityLabel }: PickerProps) {
   const { c } = useAppTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.box, styles.picker, pressed && { opacity: 0.7 }]}
+      style={({ pressed }) => [styles.box, styles.picker, active && { borderColor: c.accent }, pressed && { opacity: 0.7 }]}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ expanded: !!active }}
     >
       <Text style={[styles.pickerText, !value && { color: c.placeholder }]} numberOfLines={1}>
         {value || placeholder}

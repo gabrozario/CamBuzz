@@ -1,13 +1,18 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { colors, mixHex } from './colors';
+import type { MapStyleElement } from 'react-native-maps';
+import { colors, darkColors, mixHex, type Palette } from './colors';
+import { campusMapStyle, campusMapStyleDark } from './mapStyle';
 
 /**
- * Cores das telas que já têm modo escuro (Schedule, Settings e seus popups).
- * Amostradas de figma-designs/Settings · Light mode / Dark mode.
+ * Tema claro/escuro do app inteiro (escolhido em Settings).
  *
- * Para levar o modo escuro a outra tela: troque `colors.x` por `const c = useAppTheme().c`
- * e crie os estilos com `useMemo(() => makeStyles(c), [c])` (veja SettingsScreen.tsx).
+ * Em qualquer componente:
+ *   const { colors, isDark, tint, vivid } = useAppTheme();   // paleta do mapa/filtros (mesmas chaves de colors.ts)
+ *   const { c } = useAppTheme();                              // paleta das telas Schedule/Settings (AppColors)
+ *   const styles = useThemedStyles(makeStyles);               // estilos recalculados ao trocar o modo
  */
+
+/** Cores das telas Schedule/Settings e popups (Figma "Settings · Light mode" / "Dark mode"). */
 export interface AppColors {
   page: string; // fundo da tela
   card: string; // cards, popups, botão "Back"
@@ -82,7 +87,16 @@ export type ThemeMode = 'light' | 'dark';
 interface ThemeContextValue {
   mode: ThemeMode;
   isDark: boolean;
+  /** Paleta do mapa, filtros e componentes (mesmas chaves de `colors`). */
+  colors: Palette;
+  /** Paleta das telas Schedule/Settings e popups. */
   c: AppColors;
+  /** Estilo do Google Maps (bege claro ou verde escuro). */
+  mapStyle: MapStyleElement[];
+  /** Fundo suave de uma cor (mistura com o `surface` do tema atual). */
+  tint: (hex: string, amount?: number) => string;
+  /** Cor de dado (amigo, categoria) mais clara no escuro, para aparecer sobre o mapa escuro. */
+  vivid: (hex: string) => string;
   setMode: (mode: ThemeMode) => void;
   toggle: () => void;
   /** Cor de um curso para fundo de bloco/chip (clarinha no modo claro, escura no escuro). */
@@ -100,10 +114,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const value = useMemo<ThemeContextValue>(() => {
     const isDark = mode === 'dark';
     const c = isDark ? dark : light;
+    const palette = isDark ? darkColors : colors;
     return {
       mode,
       isDark,
+      colors: palette,
       c,
+      mapStyle: isDark ? campusMapStyleDark : campusMapStyle,
+      tint: (hex, amount = 0.12) => mixHex(hex, palette.surface, isDark ? Math.min(1, amount * 2.2) : amount),
+      vivid: (hex) => (isDark ? mixHex(hex, '#FFFFFF', 0.62) : hex),
       setMode,
       toggle: () => setMode((m) => (m === 'dark' ? 'light' : 'dark')),
       courseBg: (color) => mixHex(color, c.card, isDark ? 0.35 : 0.16),
@@ -118,4 +137,14 @@ export function useAppTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useAppTheme() must be used inside <ThemeProvider> (see App.tsx)');
   return ctx;
+}
+
+/**
+ * Cria os estilos com as cores do tema atual (e recria só quando o modo muda).
+ * Uso: `const makeStyles = (colors: Palette) => StyleSheet.create({...})` fora do componente
+ * e `const styles = useThemedStyles(makeStyles)` dentro.
+ */
+export function useThemedStyles<T>(factory: (colors: Palette) => T): T {
+  const { colors: palette } = useAppTheme();
+  return useMemo(() => factory(palette), [factory, palette]);
 }

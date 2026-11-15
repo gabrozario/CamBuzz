@@ -84,20 +84,3 @@ export function formatDaysShort(days: Weekday[]): string {
 export function sortDays(days: Weekday[]): Weekday[] {
   return [...days].sort((a, b) => WEEKDAYS.indexOf(a) - WEEKDAYS.indexOf(b));
 }
-
-/** "HH:MM" -> Date de hoje nesse horário (para o seletor de hora). */
-export function timeToDate(time: string | null): Date {
-  const d = new Date();
-  if (time) {
-    const [h, m] = time.split(':').map(Number);
-    d.setHours(h, m, 0, 0);
-  } else {
-    d.setMinutes(0, 0, 0);
-  }
-  return d;
-}
-
-/** Date -> "HH:MM" */
-export function dateToTime(date: Date): string {
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-}

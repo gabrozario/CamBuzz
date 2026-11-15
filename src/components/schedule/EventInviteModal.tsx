@@ -18,7 +18,7 @@ import { useToast } from '../ui/Toast';
  * Ainda não tem tela no Figma; segue o estilo dos outros popups.
  */
 export function EventInviteModal() {
-  const { c } = useAppTheme();
+  const { c, vivid } = useAppTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { incomingInvites, conflictsFor, respondToInvite } = useSchedule();
   const { friends } = useFriends();
@@ -30,7 +30,7 @@ export function EventInviteModal() {
 
   const { event, from } = invite;
   const firstName = from.name.split(' ')[0];
-  const color = friends.find((f) => f.id === from.id)?.color ?? colors.purple;
+  const color = vivid(friends.find((f) => f.id === from.id)?.color ?? colors.purple);
   const conflicts = conflictsFor({ type: 'event', draft: event });
 
   const respond = async (accept: boolean) => {

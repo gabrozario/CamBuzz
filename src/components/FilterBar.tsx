@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { FILTERS } from '../filters/filterConfig';
-import { colors, fonts, spacing } from '../theme';
+import { fonts, spacing, useAppTheme, useThemedStyles, type Palette } from '../theme';
 import type { FilterKey } from '../types';
 
 interface Props {
@@ -11,6 +11,8 @@ interface Props {
 
 /** Barra inferior com os 4 filtros (Events, Campus resources, Food options, People). */
 export function FilterBar({ active, onPress, bottomInset }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={[styles.bar, { paddingBottom: Math.max(bottomInset, spacing.sm) }]}>
       {FILTERS.map(({ key, label, icon: Icon }) => {
@@ -34,7 +36,8 @@ export function FilterBar({ active, onPress, bottomInset }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   bar: {
     flexDirection: 'row',
     backgroundColor: colors.surface,

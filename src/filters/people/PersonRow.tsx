@@ -1,7 +1,7 @@
 import { UserMinus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Checkbox } from '../../components/Checkbox';
-import { colors, fonts, radius, tint } from '../../theme';
+import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { PersonDay } from './peopleDay';
 
 interface Props {
@@ -14,6 +14,8 @@ interface Props {
 
 /** Linha da lista People: checkbox na cor da pessoa, nome, status e "Next: ..." (Figma). */
 export function PersonRow({ day, checked, onToggle, onRemove }: Props) {
+  const { colors, tint } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const { person, status, next } = day;
   return (
     <Pressable
@@ -56,7 +58,8 @@ export function PersonRow({ day, checked, onToggle, onRemove }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',

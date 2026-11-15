@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { FilterSheet, SHEET_MID, type FilterSheetHandle } from '../../components/sheet/FilterSheet';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
-import { colors, fonts } from '../../theme';
+import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { EventDetails, EventDetailsHeader } from './EventDetails';
 import { EventListItem } from './EventListItem';
 import type { EventsFilterState } from './useEventsFilter';
@@ -15,6 +15,7 @@ interface Props {
 
 /** A aba do filtro de Eventos: lista agrupada por janela livre, ou o detalhe de um evento. */
 export function EventsSheet({ state, onClose, onIndexChange }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const sheetRef = useRef<FilterSheetHandle>(null);
   const { sections, selected, select, showAll, setShowAll, matchCount, upcomingCount, withFriendsCount, hasCompanions } =
     state;
@@ -74,7 +75,8 @@ export function EventsSheet({ state, onClose, onIndexChange }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   content: { paddingBottom: 32 },
   sectionHeader: {
     paddingHorizontal: 24,

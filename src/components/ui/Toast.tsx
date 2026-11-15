@@ -2,7 +2,7 @@ import { CheckCircle2 } from 'lucide-react-native';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, fonts, shadow } from '../../theme';
+import { fonts, shadow, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 
 const ToastContext = createContext<(message: string) => void>(() => {});
 
@@ -15,6 +15,8 @@ const DURATION_MS = 2600;
 
 /** Fica em volta do app (App.tsx) e desenha o aviso por cima de todas as telas. */
 export function ToastProvider({ children }: { children: ReactNode }) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const [message, setMessage] = useState<string | null>(null);
   const opacity = useRef(new Animated.Value(0)).current;
@@ -53,7 +55,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   wrap: { position: 'absolute', left: 18, right: 18, alignItems: 'center' },
   toast: {
     flexDirection: 'row',

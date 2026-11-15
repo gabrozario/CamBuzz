@@ -1,6 +1,6 @@
 import { ChevronRight } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fonts } from '../../theme';
+import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import { formatTime } from '../../utils/time';
 import { detourLabel } from './eventsOnRoute';
 import { friendsLabel } from './eventsWithFriends';
@@ -14,6 +14,8 @@ interface Props {
 
 /** Linha da lista de eventos: horário dourado à esquerda, nome/local/categoria, seta à direita. */
 export function EventListItem({ entry, onPress, showDivider }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const { event, match, number } = entry;
   const [time, ampm] = formatTime(event.start).split(' ');
 
@@ -65,7 +67,8 @@ export function EventListItem({ entry, onPress, showDivider }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   row: { flexDirection: 'row', paddingHorizontal: 24 },
   pressed: { backgroundColor: colors.divider },
   timeCol: { width: 62, paddingTop: 16 },
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   badgeOff: { backgroundColor: colors.muted },
-  badgeText: { fontFamily: fonts.semibold, fontSize: 10, color: colors.white },
+  badgeText: { fontFamily: fonts.semibold, fontSize: 10, color: colors.onInk },
   title: { flex: 1, fontFamily: fonts.semibold, fontSize: 16, color: colors.ink },
   location: { fontFamily: fonts.regular, fontSize: 14, color: colors.muted },
   meta: { marginTop: 2 },

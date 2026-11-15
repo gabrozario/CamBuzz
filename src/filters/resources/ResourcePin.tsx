@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { useTracksViewChanges } from '../../components/map/useTracksViewChanges';
-import { colors, fonts, radius, shadow } from '../../theme';
+import { fonts, radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { ResourceLocation } from '../../types';
 
 interface Props {
@@ -17,6 +17,7 @@ const HALO = 68;
 
 /** Pino circular de recurso no campus (L1, P1, R1...). Selecionado = com halo e chip de nome. */
 export function ResourcePin({ location, color, selected = false, onPress }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const tracks = useTracksViewChanges([selected, location.id, location.code, color]);
 
   return (
@@ -57,7 +58,8 @@ export function ResourcePin({ location, color, selected = false, onPress }: Prop
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   box: { width: HALO, height: HALO, alignItems: 'center', justifyContent: 'center' },
   halo: {
     position: 'absolute',
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
     height: CIRCLE,
     borderRadius: CIRCLE / 2,
     borderWidth: 2,
-    borderColor: colors.white,
+    borderColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadow,

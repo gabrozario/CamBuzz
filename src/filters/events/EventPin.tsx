@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { useTracksViewChanges } from '../../components/map/useTracksViewChanges';
-import { colors, fonts, radius, shadow } from '../../theme';
+import { fonts, radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { EventEntry } from './useEventsFilter';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 
 /** Pino numerado de um evento (círculo escuro, como no Figma). Selecionado = com halo e nome. */
 export function EventPin({ entry, selected = false, onPress }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const friendDots = entry.friends.slice(0, 3).map((f) => ({ id: f.person.id, color: f.person.color }));
   const tracks = useTracksViewChanges([selected, entry.number, !!entry.match, friendDots.map((d) => d.id).join()]);
   const offRoute = !entry.match;
@@ -66,7 +67,8 @@ export function EventPin({ entry, selected = false, onPress }: Props) {
 const CIRCLE = 30;
 const HALO = 72;
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   box: { width: HALO, height: HALO, alignItems: 'center', justifyContent: 'center' },
   halo: {
     position: 'absolute',
@@ -82,15 +84,15 @@ const styles = StyleSheet.create({
     borderRadius: CIRCLE / 2,
     backgroundColor: colors.ink,
     borderWidth: 2,
-    borderColor: colors.white,
+    borderColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   offRoute: { backgroundColor: colors.muted },
   // Canto superior direito do círculo (o box tem 72 de lado; o círculo, 30, centralizado).
   friendDots: { position: 'absolute', top: HALO / 2 - CIRCLE / 2 - 4, left: HALO / 2 + 6, flexDirection: 'row' },
-  friendDot: { width: 11, height: 11, borderRadius: 6, borderWidth: 1.5, borderColor: colors.white, marginLeft: -3 },
-  number: { fontFamily: fonts.semibold, fontSize: 13, color: colors.white },
+  friendDot: { width: 11, height: 11, borderRadius: 6, borderWidth: 1.5, borderColor: colors.surface, marginLeft: -3 },
+  number: { fontFamily: fonts.semibold, fontSize: 13, color: colors.onInk },
   // paddingBottom afasta o chip do halo; padding lateral dá espaço para a sombra.
   chipBox: { paddingBottom: HALO / 2 + 4, paddingHorizontal: 6, paddingTop: 6 },
   chip: {

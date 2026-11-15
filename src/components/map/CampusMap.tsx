@@ -1,7 +1,7 @@
 import type { ReactNode, Ref } from 'react';
 import { StyleSheet } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, type EdgePadding, type Region } from 'react-native-maps';
-import { campusMapStyle } from '../../theme';
+import { useAppTheme } from '../../theme';
 
 /** Centro aproximado do campus da Georgia Tech (Tech Green). */
 export const GT_REGION: Region = {
@@ -21,14 +21,16 @@ interface Props {
   children?: ReactNode;
 }
 
-/** O mapa base do campus, com o estilo bege do Figma. Não sabe nada sobre filtros. */
+/** O mapa base do campus, com o estilo bege do Figma (ou verde-escuro no modo escuro). Não sabe nada sobre filtros. */
 export function CampusMap({ ref, initialRegion = GT_REGION, padding, children }: Props) {
+  const { mapStyle, colors } = useAppTheme();
   return (
     <MapView
       ref={ref}
-      style={StyleSheet.absoluteFill}
+      // Fundo enquanto o mapa carrega (evita um "flash" claro no modo escuro)
+      style={[StyleSheet.absoluteFill, { backgroundColor: colors.mapBackground }]}
       provider={PROVIDER_GOOGLE}
-      customMapStyle={campusMapStyle}
+      customMapStyle={mapStyle}
       initialRegion={initialRegion}
       mapPadding={padding}
       showsPointsOfInterests={false}

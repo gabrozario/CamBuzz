@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, radius, shadow, spacing } from '../theme';
+import { fonts, radius, shadow, spacing, useAppTheme, useThemedStyles, type Palette } from '../theme';
 
 export interface LegendEntry {
   label: string;
@@ -13,6 +13,7 @@ interface Props {
 
 /** Legenda das linhas do mapa ("You", amigos, "Next leg"), como no Figma. */
 export function RouteLegend({ entries }: Props) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -28,7 +29,8 @@ export function RouteLegend({ entries }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,

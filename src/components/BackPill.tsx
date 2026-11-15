@@ -1,6 +1,6 @@
 import { ChevronLeft } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { colors, fonts, radius, shadow } from '../theme';
+import { fonts, radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../theme';
 import { ICON_BUTTON_SIZE } from './IconButton';
 
 interface Props {
@@ -10,6 +10,8 @@ interface Props {
 
 /** Botão branco "‹ All events" sobre o mapa, para voltar do detalhe para a lista. */
 export function BackPill({ label, onPress }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <Pressable
       onPress={onPress}
@@ -22,7 +24,8 @@ export function BackPill({ label, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   pill: {
     height: ICON_BUTTON_SIZE,
     flexDirection: 'row',

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fonts, radius, shadow } from '../theme';
+import { fonts, radius, shadow, useAppTheme, useThemedStyles, type Palette } from '../theme';
 
 interface Props {
   label: string;
@@ -7,7 +7,10 @@ interface Props {
 }
 
 /** Chip branco de informação sobre o mapa (ex.: "Your day · Today · 11:15 AM"). */
-export function InfoChip({ label, color = colors.ink }: Props) {
+export function InfoChip({ label, color: colorProp }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
+  const color = colorProp ?? colors.ink;
   return (
     <View style={styles.chip}>
       <Text style={[styles.text, { color }]} numberOfLines={1}>
@@ -17,7 +20,8 @@ export function InfoChip({ label, color = colors.ink }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   chip: {
     backgroundColor: colors.surface,
     borderRadius: radius.sm,

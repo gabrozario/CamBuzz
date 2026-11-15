@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Checkbox } from '../../components/Checkbox';
-import { colors, fonts } from '../../theme';
+import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { FoodCategory, FoodLocation } from '../../types';
 
 interface Props {
@@ -18,6 +18,8 @@ interface Props {
  * checkbox liga os pinos; "N locations ⌄" expande a lista; tocar num local abre o cardápio.
  */
 export function FoodCategoryRow({ category, checked, expanded, onToggleCheck, onToggleExpand, onOpenLocation }: Props) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const count = category.locations.length;
 
   return (
@@ -76,7 +78,8 @@ export function FoodCategoryRow({ category, checked, expanded, onToggleCheck, on
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   container: { paddingHorizontal: 24, paddingVertical: 10 },
   mainRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   checkboxTouch: { padding: 2 },

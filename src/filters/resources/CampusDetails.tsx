@@ -1,7 +1,7 @@
 import { BookOpen, ChevronLeft, Dumbbell } from 'lucide-react-native';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
-import { colors, fonts, radius } from '../../theme';
+import { fonts, radius, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { BuildingOccupancyDetails, FloorSpaceOccupancy, OccupancyStatus } from '../../types';
 
 interface HeaderProps {
@@ -11,6 +11,8 @@ interface HeaderProps {
 
 /** Cabeçalho fixo do detalhe do prédio (substitui o título do FilterSheet via customHeader). */
 export function CampusDetailsHeader({ buildingName, onBack }: HeaderProps) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.header}>
       <Pressable
@@ -30,7 +32,7 @@ export function CampusDetailsHeader({ buildingName, onBack }: HeaderProps) {
   );
 }
 
-function getStatusColor(status: OccupancyStatus): string {
+function getStatusColor(status: OccupancyStatus, colors: Palette): string {
   switch (status) {
     case 'Busy':
       return '#A05A42'; // Tom terracota/avermelhado do Figma
@@ -43,6 +45,8 @@ function getStatusColor(status: OccupancyStatus): string {
 
 /** Visualização detalhada do prédio (ocupação por andar via Waitz). */
 export function CampusDetails({ details }: { details: BuildingOccupancyDetails }) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
   const isClough = details.buildingId === 'culc';
   const isCrc = details.buildingId === 'crc';
 
@@ -92,7 +96,7 @@ export function CampusDetails({ details }: { details: BuildingOccupancyDetails }
           </View>
 
           {floor.spaces.map((space: FloorSpaceOccupancy, idx: number) => {
-            const barColor = getStatusColor(space.status);
+            const barColor = getStatusColor(space.status, colors);
             return (
               <View key={space.id}>
                 <View style={styles.spaceRow}>
@@ -118,7 +122,8 @@ export function CampusDetails({ details }: { details: BuildingOccupancyDetails }
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
   header: { paddingHorizontal: 24, paddingTop: 4, paddingBottom: 8 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: -6, marginBottom: 4 },
   backLabel: { fontFamily: fonts.medium, fontSize: 14, color: colors.ink },
@@ -140,7 +145,7 @@ const styles = StyleSheet.create({
     gap: 14,
     padding: 14,
     borderRadius: radius.md,
-    backgroundColor: '#F3F1EA',
+    backgroundColor: colors.page,
     borderWidth: 1,
     borderColor: colors.divider,
   },
@@ -200,7 +205,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   floorBanner: {
-    backgroundColor: '#F0EDE4',
+    backgroundColor: colors.activeTab,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: radius.sm,
@@ -230,7 +235,7 @@ const styles = StyleSheet.create({
   track: {
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#E6E4DC',
+    backgroundColor: colors.divider,
     marginTop: 4,
     marginBottom: 6,
     overflow: 'hidden',

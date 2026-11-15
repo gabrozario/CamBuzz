@@ -1,5 +1,5 @@
 import { Polyline } from 'react-native-maps';
-import { colors } from '../../theme';
+import { useAppTheme } from '../../theme';
 import { EventPin } from './EventPin';
 import type { EventsFilterState } from './useEventsFilter';
 
@@ -15,6 +15,7 @@ interface Props {
  */
 export function EventsLayer({ state }: Props) {
   const { entries, selected, select } = state;
+  const { colors } = useAppTheme();
 
   if (selected) {
     return (
