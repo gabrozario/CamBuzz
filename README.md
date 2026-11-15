@@ -75,7 +75,7 @@ Turn on **Events** and **Friends** together and Cambuzz tells you which events y
 - With Friends on: "Maya & Priya can go too", and the time window you'd be there together
 
 ### 🍔 Food
-- **Dining halls**: real hours and a sample menu with nutrition info
+- **Dining halls**: real hours and menus with nutrition info
 - **25+ restaurants and cafés** across campus, the Student Center and Tech Square, with real weekly hours, open/closed status, and Dining Dollars and BuzzCard info (from dining.gatech.edu)
 - **Vending machines** with what's inside
 
@@ -210,21 +210,11 @@ src/
 └── theme/               # colors, typography, light/dark map styles
 ```
 
-Each filter follows the same pattern: **pure logic** (no React) → a **state hook** → a **map layer** → a **bottom sheet**. This let four people build filters in parallel without conflicts.
-
-## Roadmap
-
-- [ ] Real backend for accounts, friends and schedules
-- [ ] Real Google / Microsoft sign-in
-- [ ] Invite links that open the app (deep links)
-- [ ] Full course catalog (e.g. from GT Scheduler)
-- [ ] Live campus events feed
-- [ ] Push notifications for event invites
-- [ ] Standalone Android build (APK / Play Store)
+Each filter follows the same pattern: **pure logic** (no React) → a **state hook** → a **map layer** → a **bottom sheet**. This let three people build filters in parallel without conflicts.
 
 ## Acknowledgements
 
 - Dining hours and payment info: [Georgia Tech Dining](https://dining.gatech.edu/)
 - Walking routes: [OpenRouteService](https://openrouteservice.org/) by HeiGIT
 - Icons: [Lucide](https://lucide.dev/)
-- Built by a team of four at a Georgia Tech hackathon 🐝
+- Built by a team of three at a Georgia Tech hackathon 🐝
