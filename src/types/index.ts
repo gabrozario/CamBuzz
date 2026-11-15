@@ -139,6 +139,19 @@ export interface IncomingEventInvite {
   from: { id: string; name: string };
   event: EventDraft;
   status: 'pending' | 'accepted' | 'declined';
+  /** Quando chegou (ISO). */
+  receivedAt?: string;
+  /** Já foi visto na central de notificações (sininho da aba Friends)? */
+  seen?: boolean;
+  /**
+   * Como chegou (só na demo, em data/invites.json):
+   * - 'while-away': chegou com o app fechado → vai só para a central de notificações (sem popup);
+   * - 'live': chega com o app aberto → abre o popup "X invited you" (depois de `delaySeconds`).
+   */
+  arrival?: 'while-away' | 'live';
+  delaySeconds?: number;
+  /** Mostrar o popup na tela (convites que chegam com o app aberto). */
+  showPopup?: boolean;
 }
 
 /**

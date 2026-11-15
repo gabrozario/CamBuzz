@@ -44,6 +44,8 @@ interface Props {
    * setinha ‹ + categoria + nome). Também é área de arrastar e não rola com a lista.
    */
   customHeader?: ReactNode;
+  /** Botão extra no cabeçalho, à esquerda do chevron/X (ex.: sininho de notificações na aba Friends). */
+  headerAccessory?: ReactNode;
   onClose: () => void;
   onIndexChange?: (index: number) => void;
   /** Conteúdo rolável — use <SheetScrollView> (components/sheet/SheetScrollView.tsx). */
@@ -67,6 +69,7 @@ export function FilterSheet({
   note,
   hideChevron = false,
   customHeader,
+  headerAccessory,
   onClose,
   onIndexChange,
   children,
@@ -102,6 +105,7 @@ export function FilterSheet({
               <Text style={styles.title} numberOfLines={1}>
                 {title}
               </Text>
+              {headerAccessory}
               {!hideChevron && (
                 <Pressable
                   onPress={toggleCollapsed}
@@ -130,7 +134,7 @@ export function FilterSheet({
         )}
       </View>
     ),
-    [customHeader, title, hideChevron, collapsed, toggleCollapsed, onClose, subtitle, note, styles, colors],
+    [customHeader, headerAccessory, title, hideChevron, collapsed, toggleCollapsed, onClose, subtitle, note, styles, colors],
   );
 
   return (

@@ -22,8 +22,13 @@ interface ScheduleContextValue {
   todayClasses: ClassSession[];
   /** Eventos que cada amigo aceitou, por id do amigo. */
   friendEvents: Record<string, PersonalEvent[]>;
-  /** Convites recebidos ainda sem resposta (o primeiro aparece como popup). */
+  /** Convites que chegaram com o app aberto e ainda não foram respondidos (o primeiro aparece como popup). */
   incomingInvites: IncomingEventInvite[];
+  /** Central de notificações (sininho da aba Friends): todos os convites, mais novos primeiro. */
+  inbox: IncomingEventInvite[];
+  /** Quantos convites ainda não foram vistos (bolinha vermelha no sininho). */
+  unseenCount: number;
+  markInboxSeen: () => Promise<void>;
   conflictsFor: (candidate: Candidate) => Conflict[];
   addCourse: (course: CatalogCourse, sectionId: string, replace?: Conflict[]) => Promise<ServiceResult<EnrolledCourse>>;
   removeCourse: (courseId: string) => Promise<void>;
@@ -48,6 +53,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
   const [schedule, setSchedule] = useState<MySchedule>(initialSchedule);
   const [friendEvents, setFriendEvents] = useState<Record<string, PersonalEvent[]>>({});
   const [incomingInvites, setIncoming] = useState<IncomingEventInvite[]>([]);
+  const [inbox, setInbox] = useState<IncomingEventInvite[]>([]);
   // Data do celular, ao vivo (vira o dia sozinha à meia-noite).
   const { today } = useClock();
 
@@ -57,6 +63,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
       scheduleService.getFriendEvents(),
       scheduleService.getIncomingInvites(),
     ]);
+    setInbox(await scheduleService.getInbox());
     setSchedule(s);
     setFriendEvents(f);
     setIncoming(i);
@@ -86,6 +93,11 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
       todayClasses: classesOnDate(schedule, today),
       friendEvents,
       incomingInvites,
+      inbox,
+      unseenCount: inbox.filter((i) => !i.seen).length,
+      markInboxSeen: async () => {
+        await run(() => scheduleService.markInboxSeen())();
+      },
       conflictsFor: (candidate) => findConflicts(schedule, candidate, today),
       addCourse: (course, sectionId, replace) => run(() => scheduleService.addCourse(course, sectionId, replace))(),
       removeCourse: async (id) => {
@@ -101,7 +113,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
       respondToInvite: (inviteId, accept, replace) =>
         run(() => scheduleService.respondToInvite(inviteId, accept, replace))(),
     }),
-    [schedule, today, friendEvents, incomingInvites, run],
+    [schedule, today, friendEvents, incomingInvites, inbox, run],
   );
 
   return <ScheduleContext.Provider value={value}>{children}</ScheduleContext.Provider>;

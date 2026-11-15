@@ -15,6 +15,10 @@ export interface EventEntry {
   match?: EventMatch;
   /** Amigos (visíveis no filtro People) que também podem ir. Vazio se People estiver desligado. */
   friends: FriendAtEvent[];
+  /** Já terminou (só aparece num dia sem agenda, em "Earlier today"). */
+  ended?: boolean;
+  /** Mostrar apagado (fora do seu caminho, ou já terminou). */
+  dim?: boolean;
 }
 
 export interface EventSection {
@@ -38,6 +42,8 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
   const [showAll, setShowAll] = useState(false);
 
   const matches = useMemo(() => findEventsOnRoute(route, allEvents, now), [route, now]);
+  // Dia sem nada na agenda (sem caminho): mostra TODOS os eventos do dia direto.
+  const noPlanToday = route.stops.length === 0;
   const withFriends = useMemo(
     () => friendsAtEvents(matches, companions, allEvents, now),
     [matches, companions, now],
@@ -67,14 +73,31 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
     }
     const result: EventSection[] = [...windowSections.values()].sort((a, b) => a.start - b.start);
 
-    if (showAll) {
+    if (noPlanToday) {
+      // Sem caminho não existe "no seu caminho": todos os eventos do dia, os que já acabaram por último.
+      const ended = allEvents.filter((e) => toMinutes(e.end) <= toMinutes(now)).sort(byStart);
+      if (upcoming.length)
+        result.push({
+          id: 'today',
+          title: 'All events today',
+          subtitle: 'You have nothing on your schedule today',
+          entries: upcoming.map((event) => ({ event, number: 0, friends: [] })),
+        });
+      if (ended.length)
+        result.push({
+          id: 'ended',
+          title: 'Earlier today',
+          subtitle: 'Already ended',
+          entries: ended.map((event) => ({ event, number: 0, friends: [], ended: true, dim: true })),
+        });
+    } else if (showAll) {
       const others = upcoming.filter((e) => !matchById.has(e.id));
       if (others.length) {
         result.push({
           id: 'others',
           title: 'Other events today',
           subtitle: 'Not on your route',
-          entries: others.map((event) => ({ event, number: 0, friends: [] })),
+          entries: others.map((event) => ({ event, number: 0, friends: [], dim: true })),
         });
       }
     }
@@ -84,7 +107,7 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
     for (const s of result) for (const e of s.entries) e.number = n++;
 
     return { sections: result, entries: result.flatMap((s) => s.entries), upcomingCount: upcoming.length };
-  }, [matches, withFriends, now, showAll]);
+  }, [matches, withFriends, now, showAll, noPlanToday]);
 
   const withFriendsCount = withFriends.size;
 
@@ -101,13 +124,13 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
   /** Abre um evento (busca). Se ele não está no seu caminho, liga "Show all" para ele aparecer. */
   const openEvent = useCallback(
     (eventId: string) => {
-      if (!matches.some((m) => m.event.id === eventId) && !showAll) {
+      if (!noPlanToday && !matches.some((m) => m.event.id === eventId) && !showAll) {
         showAllFromSearch.current = true;
         setShowAll(true);
       }
       setSelectedId(eventId);
     },
-    [matches, showAll],
+    [matches, showAll, noPlanToday],
   );
 
   /** Volta ao início (nenhum evento aberto, "Show all" desligado) — chamado ao desligar o filtro. */
@@ -118,6 +141,8 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
 
   return {
     sections,
+    /** Você não tem nada na agenda hoje → a lista mostra todos os eventos do dia. */
+    noPlanToday,
     entries,
     matchCount: matches.length,
     /** Quantos eventos do seu caminho têm pelo menos um amigo que pode ir junto. */

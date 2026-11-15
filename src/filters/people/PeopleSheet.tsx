@@ -1,6 +1,10 @@
 import { Clock, UserPlus } from 'lucide-react-native';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
 import { DraggableList } from '../../components/DraggableList';
+import { NotificationBell } from '../../components/notifications/NotificationBell';
+import { NotificationsModal } from '../../components/notifications/NotificationsModal';
+import { useSchedule } from '../../services/schedule/ScheduleProvider';
 import { FilterSheet } from '../../components/sheet/FilterSheet';
 import { SheetScrollView } from '../../components/sheet/SheetScrollView';
 import { useFriends } from '../../services/friends/FriendsProvider';
@@ -20,6 +24,9 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
   const { colors } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
   const { pendingRequests, removeFriend, reorderFriends } = useFriends();
+  // Sininho: central de notificações (convites recebidos, inclusive com o app fechado).
+  const { unseenCount } = useSchedule();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { days, visibleIds, toggle } = state;
   const friendDays = days.filter((d) => !d.person.isMe);
   const n = friendDays.filter((d) => visibleIds.has(d.person.id)).length;
@@ -35,7 +42,13 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
   };
 
   return (
-    <FilterSheet title="Friends" subtitle={subtitle} onClose={onClose} onIndexChange={onIndexChange}>
+    <FilterSheet
+      title="Friends"
+      subtitle={subtitle}
+      onClose={onClose}
+      onIndexChange={onIndexChange}
+      headerAccessory={<NotificationBell unseen={unseenCount} onPress={() => setNotificationsOpen(true)} />}
+    >
       <SheetScrollView contentContainerStyle={styles.content}>
         {/* Amigos: segure e arraste para colocar os mais importantes em cima */}
         <DraggableList
@@ -75,6 +88,7 @@ export function PeopleSheet({ state, onClose, onIndexChange, onAddFriend }: Prop
 
         <Text style={styles.footnote}>Example schedules · Walking routes powered by OpenRouteService</Text>
       </SheetScrollView>
+      <NotificationsModal visible={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
     </FilterSheet>
   );
 }

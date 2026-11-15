@@ -91,7 +91,7 @@ data/                        # DADOS FALSOS (sem backend)
   buildings.json             # ~16 prédios da GT com coordenadas aproximadas
   schedule.json              # SUA agenda semanal: cursos (section + dias) e eventos pessoais. Segunda 16/11 = 5 aulas do mapa
   courses.json               # catálogo de cursos e sections (amostra; futuro: gt-scheduler)
-  invites.json               # convite de evento que a Maya te manda na demo (chega ~6 s depois de abrir)
+  invites.json               # convites de eventos recebidos na demo (Maya: chegou com o app fechado → central de notificações)
   friends.json               # 3 amigos (Maya, Jordan, Priya): email, slug do convite, cor e agenda
   events.json                # 12 eventos do dia (prédios e barracas ao ar livre)
   me.json                    # o usuário logado (Alex Morgan): nome, email, slug do convite
@@ -208,6 +208,10 @@ No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
 - Peça compartilhada: `PlacePinLabel` + `placePinAnchor` em `PlacePin.tsx` (o nome faz parte do marcador; tocar nele abre o lugar).
 - Nome grande → apelido: campo opcional `shortName` em `events.json` e `food.json`; sem apelido, `mapLabel` (`utils/mapLabel.ts`) corta numa palavra inteira com "…".
 
+### Dia sem nada na agenda
+- Tocar em **My Route** mostra o aviso "You have nothing on your schedule today" (não liga; se o dia esvaziar com ele ligado, desliga sozinho).
+- O filtro **Events** mostra TODOS os eventos do dia direto ("Showing all events of the day"): "All events today" (alfinetes normais) e "Earlier today" (os que já acabaram, apagados, "Ended"). O botão "Only show events on my route" some.
+
 ### Events + People ("ir junto com um amigo") — `eventsWithFriends.ts`
 Com os dois filtros ligados, para cada evento do **seu** caminho aplicamos a mesma regra ao dia de cada amigo **visível**.
 Se o evento também cabe no dia do amigo e vocês ficariam lá ao mesmo tempo por ≥ 10 min, ele aparece:
@@ -263,7 +267,11 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
   - *Replace* = o novo ganha: curso x curso → o antigo sai; evento de uma vez → sai; o resto → só os dias em conflito são pulados (`skipDates`).
   - Conflitos de coisas que se repetem são procurados até 120 dias à frente (`CONFLICT_HORIZON_DAYS`).
 - **Invite friends:** lista os amigos com "Free · …" / "Busy · CS 1332 until 1:20 PM" (puxa a agenda deles; na demo as aulas do `friends.json` valem de seg a sex). Na demo, quem está livre **aceita sozinho ~3,5 s depois** e o evento entra no dia dele (aparece no filtro People).
-- **Convite recebido:** popup "Maya invited you" (Accept/Decline) por cima de qualquer tela; aceitar põe na sua agenda (com a mesma checagem de conflito). Demo: `data/invites.json`.
+- **Convite recebido:**
+  - Chegou com o app ABERTO → popup "Maya invited you" (Accept/Decline) por cima de qualquer tela.
+  - Chegou com o app FECHADO → só na **central de notificações**: sininho à esquerda do X na aba Friends; bolinha vermelha = não visto; abrir marca tudo como visto. Lá dá para aceitar/recusar; um recusado ainda pode ser aceito ("Accept instead"). Ao recusar pelo popup, o aviso tem "Tap to undo".
+  - Aceitar põe na sua agenda (com a mesma checagem de conflito).
+  - Demo (`data/invites.json`): `"arrival": "while-away"` = já está na central ao abrir (é o caso da Maya — sem popup na apresentação); `"arrival": "live"` (+ `"delaySeconds"`) = chega com o app aberto e abre o popup.
 - **Trocar de semana:** setas ‹ › ou **arrastar a grade para os lados** (esquerda→direita = semana anterior; direita→esquerda = próxima). Gesto `usePanGesture` (gesture-handler v3) no `WeekView.tsx`.
 - **Week View:** topo fixo ("Campus map", título, semana e dias da semana); só a grade de horas rola, por baixo do cabeçalho. Grade do dia inteiro (12 AM–12 AM); ao abrir, começa 1 hora antes da linha vermelha (`LEAD_MINUTES` em `WeekView.tsx`); **linha vermelha** do "agora" na coluna de hoje (`useClock`, anda a cada minuto, cor `nowLine`); blocos que já terminaram ficam apagados (opacidade 0.45).
 - **Eventos que viram a noite:** no Add Event, a lista do "To" continua depois da meia-noite (separador "Next day"). Salvo como `endsNextDay: true` (`end` = horário do dia seguinte). `eventPortionsOn()` em `scheduleLogic.ts` corta em 2 pedaços ("23:30–24:00" no dia do início + "00:00–02:30" no dia seguinte) — use essa função sempre que precisar dos horários de um evento num dia.

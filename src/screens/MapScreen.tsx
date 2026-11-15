@@ -10,6 +10,7 @@ import { CampusMap, GT_CAMPUS_BOUNDS, GT_REGION } from '../components/map/Campus
 import { DayRouteLayer } from '../components/map/DayRouteLayer';
 import { FilterBar } from '../components/FilterBar';
 import { MyRouteCard, type LegendEntry } from '../components/MyRouteCard';
+import { useToast } from '../components/ui/Toast';
 import { MapTopBar } from '../components/MapTopBar';
 import { FloatingBarContext, useFloatingBarController } from '../components/floatingBar';
 import { MapViewportContext, shouldShowPlaceLabels, type MapViewportValue } from '../components/map/mapViewport';
@@ -117,6 +118,20 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
   // ---- Filtro People ----
   // Pílula "My Route": o seu caminho do dia (começa DESLIGADO ao abrir o app).
   const [myRouteOn, setMyRouteOn] = useState(false);
+  const toast = useToast();
+  // Sem nada na agenda hoje: não há caminho para mostrar → avisa em vez de ligar.
+  const hasPlanToday = userRoute.stops.length > 0;
+  const onMyRouteChange = (on: boolean) => {
+    if (on && !hasPlanToday) {
+      toast('You have nothing on your schedule today');
+      return;
+    }
+    setMyRouteOn(on);
+  };
+  // Se o dia ficar vazio com My Route ligado (ex.: virou meia-noite), desliga.
+  useEffect(() => {
+    if (!hasPlanToday && myRouteOn) setMyRouteOn(false);
+  }, [hasPlanToday, myRouteOn]);
   const people = usePeopleFilter(now, myRouteOn);
   const peopleOn = active.includes('people');
   const visibleDays = peopleOn ? people.visibleDays : NO_DAYS;
@@ -563,7 +578,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
 
         {showRouteCard && (
           <View style={[styles.routeCard, { bottom: routeCardBottom }]} pointerEvents="box-none">
-            <MyRouteCard value={myRouteOn} onChange={setMyRouteOn} entries={legendEntries} />
+            <MyRouteCard value={myRouteOn} onChange={onMyRouteChange} entries={legendEntries} />
           </View>
         )}
 
