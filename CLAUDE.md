@@ -142,6 +142,7 @@ src/
     sheet/FilterSheet.tsx    # aba genérica (bottom sheet) com cabeçalho do Figma — reusar em todo filtro
     sheet/SheetScrollView.tsx  # lista rolável para dentro da aba (SEMPRE use esta, não a BottomSheetScrollView direto)
     MapTopBar.tsx, IconButton.tsx, FilterBar.tsx, BackPill.tsx
+    IntroVideo.tsx           # abertura: branco 200 ms → assets/cambuzz_intro.mp4 (expo-video) → segura 1 s → fade (App.tsx, por cima de tudo)
     MyRouteCard.tsx          # canto inferior esquerdo: pílula "My Route" + legenda dos caminhos (You / amigos / Next leg)
     ui/                      # peças com tema (claro/escuro): DialogCard (popup com "‹ Return"), FormField, AppButton, Toast
     schedule/                # tela My schedule: WeekView, BlockView, AddMenu, AddCourseModal (+SectionOption),
