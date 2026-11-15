@@ -1,7 +1,8 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { MapStyleElement } from 'react-native-maps';
 import { colors, darkColors, mixHex, type Palette } from './colors';
-import { campusMapStyle, campusMapStyleDark } from './mapStyle';
+import { MAP_LOOK } from '../config';
+import { campusMapStyle, campusMapStyleDark, googleCleanMapStyle } from './mapStyle';
 
 /**
  * Tema claro/escuro do app inteiro (escolhido em Settings).
@@ -91,7 +92,7 @@ interface ThemeContextValue {
   colors: Palette;
   /** Paleta das telas Schedule/Settings e popups. */
   c: AppColors;
-  /** Estilo do Google Maps (bege claro ou verde escuro). */
+  /** Estilo do Google Maps (padrão do Google ou bege no claro — ver MAP_LOOK em config.ts; verde escuro no escuro). */
   mapStyle: MapStyleElement[];
   /** Fundo suave de uma cor (mistura com o `surface` do tema atual). */
   tint: (hex: string, amount?: number) => string;
@@ -120,7 +121,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       isDark,
       colors: palette,
       c,
-      mapStyle: isDark ? campusMapStyleDark : campusMapStyle,
+      mapStyle: isDark ? campusMapStyleDark : MAP_LOOK === 'google' ? googleCleanMapStyle : campusMapStyle,
       tint: (hex, amount = 0.12) => mixHex(hex, palette.surface, isDark ? Math.min(1, amount * 2.2) : amount),
       vivid: (hex) => (isDark ? mixHex(hex, '#FFFFFF', 0.62) : hex),
       setMode,
