@@ -179,6 +179,8 @@ export type EventCategory = 'Social' | 'Community' | 'Career' | 'Food' | 'Academ
 export interface CampusEvent {
   id: string;
   name: string;
+  /** Apelido curto para o nome no mapa (só para nomes grandes). Ex.: "Resume reviews". */
+  shortName?: string;
   organization: string;
   category: EventCategory;
   description: string;

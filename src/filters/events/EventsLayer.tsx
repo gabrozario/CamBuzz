@@ -11,6 +11,9 @@ interface Props {
   state: EventsFilterState;
 }
 
+/** Zoom a partir do qual o nome dos eventos aparece (latitudeDelta menor = mais perto). */
+const LABEL_ZOOM_DELTA = 0.0055;
+
 /**
  * O que o filtro de Eventos desenha no mapa (vai dentro do <CampusMap>).
  * - Lista: um pino numerado por evento.
@@ -21,6 +24,8 @@ export function EventsLayer({ state }: Props) {
   const { entries, selected, select } = state;
   const { colors } = useAppTheme();
   const { viewport, width, height, zoomTo } = useMapViewport();
+  // Nomes aparecem com zoom (como no Google/Apple Maps) e somem ao afastar.
+  const showLabels = !!viewport && viewport.latitudeDelta <= LABEL_ZOOM_DELTA;
   // Eventos colados no zoom atual viram um grupo "3" (tocar dá zoom e separa).
   const clusters = useMemo(
     () => clusterOnScreen(entries, (e) => e.event.coordinate, (e) => e.event.id, viewport, width, height),
@@ -48,7 +53,7 @@ export function EventsLayer({ state }: Props) {
     <>
       {clusters.map((c) =>
         c.items.length === 1 ? (
-          <EventPin key={c.key} entry={c.items[0]} onPress={() => select(c.items[0].event.id)} />
+          <EventPin key={c.key} entry={c.items[0]} showLabel={showLabels} onPress={() => select(c.items[0].event.id)} />
         ) : (
           <ClusterPin
             key={c.key}

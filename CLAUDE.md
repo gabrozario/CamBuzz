@@ -201,6 +201,10 @@ O filtro "People" aparece para o usuário como **Friends** (a key no código con
 A lista é agrupada por janela; "Show all events" mostra também os que não cabem (pinos cinza).
 No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
 
+### Nome dos eventos no mapa
+- Com zoom (`LABEL_ZOOM_DELTA` em `EventsLayer.tsx`), o nome aparece embaixo do alfinete, com contorno claro como os nomes do Google/Apple Maps; afastando, some. O nome faz parte do marcador (tocar nele abre o evento).
+- Nome grande → apelido: campo opcional `shortName` no `events.json` (ex.: "Resume reviews"); sem apelido, `eventMapLabel` (`eventLabel.ts`) corta numa palavra inteira com "…".
+
 ### Events + People ("ir junto com um amigo") — `eventsWithFriends.ts`
 Com os dois filtros ligados, para cada evento do **seu** caminho aplicamos a mesma regra ao dia de cada amigo **visível**.
 Se o evento também cabe no dia do amigo e vocês ficariam lá ao mesmo tempo por ≥ 10 min, ele aparece:
