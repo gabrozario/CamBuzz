@@ -64,7 +64,8 @@ Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 | `greenTint` | `#E5EBDD` | Caixa do link de convite, botão "Edit name & email" |
 | `inputBorder` / `checkboxBorder` | `#C2CCC0` / `#9AA69B` | Campo de email / checkbox desmarcado |
 | `friendPalette` | roxo, azul, dourado + 3 extras | Cor de cada amigo, na ordem; `tint(cor)` gera o fundo suave da linha selecionada |
-| `blue` (+ `blueSoft #D7E3DF`) | `#526F8A` | Amigo 2, Vending, Campus Rec, ponto de localização |
+| `blue` (+ `blueSoft #D7E3DF`) | `#526F8A` | Amigo 2, Vending, Campus Rec |
+| `myLocation` | `#1A73E8` (escuro `#5AA2FF`) | "Você está aqui": a parada "agora" do SEU caminho, por cima de todos os pinos (zIndex 60) |
 
 ### Estilo
 - Visual calmo, "mapa ilustrado" bege/verde, muito espaço em branco, cantos bem arredondados, sombras quase invisíveis.
@@ -77,6 +78,7 @@ Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 - **Lista de eventos**: horário em `gold` à esquerda ("3:00" grande + "PM" pequeno), título SemiBold, local em `muted`, categoria em `gold`, chevron `>` à direita.
 - **Pinos de eventos**: círculos `ink` com número branco e borda branca. **Pinos de recursos**: círculos com código ("D1", "L2", "P1") na cor da categoria.
 - **Caminhos**: linha fina na cor da pessoa = resto do dia; linha grossa `ink` = próximo trecho ("Next leg"); prédio com "anel" = onde a pessoa está agora. Legenda branca sobre o mapa.
+- **Câmera:** ao abrir/mudar um filtro, enquadra só os pinos DESSE filtro (ex.: só os restaurantes marcados), com margem pequena (`FIT_PADDING`); sem nada marcado, enquadra o seu caminho.
 - **People**: linhas com checkbox na cor do amigo; linha selecionada com fundo suave da cor (`greenSoft`/`purpleSoft`); texto "Next: Clough Commons · 11:30 AM" na cor do amigo.
 - Rodapés pequenos tipo "Sample events" / "Example schedules · Walking routes are illustrative".
 
