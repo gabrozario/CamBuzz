@@ -12,6 +12,8 @@ interface FriendsContextValue {
   addFriendByEmail: (email: string) => Promise<AddFriendResult>;
   acceptInviteLink: (link: string) => Promise<AddFriendResult>;
   removeFriend: (friendId: string) => Promise<boolean>;
+  /** Settings → "Edit name & email". Retorna a mensagem de erro, ou null se deu certo. */
+  updateProfile: (changes: Pick<UserProfile, 'name' | 'email'>) => Promise<string | null>;
 }
 
 const FriendsContext = createContext<FriendsContextValue | null>(null);
@@ -71,6 +73,13 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
     [refresh],
   );
 
+  const updateProfile = useCallback(async (changes: Pick<UserProfile, 'name' | 'email'>) => {
+    const result = await friendsService.updateProfile(changes);
+    if (!result.ok) return result.error;
+    setMe(result.me);
+    return null;
+  }, []);
+
   const value = useMemo(
     () => ({
       me,
@@ -80,8 +89,9 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
       addFriendByEmail,
       acceptInviteLink,
       removeFriend,
+      updateProfile,
     }),
-    [me, friends, pendingRequests, addFriendByEmail, acceptInviteLink, removeFriend],
+    [me, friends, pendingRequests, addFriendByEmail, acceptInviteLink, removeFriend, updateProfile],
   );
 
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;

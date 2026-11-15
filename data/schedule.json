@@ -1,10 +1,65 @@
 {
-  "date": "2026-11-16",
-  "classes": [
-    { "id": "u1", "course": "PHYS 2211", "title": "Intro Physics I", "kind": "Lecture", "buildingId": "howey", "room": "L1", "start": "09:00", "end": "09:50" },
-    { "id": "u2", "course": "MATH 1554", "title": "Linear Algebra", "kind": "Lecture", "buildingId": "skiles", "room": "249", "start": "10:00", "end": "10:50" },
-    { "id": "u3", "course": "CS 1332", "title": "Data Structures & Algorithms", "kind": "Lecture", "buildingId": "culc", "room": "152", "start": "11:00", "end": "12:15" },
-    { "id": "u4", "course": "CS 2110", "title": "Computer Organization", "kind": "Lecture", "buildingId": "klaus", "room": "1443", "start": "14:00", "end": "15:15" },
-    { "id": "u5", "course": "PHYS 2211", "title": "Physics Lab", "kind": "Lab", "buildingId": "instructional-center", "room": "105", "start": "16:30", "end": "17:45" }
+  "term": "Fall 2026",
+  "termStart": "2026-08-17",
+  "termEnd": "2026-12-10",
+  "courses": [
+    {
+      "id": "c-phys2211",
+      "code": "PHYS 2211",
+      "title": "Intro Physics I",
+      "sectionId": "M",
+      "instructor": "Dr. Laura Bennett",
+      "color": "#385E69",
+      "meetings": [
+        { "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "09:00", "end": "09:50", "buildingId": "howey", "room": "L1" },
+        { "kind": "Lab", "days": ["Mon"], "start": "16:30", "end": "17:45", "buildingId": "instructional-center", "room": "105" }
+      ]
+    },
+    {
+      "id": "c-math1554",
+      "code": "MATH 1554",
+      "title": "Linear Algebra",
+      "sectionId": "B",
+      "instructor": "Dr. Omar Haddad",
+      "color": "#715B2D",
+      "meetings": [
+        { "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "10:00", "end": "10:50", "buildingId": "skiles", "room": "249" }
+      ]
+    },
+    {
+      "id": "c-cs1332",
+      "code": "CS 1332",
+      "title": "Data Structures & Algorithms",
+      "sectionId": "A",
+      "instructor": "Dr. Priscilla Moore",
+      "color": "#456756",
+      "meetings": [
+        { "kind": "Lecture", "days": ["Mon", "Wed"], "start": "11:00", "end": "12:15", "buildingId": "culc", "room": "152" }
+      ]
+    },
+    {
+      "id": "c-cs2110",
+      "code": "CS 2110",
+      "title": "Computer Organization",
+      "sectionId": "C",
+      "instructor": "Dr. Henry Vance",
+      "color": "#83608D",
+      "meetings": [
+        { "kind": "Lecture", "days": ["Mon", "Wed"], "start": "14:00", "end": "15:15", "buildingId": "klaus", "room": "1443" }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": "ev-robotics",
+      "name": "Robotics club",
+      "location": "Van Leer",
+      "buildingId": "van-leer",
+      "date": "2026-11-11",
+      "start": "18:00",
+      "end": "19:00",
+      "repeat": "weekly",
+      "invites": []
+    }
   ]
 }

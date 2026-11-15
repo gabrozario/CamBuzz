@@ -10,8 +10,8 @@ interface Props {
   leftAccessory?: ReactNode;
   /** Conteúdo ao lado do botão "adicionar amigo" (ex.: chip "Your day · 11:15 AM"). */
   children?: ReactNode;
-  onOpenSchedule?: () => void; // tela "My schedule" (próxima etapa)
-  onOpenSettings?: () => void; // tela "Settings" (próxima etapa)
+  onOpenSchedule?: () => void; // tela "My schedule"
+  onOpenSettings?: () => void; // tela "Settings"
   onAddFriend?: () => void; // abre o popup "Add Friends"
 }
 

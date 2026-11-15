@@ -28,22 +28,112 @@ export interface Building {
   coordinate: LatLng;
 }
 
-/** Uma aula (ou compromisso) da agenda. */
+/**
+ * Uma parada do dia no mapa (aula ou evento com prédio). É o formato que o mapa usa;
+ * a agenda semanal (MySchedule) é convertida para isto em `classesOnDate()`.
+ */
 export interface ClassSession {
   id: string;
-  course: string; // ex.: "CS 1332"
+  course: string; // ex.: "CS 1332" (para eventos: o nome do evento)
   title: string; // ex.: "Data Structures & Algorithms"
-  kind: 'Lecture' | 'Lab' | 'Recitation' | 'Study session';
+  kind: 'Lecture' | 'Lab' | 'Recitation' | 'Study session' | 'Event';
   buildingId: string; // referencia Building.id
   room?: string;
   start: TimeOfDay;
   end: TimeOfDay;
 }
 
-/** /data/schedule.json — agenda do usuário para um dia. */
-export interface DaySchedule {
-  date: string; // "YYYY-MM-DD"
-  classes: ClassSession[];
+// ---------------- Agenda semanal (tela "My schedule") ----------------
+
+/** Data no formato "YYYY-MM-DD". */
+export type ISODate = string;
+
+export type Weekday = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
+
+/** Um encontro semanal de uma section (ex.: Lecture seg/qua/sex 9:00–9:50 no Howey). */
+export interface CourseMeeting {
+  kind: 'Lecture' | 'Lab' | 'Recitation';
+  days: Weekday[];
+  start: TimeOfDay;
+  end: TimeOfDay;
+  buildingId: string;
+  room?: string;
+}
+
+/** Uma section oferecida de um curso (professor + horários). /data/courses.json */
+export interface CatalogSection {
+  id: string; // ex.: "A"
+  crn: string; // número de registro da GT
+  instructor: string;
+  meetings: CourseMeeting[];
+}
+
+/** Um curso do catálogo da GT. /data/courses.json (no futuro: dados do gt-scheduler). */
+export interface CatalogCourse {
+  code: string; // ex.: "CS 1331"
+  title: string;
+  credits: number;
+  sections: CatalogSection[];
+}
+
+/** Um curso na SUA agenda (a section escolhida). */
+export interface EnrolledCourse {
+  id: string;
+  code: string;
+  title: string;
+  sectionId: string;
+  instructor: string;
+  meetings: CourseMeeting[];
+  color: string; // cor do curso na agenda (ver coursePalette)
+  /** Dias em que esta aula NÃO acontece (ex.: substituída por um evento). */
+  skipDates?: ISODate[];
+}
+
+/** "Repeat": uma vez, todo dia, dias úteis, toda semana, todo mês. */
+export type RepeatRule = 'none' | 'daily' | 'weekdays' | 'weekly' | 'monthly';
+
+/** Situação do convite de um amigo para um evento seu. */
+export interface EventInviteStatus {
+  friendId: string;
+  status: 'pending' | 'accepted' | 'declined';
+}
+
+/** Os campos que você preenche no "Add Event". */
+export interface EventDraft {
+  name: string;
+  location: string; // texto livre ("Clough Commons room 102")
+  /** Prédio reconhecido no texto do local — se existir, o evento aparece no mapa. */
+  buildingId?: string;
+  date: ISODate; // primeiro dia
+  start: TimeOfDay;
+  end: TimeOfDay;
+  repeat: RepeatRule;
+}
+
+/** Um evento pessoal na agenda. */
+export interface PersonalEvent extends EventDraft {
+  id: string;
+  invites: EventInviteStatus[];
+  /** Se veio de um convite aceito: quem convidou. */
+  invitedBy?: { id: string; name: string };
+  skipDates?: ISODate[];
+}
+
+/** /data/schedule.json — a agenda do usuário (cursos do semestre + eventos). */
+export interface MySchedule {
+  term: string; // ex.: "Fall 2026"
+  termStart: ISODate; // aulas só acontecem entre termStart e termEnd
+  termEnd: ISODate;
+  courses: EnrolledCourse[];
+  events: PersonalEvent[];
+}
+
+/** Convite que você RECEBEU de um amigo (/data/invites.json na demo). */
+export interface IncomingEventInvite {
+  id: string;
+  from: { id: string; name: string };
+  event: EventDraft;
+  status: 'pending' | 'accepted' | 'declined';
 }
 
 /**
@@ -65,6 +155,7 @@ export interface DirectoryUser {
   initials: string;
   email: string;
   inviteSlug: string;
+  /** Aulas de um dia típico. Na demo, valem para todos os dias úteis (seg–sex). */
   schedule: ClassSession[];
 }
 
