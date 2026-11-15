@@ -6,6 +6,7 @@ import type {
   CampusEvent,
   DaySchedule,
   DirectoryUser,
+  FoodCategory,
   Friend,
   ResourceCategory,
   ResourceLocation,
@@ -19,6 +20,7 @@ import eventsJson from './events.json';
 import meJson from './me.json';
 import directoryJson from './directory.json';
 import resourcesJson from './resources.json';
+import foodJson from './food.json';
 
 export const buildings = buildingsJson as Building[];
 export const schedule = scheduleJson as DaySchedule;
@@ -31,7 +33,9 @@ export const me = meJson as UserProfile;
 export const directory = directoryJson as DirectoryUser[];
 
 export const resourceCategories = resourcesJson.categories as ResourceCategory[];
-export const buildingOccupancy = resourcesJson.occupancy as Record<string, BuildingOccupancyDetails>;
+/** Food options: Dining hall, Restaurants/Coffees, Vending machines (com cardápio e nutrição de exemplo). */
+export const foodCategories = foodJson.categories as FoodCategory[];
+export const buildingOccupancy =resourcesJson.occupancy as Record<string, BuildingOccupancyDetails>;
 
 const buildingsById = new Map(buildings.map((b) => [b.id, b]));
 

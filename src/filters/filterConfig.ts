@@ -19,6 +19,6 @@ export interface FilterConfig {
 export const FILTERS: FilterConfig[] = [
   { key: 'events', label: 'Events', sheetTitle: 'Events', icon: CalendarDays, combinable: true, status: 'ready' },
   { key: 'resources', label: 'Resources', sheetTitle: 'Resources', icon: Building2, combinable: false, status: 'ready' },
-  { key: 'food', label: 'Food options', sheetTitle: 'Food Options', icon: Utensils, combinable: false, status: 'planned' },
+  { key: 'food', label: 'Food options', sheetTitle: 'Food Options', icon: Utensils, combinable: false, status: 'ready' },
   { key: 'people', label: 'People', sheetTitle: 'People', icon: Users, combinable: true, status: 'ready' },
 ];
