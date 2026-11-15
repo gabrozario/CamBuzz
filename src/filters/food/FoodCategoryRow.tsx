@@ -3,6 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Checkbox } from '../../components/Checkbox';
 import { fonts, useAppTheme, useThemedStyles, type Palette } from '../../theme';
 import type { FoodCategory, FoodLocation } from '../../types';
+import { todayISO } from '../../utils/dates';
+import { nowTime } from '../../utils/time';
+import { openStatus } from './foodHours';
 
 interface Props {
   category: FoodCategory;
@@ -63,18 +66,34 @@ export function FoodCategoryRow({ category, checked, expanded, onToggleCheck, on
               onPress={() => onOpenLocation(loc)}
               style={({ pressed }) => [styles.locationRow, pressed && styles.pressed]}
               accessibilityRole="button"
-              accessibilityLabel={`${loc.code}: ${loc.name}, open menu`}
+              accessibilityLabel={`${loc.code}: ${loc.name}, open details`}
             >
               <Text style={styles.locationCode}>{loc.code}</Text>
-              <Text style={styles.locationName} numberOfLines={1}>
-                {loc.name}
-              </Text>
+              <View style={styles.locationText}>
+                <Text style={styles.locationName} numberOfLines={1}>
+                  {loc.name}
+                </Text>
+                {loc.hours && <LocationStatus location={loc} />}
+              </View>
               <ChevronRight size={16} color={colors.muted} strokeWidth={2} />
             </Pressable>
           ))}
         </View>
       )}
     </View>
+  );
+}
+
+/** "Open now · until 10:00 PM · Tech Square" embaixo do nome (só locais com horário). */
+function LocationStatus({ location }: { location: FoodLocation }) {
+  const { colors } = useAppTheme();
+  const styles = useThemedStyles(makeStyles);
+  const status = openStatus(location.hours!, todayISO(), nowTime());
+  return (
+    <Text style={styles.locationStatus} numberOfLines={1}>
+      <Text style={{ color: status.open ? colors.green : colors.error }}>{status.label}</Text>
+      {` · ${location.area}`}
+    </Text>
   );
 }
 
@@ -97,6 +116,8 @@ const makeStyles = (colors: Palette) =>
   locationsList: { paddingLeft: 44, paddingTop: 10, gap: 4 },
   locationRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
   locationCode: { width: 32, fontFamily: fonts.medium, fontSize: 13, color: colors.ink },
-  locationName: { flex: 1, fontFamily: fonts.regular, fontSize: 15, color: colors.ink },
+  locationText: { flex: 1, gap: 2 },
+  locationName: { fontFamily: fonts.regular, fontSize: 15, color: colors.ink },
+  locationStatus: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
   pressed: { opacity: 0.6 },
 });

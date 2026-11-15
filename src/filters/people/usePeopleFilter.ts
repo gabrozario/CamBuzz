@@ -13,12 +13,14 @@ import { buildPersonDay, personFromFriend, personFromMe, type PersonDay } from '
  * As rotas a pé entre aulas são calculadas via OpenRouteService (HeiGIT)
  * para refletir os caminhos e calçadas reais do campus da Georgia Tech.
  */
-export function usePeopleFilter(now: TimeOfDay) {
+/** `showMe`: o seu caminho aparece junto (pílula "My Route" ligada). */
+export function usePeopleFilter(now: TimeOfDay, showMe = false) {
   const { friends } = useFriends();
   const { todayClasses, friendEvents, today } = useSchedule();
   // Cores do tema: verde do "You" e amigos um pouco mais claros no modo escuro.
   const { colors, vivid } = useAppTheme();
-  const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set(['me']));
+  // Amigos visíveis (começa sem nenhum). O seu caminho é controlado pelo My Route, não por aqui.
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set());
 
   // Você: agenda de hoje. Amigos: aulas deles + eventos que aceitaram (ex.: um convite seu).
   const baseDays: PersonDay[] = useMemo(
@@ -69,7 +71,7 @@ export function usePeopleFilter(now: TimeOfDay) {
     const added = friends.filter((f) => !knownIds.current.has(f.id)).map((f) => f.id);
     knownIds.current = currentIds;
     setVisibleIds((prev) => {
-      const next = new Set([...prev].filter((id) => id === 'me' || currentIds.has(id)));
+      const next = new Set([...prev].filter((id) => currentIds.has(id)));
       added.forEach((id) => next.add(id));
       return next.size === prev.size && [...next].every((id) => prev.has(id)) ? prev : next;
     });
@@ -84,9 +86,20 @@ export function usePeopleFilter(now: TimeOfDay) {
     });
   }, []);
 
-  const visibleDays = useMemo(() => days.filter((d) => visibleIds.has(d.person.id)), [days, visibleIds]);
+  /** Deixa o caminho de alguém visível (busca por nome de amigo). */
+  const show = useCallback((id: string) => {
+    setVisibleIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+  }, []);
 
-  return { days, visibleDays, visibleIds, toggle };
+  /** Volta ao início (nenhum amigo visível) — chamado ao desligar o filtro. */
+  const reset = useCallback(() => setVisibleIds(new Set()), []);
+
+  const visibleDays = useMemo(
+    () => days.filter((d) => (d.person.isMe ? showMe : visibleIds.has(d.person.id))),
+    [days, visibleIds, showMe],
+  );
+
+  return { days, visibleDays, visibleIds, toggle, reset, show };
 }
 
 export type PeopleFilterState = ReturnType<typeof usePeopleFilter>;

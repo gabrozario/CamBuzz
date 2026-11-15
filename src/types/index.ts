@@ -184,6 +184,8 @@ export type EventCategory = 'Social' | 'Community' | 'Career' | 'Food' | 'Academ
 export interface CampusEvent {
   id: string;
   name: string;
+  /** Apelido curto para o nome no mapa (só para nomes grandes). Ex.: "Resume reviews". */
+  shortName?: string;
   organization: string;
   category: EventCategory;
   description: string;
@@ -273,20 +275,39 @@ export interface FoodMenuSection {
   items: FoodItem[];
 }
 
+/**
+ * Horário de funcionamento de cada dia: lista de intervalos [abre, fecha] em "HH:MM" 24h.
+ * [] = fechado. Se "fecha" < "abre", fecha depois da meia-noite (ex.: ["11:00","03:00"]).
+ */
+export type WeeklyHours = Record<Weekday, [TimeOfDay, TimeOfDay][]>;
+
 /** Um local de comida (D1, C2, V3...). */
 export interface FoodLocation {
   id: string;
   code: string; // ex.: "D1"
   name: string; // ex.: "North Avenue Dining Hall"
-  kind: string; // ex.: "Dining hall", "Coffee shop", "Vending machine"
-  area: string; // ex.: "North Avenue"
+  kind: string; // ex.: "Dining hall", "Restaurant", "Coffee shop", "Vending machine"
+  area: string; // ex.: "North Avenue", "Tech Square", "John Lewis Student Center"
   buildingId: string;
   coordinate: LatLng;
+
+  // ---- Cardápio (só dining halls e vending; restaurantes NÃO têm) ----
   /** Complemento do subtítulo do cardápio (ex.: "All meals"). */
-  menuNote: string;
+  menuNote?: string;
   /** Dica no rodapé do detalhe (ex.: "Scroll for breakfast, lunch & dinner ↓"). */
-  scrollHint: string;
-  menu: FoodMenuSection[];
+  scrollHint?: string;
+  menu?: FoodMenuSection[];
+
+  // ---- Dados reais de dining.gatech.edu (restaurantes e dining halls) ----
+  hours?: WeeklyHours;
+  /** Ex.: "Breakfast 7–11 AM · Lunch 11:30 AM–2 PM · Dinner 4–11 PM" */
+  hoursNote?: string;
+  payments?: { diningDollars: boolean; buzzcardFunds: boolean };
+  /** Ex.: "Dining Dollars and BuzzCard funds can't be used for alcohol." */
+  paymentNote?: string;
+  address?: string;
+  /** Ex.: ["Chicken", "Sandwiches"] */
+  tags?: string[];
 }
 
 /** Categoria de comida (Dining hall, Restaurants/Coffees, Vending machines). */

@@ -50,6 +50,12 @@ export const colors = {
   /** Texto/ícone sobre fundo `ink` (número branco nos pinos). No escuro o ink é claro, então vira escuro. */
   onInk: '#FFFFFF',
   white: '#FFFFFF',
+
+  // Barra de filtros "voadora": vidro meio transparente, num verde-acinzentado (diferente do creme da aba e do bege do mapa).
+  /** "Você está aqui" (onde você está agora no seu caminho): azul vivo, diferente de todas as outras cores. */
+  myLocation: '#1A73E8',
+  floatingBar: 'rgba(214, 226, 207, 0.82)',
+  floatingBarBorder: 'rgba(69, 103, 86, 0.22)',
 };
 
 /** Formato de uma paleta (clara ou escura): as mesmas chaves de `colors`. */
@@ -93,6 +99,10 @@ export const darkColors: Palette = {
 
   onInk: '#1E2B28',
   white: '#FFFFFF',
+
+  myLocation: '#5AA2FF',
+  floatingBar: 'rgba(58, 84, 68, 0.80)',
+  floatingBarBorder: 'rgba(244, 242, 233, 0.16)',
 };
 
 /** Cores dos cursos na agenda, na ordem em que são atribuídas (Figma: azul CS, dourado MATH, verde ENGL...). */

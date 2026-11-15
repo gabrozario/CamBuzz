@@ -16,15 +16,19 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 4. ✅ Events + People ativos ao mesmo tempo → ver qual evento dá pra ir junto com um amigo (Etapa 3)
 5. ✅ Popup **Add Friends** (link de convite + email) com serviço falso pronto para virar backend (Etapa 3)
 6. ✅ Telas **My schedule** (Week/Block View, Add Course, Add Event, convidar amigos) e **Settings** (conta + modo claro/escuro) (Etapa 4)
-7. ⏳ Busca ("Search campus") — só visual por enquanto
+7. ✅ Busca ("Search campus"): amigos, suas aulas, comida, resources, eventos, prédios e atalhos de categoria (ver seção Busca)
 
-8. ✅ Filtro **Food options**: Dining hall (D1, D2), Restaurants/Coffees (C1–C3), Vending machines (V1–V3); cada local abre o cardápio do dia com nutrição (Figma `Food details · …`)
+8. ✅ Filtro **Food**:
+   - **Dining halls** (D1 North Ave, D2 Brittain, D3 West Village): horário real + cardápio de exemplo com nutrição (Figma `Food details · …`).
+   - **Restaurants/Coffees** (C1–C25): TODOS os restaurantes/cafés do campus, Student Center e Tech Square, com dados reais de dining.gatech.edu — horário dos 7 dias (hoje em destaque, outros dias menores), Dining Dollars e BuzzCard Funds. **Sem cardápio** (decisão do time).
+   - Vending machines (V1–V3): cardápio de exemplo.
+   - Horários = "Normal Hours" do site; feriados/férias podem mudar. Lógica de aberto/fechado em `src/filters/food/foodHours.ts`.
 9. ✅ Filtro **Resources** (Libraries/Printers/CRC)
 
 ## Regras técnicas
 
 - **Expo SDK 58** (compatível com o Expo Go da Play Store), TypeScript estrito.
-- Mapa: `react-native-maps`. **Android:** `PROVIDER_GOOGLE` (no Expo Go funciona **sem chave de API**) com o estilo do Figma. **iPhone:** Apple Maps (o Google Maps no iOS exige chave + build próprio, não roda no Expo Go); lá o estilo bege não se aplica, só claro/escuro.
+- Mapa: `react-native-maps`. **Android:** `PROVIDER_GOOGLE` (no Expo Go funciona **sem chave de API**). Visual escolhido por `MAP_LOOK` em `src/config.ts`: `'google'` (atual) = padrão do Google sem comércios/transporte; `'illustrated'` = bege do Figma, que com zoom grande mistura prédios e chão (o Google pinta os dois como `landscape.man_made`). Modo escuro sempre usa o estilo escuro do app. **iPhone:** Apple Maps (o Google Maps no iOS exige chave + build próprio, não roda no Expo Go); lá o estilo bege não se aplica, só claro/escuro. Nomes de lugares no iPhone: `pointsOfInterestFilter` (lista `IOS_PLACE_LABELS` em `CampusMap.tsx`) — **não** use só `showsPointsOfInterests={false}`, que no Apple Maps some com todos os nomes.
 - Aba que sobe: `@gorhom/bottom-sheet` (já instalado com reanimated/gesture-handler; o `GestureHandlerRootView` já está no `App.tsx`).
 - Ícones: `lucide-react-native` (traço fino, igual ao Figma). Fonte: Inter (`@expo-google-fonts/inter`).
 - **Sem backend**: tudo vem dos JSONs em `/data`, sempre importados via `data/index.ts`.
@@ -38,7 +42,7 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 
 Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 `Campus map · Start` (tela inicial), `Events · Collapsed/Half-open/Expanded`, `Event details · …`,
-`People · You / Maya / You and Maya`, `Add Friends · Popup`, `Food options · …`, `Campus resources · …`, `Campus details · …`,
+`People · You / Maya / You and Maya`, `Add Friends · Popup`, `Food · …`, `Campus resources · …`, `Campus details · …`,
 `Schedule · View / Edit / Add course`, `Settings · Light / Dark mode / Edit account`.
 
 ### Cores (em `src/theme/colors.ts` — use sempre as constantes)
@@ -60,17 +64,22 @@ Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 | `greenTint` | `#E5EBDD` | Caixa do link de convite, botão "Edit name & email" |
 | `inputBorder` / `checkboxBorder` | `#C2CCC0` / `#9AA69B` | Campo de email / checkbox desmarcado |
 | `friendPalette` | roxo, azul, dourado + 3 extras | Cor de cada amigo, na ordem; `tint(cor)` gera o fundo suave da linha selecionada |
-| `blue` (+ `blueSoft #D7E3DF`) | `#526F8A` | Amigo 2, Vending, Campus Rec, ponto de localização |
+| `blue` (+ `blueSoft #D7E3DF`) | `#526F8A` | Amigo 2, Vending, Campus Rec |
+| `myLocation` | `#1A73E8` (escuro `#5AA2FF`) | "Você está aqui": a parada "agora" do SEU caminho, por cima de todos os pinos (zIndex 60) |
 
 ### Estilo
 - Visual calmo, "mapa ilustrado" bege/verde, muito espaço em branco, cantos bem arredondados, sombras quase invisíveis.
 - **Fonte Inter**: títulos de aba em Bold ~26px (`Events`, `People`), itens em SemiBold ~16px, texto secundário Regular ~14px em `muted`.
-- **Topo**: botão quadrado branco de agenda (48×48, raio 16), campo "Search campus" com borda fina (raio 20), botão de configurações; abaixo, botão "adicionar amigo". Chips brancos de info ao lado (ex.: "Your day · Today · 11:15 AM").
-- **Barra inferior**: 4 itens (ícone + label): Events, Campus resources, Food options, People. Selecionado = fundo `activeTab` em pílula + label SemiBold `ink`.
+- **Topo**: botão quadrado branco de agenda (48×48, raio 16), campo "Search campus" com borda fina (raio 20), botão de configurações; abaixo, botão "adicionar amigo".
+- **Barra de filtros "voadora"** (estilo Instagram): pílula flutuante com sombra, por cima do mapa e da aba. 4 itens: Events, Resources, Food, Friends. Em foco = pílula `activeTab` com borda + label Bold `ink`; ligado em segundo plano = apagado + ×.
+- **A aba vai até o fim da tela, por trás da barra.** O MapScreen mede a barra e passa o espaço coberto via `BottomClearanceContext` (`components/sheet/bottomClearance.ts`); `FilterSheet` soma isso às alturas e `SheetScrollView` deixa esse espaço no fim da lista. **Use sempre `SheetScrollView`** — senão o último item fica atrás da barra.
+- A barra tem fundo de vidro meio transparente (`colors.floatingBar`) e **encolhe/desce ao rolar uma lista para baixo**, voltando ao rolar para cima (`components/floatingBar.ts`; o `SheetScrollView` já avisa a rolagem). No Android ela não tem sombra (elevation + transparência fica manchado) — por isso a aba também não usa elevation no Android.
 - **Bottom sheet**: fundo `surface`, cantos superiores ~28px, pegador cinza, título grande + subtítulo ("Today · 6 events"), botões chevron e X à direita. Listas com separadores finos.
 - **Lista de eventos**: horário em `gold` à esquerda ("3:00" grande + "PM" pequeno), título SemiBold, local em `muted`, categoria em `gold`, chevron `>` à direita.
-- **Pinos de eventos**: círculos `ink` com número branco e borda branca. **Pinos de recursos**: círculos com código ("D1", "L2", "P1") na cor da categoria.
-- **Caminhos**: linha fina na cor da pessoa = resto do dia; linha grossa `ink` = próximo trecho ("Next leg"); prédio com "anel" = onde a pessoa está agora. Legenda branca sobre o mapa.
+- **Lugares no mapa = ALFINETES** (formato gota, ponta no local exato; `components/map/PlacePin.tsx`, use `anchor={{ x: 0.5, y: 1 }}`): eventos em `ink` com o número; recursos/comida na cor da categoria com o código ("D1", "L2", "C3"); grupos com o número de lugares. Selecionado = alfinete maior + nome em cima. Os círculos numerados ficam só para as paradas do caminho (aulas) e o "você está aqui".
+- **Cartão "My Route"** (`components/MyRouteCard.tsx`, canto inferior esquerdo, logo acima da barra/aba; some com a aba em tela cheia): a pílula liga/desliga o SEU caminho do dia. **Começa desligada** ao abrir o app (sem caminho nem legenda). Quando há caminho no mapa (seu e/ou de amigos), a legenda aparece no mesmo cartão. A aba Friends lista só amigos; o seu caminho entra junto com o dos amigos só se My Route estiver ligado (`usePeopleFilter(now, showMe)`). O filtro Events continua usando a sua agenda mesmo com o caminho escondido.
+- **Caminhos**: linha fina na cor da pessoa = resto do dia; linha grossa `ink` = próximo trecho ("Next leg"); prédio com "anel" = onde a pessoa está agora. A legenda fica junto da pílula "My Route".
+- **Câmera:** ao abrir/mudar um filtro, enquadra só os pinos DESSE filtro (ex.: só os restaurantes marcados), com margem pequena (`FIT_PADDING`); sem nada marcado, enquadra o seu caminho.
 - **People**: linhas com checkbox na cor do amigo; linha selecionada com fundo suave da cor (`greenSoft`/`purpleSoft`); texto "Next: Clough Commons · 11:30 AM" na cor do amigo.
 - Rodapés pequenos tipo "Sample events" / "Example schedules · Walking routes are illustrative".
 
@@ -87,7 +96,8 @@ data/                        # DADOS FALSOS (sem backend)
   events.json                # 12 eventos do dia (prédios e barracas ao ar livre)
   me.json                    # o usuário logado (Alex Morgan): nome, email, slug do convite
   directory.json             # outros usuários do app, ainda não amigos (Sam, Chris) — para a demo de adicionar
-  food.json                  # Food options: categorias, locais (D1, C1, V1...) e cardápio/nutrição de exemplo
+  food.json                  # Food: dining halls (horário real + cardápio exemplo), 25 restaurantes reais
+                             #   (horário semanal, Dining Dollars/BuzzCard, endereço — fonte dining.gatech.edu), vending
   index.ts                   # exporta os dados tipados + getBuilding() + DEMO_NOW + DEMO_TODAY
 figma-designs/               # PNGs do Figma (design oficial)
 src/
@@ -116,7 +126,7 @@ src/
     buildingSearch.ts        # reconhece um prédio da GT num texto livre ("Clough Commons 102" → culc)
     route.ts                 # buildDayRoute (paradas + trechos + "next leg"), regionFor, WAYPOINTS
     geo.ts                   # distâncias em metros, ponto mais próximo num caminho, minutos a pé
-  hooks/useActiveFilters.ts  # quais filtros estão ligados (Events+People combinam)
+  hooks/useActiveFilters.ts  # quais filtros estão ligados (até 2, qualquer combinação) e qual está em foco
   hooks/useClock.ts          # relógio ao vivo do celular: { today, minutes } (atualiza a cada minuto e ao voltar do 2º plano)
   filters/
     filterConfig.ts          # lista dos 4 filtros (label, ícone, combinável, status)
@@ -131,7 +141,8 @@ src/
     map/useTracksViewChanges.ts  # truque para marcadores customizados no Android
     sheet/FilterSheet.tsx    # aba genérica (bottom sheet) com cabeçalho do Figma — reusar em todo filtro
     sheet/SheetScrollView.tsx  # lista rolável para dentro da aba (SEMPRE use esta, não a BottomSheetScrollView direto)
-    MapTopBar.tsx, IconButton.tsx, InfoChip.tsx, RouteLegend.tsx, FilterBar.tsx, BackPill.tsx
+    MapTopBar.tsx, IconButton.tsx, FilterBar.tsx, BackPill.tsx
+    MyRouteCard.tsx          # canto inferior esquerdo: pílula "My Route" + legenda dos caminhos (You / amigos / Next leg)
     ui/                      # peças com tema (claro/escuro): DialogCard (popup com "‹ Return"), FormField, AppButton, Toast
     schedule/                # tela My schedule: WeekView, BlockView, AddMenu, AddCourseModal (+SectionOption),
                              #   AddEventModal (+RepeatSelect, LocationField, InviteFriendsList), EventInviteModal
@@ -162,12 +173,12 @@ src/filters/people/
   SharedBuildingCallout.tsx  # card "Clough Commons / You now · Maya 11:30" (com 2+ pessoas)
   PeopleSheet.tsx      # ABA: lista com checkbox + pedidos pendentes + "Add friends"
   PersonRow.tsx        #   linha de uma pessoa
-src/filters/food/      # ✅ filtro Food options (mesma lógica de seleção do Resources)
+src/filters/food/      # ✅ filtro Food (mesma lógica de seleção do Resources)
   useFoodFilter.ts         # ESTADO: categorias marcadas/expandidas, local aberto
   FoodLayer.tsx            # MAPA: pinos D/C/V (reusa ResourcePin)
   FoodSheet.tsx            # ABA: "Select all" + categorias, ou o cardápio do local
   FoodCategoryRow.tsx      #   categoria com checkbox, bolinha e locais expansíveis (tocar → cardápio)
-  FoodDetails.tsx          #   "‹ Food options" + "Menu for today" por refeição, com calorias/proteína/carbs/açúcar
+  FoodDetails.tsx          #   "‹ Food" + "Menu for today" por refeição, com calorias/proteína/carbs/açúcar
 src/filters/resources/ # ✅ filtro Campus resources (Libraries, Printers, CRC + detalhes de ocupação de prédios)
   useResourcesFilter.ts    # ESTADO: seleção, expansão, detalhes do prédio
   ResourcesLayer.tsx       # MAPA: pinos de recursos ativos (L1..L3, P1..P3, R1)
@@ -179,7 +190,10 @@ src/filters/resources/ # ✅ filtro Campus resources (Libraries, Printers, CRC +
 No `MapScreen`: chame o hook do filtro, renderize a camada dentro do `<CampusMap>` quando `active.includes('<key>')`,
 adicione a key em `FILTERS_WITH_SHEET` e renderize a aba quando `sheetFilter === '<key>'`.
 Só uma aba aparece por vez, mas as camadas de todos os filtros ligados aparecem juntas no mapa.
-Com dois filtros ligados, tocar num deles na barra **traz a aba dele para frente** (não desliga); tocar de novo desliga.
+**Até 2 filtros ligados, qualquer combinação** (`MAX_ACTIVE_FILTERS`). Ligar um 3º tira o que está em segundo plano.
+Na barra: o filtro **em foco** (aba aberta) fica escuro com borda; o de **segundo plano** fica apagado com um **×**.
+Tocar no escuro desliga; tocar no apagado traz ele para frente; tocar no × desliga direto.
+O filtro "People" aparece para o usuário como **Friends** (a key no código continua `'people'`).
 
 ### Regra "evento no caminho" (`eventsOnRoute.ts`)
 1. O dia vira **janelas livres**: entre cada par de aulas (você caminhando do prédio A ao B, de `fim de A` até `início de B`) e **depois da última aula** (2h30).
@@ -187,6 +201,10 @@ Com dois filtros ligados, tocar num deles na barra **traz a aba dele para frente
 3. Se cabe em várias janelas, fica a que dá mais tempo no evento.
 A lista é agrupada por janela; "Show all events" mostra também os que não cabem (pinos cinza).
 No detalhe, uma linha tracejada liga o seu caminho ao evento (o desvio).
+
+### Nome dos eventos no mapa
+- Com zoom (`LABEL_ZOOM_DELTA` em `EventsLayer.tsx`), o nome aparece embaixo do alfinete, com contorno claro como os nomes do Google/Apple Maps; afastando, some. O nome faz parte do marcador (tocar nele abre o evento).
+- Nome grande → apelido: campo opcional `shortName` no `events.json` (ex.: "Resume reviews"); sem apelido, `eventMapLabel` (`eventLabel.ts`) corta numa palavra inteira com "…".
 
 ### Events + People ("ir junto com um amigo") — `eventsWithFriends.ts`
 Com os dois filtros ligados, para cada evento do **seu** caminho aplicamos a mesma regra ao dia de cada amigo **visível**.
@@ -200,6 +218,28 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
 - **Settings** tem o botão **Log out** (convidado vê "Log in or sign up"); os dois voltam para a tela de boas-vindas.
 - **Demo (serviço falso):** Google/Microsoft são simulados e entram como Alex Morgan (`data/me.json`). Login por email aceita qualquer senha para contas existentes (`alex.morgan@gatech.edu` ou as criadas no cadastro). O mock **não guarda senhas**.
 - **Para o futuro:** criar `apiAuthService` com as mesmas funções de `AuthService` (servidor confere senha e devolve token); Google/Microsoft reais com `expo-auth-session` (os client IDs ficam em config, nunca segredos no código — e o login real provavelmente exige um development build em vez do Expo Go). Depois, `FriendsProvider` e a agenda devem usar `useAuth().user` no lugar de `data/me.json`, e a agenda passa a ser salva por conta.
+
+### Pinos e ordem de amigos
+- **Todo pino de filtro abre a descrição dele** (evento → detalhe do evento; restaurante → horário/pagamento; biblioteca/CRC → ocupação; impressora → `ResourceLocationDetails`). Se o filtro do pino estava em segundo plano, ele vem para a frente (`focusFilter` em `useActiveFilters`) e a descrição aberta nos outros filtros fecha.
+- **Pinos tocáveis no Android (regras):**
+  - A "foto" do marcador (o `<View>` dentro do `<Marker>`) define a área de toque. Mantenha do tamanho do que se vê; halo/área grande só quando selecionado.
+  - `tappable={false}` **não funciona no Android**: marcadores decorativos (chips com nome/horário) roubam toques. Deixe-os com `zIndex` MENOR que os pinos tocáveis.
+  - Pinos colados no zoom atual viram um grupo ("12") — `clusterOnScreen` (`utils/cluster.ts`) + `ClusterPin`; tocar dá zoom (`useMapViewport().zoomTo`). Use isso em toda camada nova de pinos.
+- **Ao desligar um filtro, ele volta ao estado inicial** (`reset()` de cada hook: nada marcado/aberto; Friends volta a mostrar só "You").
+- **Reordenar amigos:** na aba Friends, segure um amigo (~0,3 s) e arraste (`components/DraggableList.tsx`, reutilizável). A ordem é salva por `reorderFriends(ids)` no `friendsService`. "You" fica sempre no topo.
+
+## Busca ("Search campus")
+- `src/search/searchIndex.ts` (LÓGICA pura): `buildSearchIndex` monta tudo que dá para pesquisar; `searchItems` ordena por relevância (ignora acento/maiúscula/pontuação; acha por código "C3", "CS1332", tags, email...).
+- `src/search/SearchScreen.tsx`: tela de busca (sem texto: amigos + atalhos; digitando: resultados).
+- Ao tocar num resultado, `onSearchSelect` (MapScreen):
+  - restaurante/dining/vending → liga Food e abre a descrição mostrando SÓ o alfinete dele (não marca a categoria; "‹ Return" volta para a lista com nada marcado);
+  - biblioteca/impressora/CRC → idem em Resources;
+  - evento → liga Events e abre o detalhe (se precisou ligar "Show all" para achá-lo, desliga ao voltar);
+  - amigo → liga Friends, mostra o caminho dele e dá zoom onde ele deve estar agora (aula atual → próxima), com alfinete;
+  - prédio / sua aula → zoom no prédio com alfinete (`SearchPin`); o alfinete some ao tocar nele ou mexer nos filtros;
+  - atalho ("Libraries", "All restaurants & coffee"...) → liga o filtro com a categoria marcada.
+- **Busca atual na barra:** depois de escolher um resultado, a barra mostra o nome dele com um **×**. O × tira o alfinete/descrição e desliga o filtro se foi a busca que ligou. A busca sai da barra sozinha quando o resultado deixa de estar na tela ("‹ Return", fechar o filtro...). Tocar no texto reabre a busca com o termo.
+- **Item novo pesquisável?** Adicione em `buildSearchIndex` e trate o `SearchTarget` em `onSearchSelect`.
 
 ## Amigos (link de convite + email)
 - Cada conta tem **email** e um **link de convite** próprio: `cambuzz.app/friends/<inviteSlug>` (`src/config.ts`, domínio provisório).
@@ -245,7 +285,7 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
   - Texto/ícone sobre fundo `ink` (pinos) → `colors.onInk`. Fundo suave de uma cor → `useAppTheme().tint(cor)`.
   - Cores de dados (amigos) no mapa → `useAppTheme().vivid(cor)` (mais claras no escuro).
   - Telas Schedule/Settings usam a paleta `c` (`AppColors`) do mesmo hook.
-- Mapa: `useAppTheme().mapStyle` (`campusMapStyle` / `campusMapStyleDark` em `mapStyle.ts`).
+- Mapa: `useAppTheme().mapStyle` (`googleCleanMapStyle` ou `campusMapStyle` no claro, conforme `MAP_LOOK`; `campusMapStyleDark` no escuro — tudo em `mapStyle.ts`).
 
 ## Convenções
 - Horários são strings `"HH:MM"` 24h; converta com `toMinutes()` para comparar.

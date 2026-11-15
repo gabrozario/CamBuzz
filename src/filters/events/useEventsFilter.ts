@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { events as allEvents } from '../../../data';
 import type { CampusEvent, TimeOfDay } from '../../types';
 import type { DayRoute } from '../../utils/route';
@@ -89,7 +89,32 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
   const withFriendsCount = withFriends.size;
 
   const selected = entries.find((e) => e.event.id === selectedId) ?? null;
-  const clearSelection = useCallback(() => setSelectedId(null), []);
+  /** true quando "Show all" foi ligado pela busca (só para achar o evento) — desliga ao voltar. */
+  const showAllFromSearch = useRef(false);
+  const clearSelection = useCallback(() => {
+    setSelectedId(null);
+    if (showAllFromSearch.current) {
+      showAllFromSearch.current = false;
+      setShowAll(false);
+    }
+  }, []);
+  /** Abre um evento (busca). Se ele não está no seu caminho, liga "Show all" para ele aparecer. */
+  const openEvent = useCallback(
+    (eventId: string) => {
+      if (!matches.some((m) => m.event.id === eventId) && !showAll) {
+        showAllFromSearch.current = true;
+        setShowAll(true);
+      }
+      setSelectedId(eventId);
+    },
+    [matches, showAll],
+  );
+
+  /** Volta ao início (nenhum evento aberto, "Show all" desligado) — chamado ao desligar o filtro. */
+  const reset = useCallback(() => {
+    setSelectedId(null);
+    setShowAll(false);
+  }, []);
 
   return {
     sections,
@@ -102,6 +127,8 @@ export function useEventsFilter(route: DayRoute, now: TimeOfDay, companions: Com
     selected,
     select: setSelectedId,
     clearSelection,
+    reset,
+    openEvent,
     showAll,
     setShowAll,
   };

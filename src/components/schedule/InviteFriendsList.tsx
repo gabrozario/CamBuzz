@@ -25,7 +25,7 @@ export function InviteFriendsList({ when, selectedIds, onToggle }: Props) {
   const { friendEvents } = useSchedule();
 
   if (!friends.length) {
-    return <Text style={styles.empty}>Add friends first (People → Add friends) to invite them.</Text>;
+    return <Text style={styles.empty}>Add friends first (Friends → Add friends) to invite them.</Text>;
   }
 
   return (
