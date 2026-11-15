@@ -10,14 +10,14 @@ interface Props {
 
 /** Checkbox quadrado com cantos arredondados (tela People / Campus resources / Food options do Figma). Só visual — o toque fica na linha. */
 export function Checkbox({ checked = false, indeterminate = false, color: colorProp }: Props) {
-  const { colors } = useAppTheme();
+  const { colors, readableOn } = useAppTheme();
   const color = colorProp ?? colors.ink;
   const styles = useThemedStyles(makeStyles);
   const isFilled = checked || indeterminate;
   return (
     <View style={[styles.box, isFilled ? { backgroundColor: color, borderColor: color } : styles.unchecked]}>
-      {checked && <Check size={16} color={colors.onInk} strokeWidth={2.6} />}
-      {indeterminate && !checked && <Minus size={16} color={colors.onInk} strokeWidth={2.8} />}
+      {checked && <Check size={16} color={readableOn(color)} strokeWidth={2.6} />}
+      {indeterminate && !checked && <Minus size={16} color={readableOn(color)} strokeWidth={2.8} />}
     </View>
   );
 }

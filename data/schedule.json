@@ -9,7 +9,7 @@
       "title": "Intro Physics I",
       "sectionId": "M",
       "instructor": "Dr. Laura Bennett",
-      "color": "#385E69",
+      "color": "#051E39",
       "meetings": [
         { "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "09:00", "end": "09:50", "buildingId": "howey", "room": "L1" },
         { "kind": "Lab", "days": ["Mon"], "start": "16:30", "end": "17:45", "buildingId": "instructional-center", "room": "105" }
@@ -21,7 +21,7 @@
       "title": "Linear Algebra",
       "sectionId": "B",
       "instructor": "Dr. Omar Haddad",
-      "color": "#715B2D",
+      "color": "#8F713D",
       "meetings": [
         { "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "10:00", "end": "10:50", "buildingId": "skiles", "room": "249" }
       ]
@@ -32,7 +32,7 @@
       "title": "Data Structures & Algorithms",
       "sectionId": "A",
       "instructor": "Dr. Priscilla Moore",
-      "color": "#456756",
+      "color": "#556678",
       "meetings": [
         { "kind": "Lecture", "days": ["Mon", "Wed"], "start": "11:00", "end": "12:15", "buildingId": "culc", "room": "152" }
       ]
@@ -43,7 +43,7 @@
       "title": "Computer Organization",
       "sectionId": "C",
       "instructor": "Dr. Henry Vance",
-      "color": "#83608D",
+      "color": "#7A6230",
       "meetings": [
         { "kind": "Lecture", "days": ["Mon", "Wed"], "start": "14:00", "end": "15:15", "buildingId": "klaus", "room": "1443" }
       ]

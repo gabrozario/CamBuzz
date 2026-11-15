@@ -17,7 +17,7 @@ import { buildPersonDay, personFromFriend, personFromMe, type PersonDay } from '
 export function usePeopleFilter(now: TimeOfDay, showMe = false) {
   const { friends } = useFriends();
   const { todayClasses, friendEvents, today } = useSchedule();
-  // Cores do tema: verde do "You" e amigos um pouco mais claros no modo escuro.
+  // Cores do tema: buzz do "You" e amigos um pouco mais claros no modo escuro.
   const { colors, vivid } = useAppTheme();
   // Amigos visíveis (começa sem nenhum). O seu caminho é controlado pelo My Route, não por aqui.
   const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set());
@@ -26,12 +26,12 @@ export function usePeopleFilter(now: TimeOfDay, showMe = false) {
   const baseDays: PersonDay[] = useMemo(
     () =>
       [
-        personFromMe(todayClasses, colors.green),
+        personFromMe(todayClasses, colors.me),
         ...friends.map((f) =>
           personFromFriend({ ...f, color: vivid(f.color), schedule: friendSessionsOnDate(f, friendEvents[f.id] ?? [], today) }),
         ),
       ].map((p) => buildPersonDay(p, now)),
-    [friends, friendEvents, todayClasses, today, now, colors.green, vivid],
+    [friends, friendEvents, todayClasses, today, now, colors.me, vivid],
   );
 
   const [days, setDays] = useState<PersonDay[]>(baseDays);

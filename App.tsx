@@ -1,8 +1,9 @@
-// Importamos cada peso separadamente para não empacotar os 18 pesos da Inter.
-import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
-import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
-import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
-import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
+// Fontes da identidade visual da GT: Roboto (texto) e Roboto Slab (títulos e negrito).
+// Importamos cada peso separadamente para não empacotar todos os pesos.
+import { Roboto_400Regular } from '@expo-google-fonts/roboto/400Regular';
+import { Roboto_500Medium } from '@expo-google-fonts/roboto/500Medium';
+import { RobotoSlab_600SemiBold } from '@expo-google-fonts/roboto-slab/600SemiBold';
+import { RobotoSlab_700Bold } from '@expo-google-fonts/roboto-slab/700Bold';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
@@ -17,8 +18,8 @@ import { ScheduleProvider } from './src/services/schedule/ScheduleProvider';
 import { colors, ThemeProvider, useAppTheme } from './src/theme';
 
 export default function App() {
-  // Carrega a fonte Inter (a do Figma). Enquanto carrega, mostra só o fundo.
-  const [fontsLoaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
+  // Carrega as fontes (Roboto + Roboto Slab). Enquanto carrega, mostra só o fundo.
+  const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_500Medium, RobotoSlab_600SemiBold, RobotoSlab_700Bold });
 
   return (
     // GestureHandlerRootView é exigido pelo @gorhom/bottom-sheet (usado nas próximas etapas).

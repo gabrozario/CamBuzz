@@ -28,9 +28,9 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 ## Regras técnicas
 
 - **Expo SDK 58** (compatível com o Expo Go da Play Store), TypeScript estrito.
-- Mapa: `react-native-maps`. **Android:** `PROVIDER_GOOGLE` (no Expo Go funciona **sem chave de API**). Visual escolhido por `MAP_LOOK` em `src/config.ts`: `'google'` (atual) = padrão do Google sem comércios/transporte; `'illustrated'` = bege do Figma, que com zoom grande mistura prédios e chão (o Google pinta os dois como `landscape.man_made`). Modo escuro sempre usa o estilo escuro do app. **iPhone:** Apple Maps (o Google Maps no iOS exige chave + build próprio, não roda no Expo Go); lá o estilo bege não se aplica, só claro/escuro. Nomes de lugares no iPhone: `pointsOfInterestFilter` (lista `IOS_PLACE_LABELS` em `CampusMap.tsx`) — **não** use só `showsPointsOfInterests={false}`, que no Apple Maps some com todos os nomes.
+- Mapa: `react-native-maps`. **Android:** `PROVIDER_GOOGLE` (no Expo Go funciona **sem chave de API**). Visual escolhido por `MAP_LOOK` em `src/config.ts`: `'google'` (atual) = padrão do Google sem comércios/transporte; `'illustrated'` = mapa claro cor de diploma/dourado, que com zoom grande mistura prédios e chão (o Google pinta os dois como `landscape.man_made`). Modo escuro sempre usa o estilo escuro do app. **iPhone:** Apple Maps (o Google Maps no iOS exige chave + build próprio, não roda no Expo Go); lá o estilo ilustrado não se aplica, só claro/escuro. Nomes de lugares no iPhone: `pointsOfInterestFilter` (lista `IOS_PLACE_LABELS` em `CampusMap.tsx`) — **não** use só `showsPointsOfInterests={false}`, que no Apple Maps some com todos os nomes.
 - Aba que sobe: `@gorhom/bottom-sheet` (já instalado com reanimated/gesture-handler; o `GestureHandlerRootView` já está no `App.tsx`).
-- Ícones: `lucide-react-native` (traço fino, igual ao Figma). Fonte: Inter (`@expo-google-fonts/inter`).
+- Ícones: `lucide-react-native` (traço fino, igual ao Figma). Fontes: Roboto e Roboto Slab (`@expo-google-fonts/roboto` e `/roboto-slab`, carregadas no `App.tsx`).
 - **Sem backend**: tudo vem dos JSONs em `/data`, sempre importados via `data/index.ts`.
 - Caminhos entre prédios: linhas retas com um "cotovelo" (formato L), ou pontos manuais no `WAYPOINTS` de `src/utils/route.ts`. **Sem API de rotas.**
 - **Nunca colocar chaves de API / segredos no código** — o repo é público.
@@ -40,36 +40,38 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 
 ## Design (fonte da verdade: `/figma-designs`)
 
-Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
+Telas exportadas do Figma: siga o **layout** delas (posições, tamanhos, componentes). As **cores e fontes** agora seguem a
+**identidade visual da Georgia Tech** (abaixo) — os PNGs ainda mostram o visual antigo (bege/verde, Inter). Telas principais:
 `Campus map · Start` (tela inicial), `Events · Collapsed/Half-open/Expanded`, `Event details · …`,
 `People · You / Maya / You and Maya`, `Add Friends · Popup`, `Food · …`, `Campus resources · …`, `Campus details · …`,
 `Schedule · View / Edit / Add course`, `Settings · Light / Dark mode / Edit account`.
 
-### Cores (em `src/theme/colors.ts` — use sempre as constantes)
+### Identidade visual da GT (cores oficiais em `gt`, em `src/theme/colors.ts`)
+Toda cor do app é uma destas 6 ou um tom/mistura delas (ex.: "navy 66% + branco"). **Nunca escreva cor "na mão"** nos componentes.
 
-| Token | Hex | Uso |
+| Cor oficial | Hex | Papel no app |
 |---|---|---|
-| `ink` | `#233A43` | Títulos, ícones, pinos de eventos numerados, linha grossa "Next leg" |
-| `muted` | `#6B776F` | Subtítulos, texto secundário, ícones/labels inativos da barra |
-| `subtle` | `#9A9C8E` | Nomes de rua, notas de rodapé ("Sample events") |
-| `surface` | `#FFFEFA` | Cards, botões flutuantes, barra inferior, bottom sheet |
-| `border` / `divider` | `#E3E2D7` / `#EEECE4` | Borda da busca / separadores de lista |
-| `activeTab` | `#EEE7D3` | Fundo do filtro selecionado na barra inferior |
-| `handle` | `#C7C9BF` | "Pegador" do bottom sheet |
-| `mapBackground` | `#EEEDE2` | Fundo do mapa |
-| `mapRoad` / `mapBuilding` / `mapPark` | `#FFFCF2` / `#DDD6C4` / `#D5DEC4` | Ruas / prédios / gramados |
-| `green` (+ `greenSoft #EEF3EC`) | `#477969` | **Você** (seu caminho), Printers, Restaurants/Coffees |
-| `gold` | `#806C3C` | Horário dos eventos, categoria ("Social"), Dining hall, Libraries |
-| `purple` (+ `purpleSoft #F1EDF3`) | `#83608D` | Amigo 1 (Maya) |
-| `greenTint` | `#E5EBDD` | Caixa do link de convite, botão "Edit name & email" |
-| `inputBorder` / `checkboxBorder` | `#C2CCC0` / `#9AA69B` | Campo de email / checkbox desmarcado |
-| `friendPalette` | roxo, azul, dourado + 3 extras | Cor de cada amigo, na ordem; `tint(cor)` gera o fundo suave da linha selecionada |
-| `blue` (+ `blueSoft #D7E3DF`) | `#526F8A` | Amigo 2, Vending, Campus Rec |
-| `myLocation` | `#1A73E8` (escuro `#5AA2FF`) | "Você está aqui": a parada "agora" do SEU caminho, por cima de todos os pinos (zIndex 60) |
+| **Navy** | `#051E39` | Texto, ícones, botões principais, pinos de eventos, linha "Next leg", destaque "positivo" (`green`) |
+| **Gold** | `#B39051` | Detalhes em tons claros: bordas, separadores, fundos suaves; amigo 2 |
+| **Dark Gold** | `#8F713D` | Texto de destaque secundário (`gold`): horários, categorias; Dining halls e Libraries |
+| **Buzz** | `#EAAA00` | **VOCÊ** (`me`): seu caminho, "My Route" ligado; Restaurants/Coffees e Printers; botão `mint` |
+| **Diploma** | `#F9F6E5` | Fundo das telas (`page`), do mapa ilustrado e da barra de filtros |
+| **White** | `#FFFFFF` | Cards, abas (bottom sheet), botões flutuantes (`surface`) |
+
+Tons derivados (`gtTones`): `slate #556678` (amigo 1 Maya, Vending, CRC), `navyMid #32475D`, `ochre #937516` (eventos pessoais na agenda).
+Exceções funcionais (sem equivalente na paleta): vermelho da linha do "agora" na Week View, terracota `error #A4513F` ("Closed", erros), bolinha vermelha de notificação e logos do Google/Microsoft.
+**Modo escuro:** fundo navy, cards `#1E344D` (navy 90% + branco), texto diploma, destaques buzz (botões, links) e gold claro.
+
+**Texto legível sobre cores** (buzz e gold são claros demais para texto branco ou para texto sobre branco):
+- Texto/ícone SOBRE um fundo colorido (pino, checkbox, avatar, botão) → `useAppTheme().readableOn(fundo)` (dá navy ou branco). O `PlacePin` já faz isso sozinho.
+- Texto NA cor de um amigo/você (ex.: "Next: Clough · 11:30") → `useAppTheme().legible(cor)` (escurece um pouco o buzz/gold até dar para ler).
+- Tokens antigos mantidos para não quebrar o código (`green`, `purple`, `forest`, `mint`...): o valor mudou, o nome não. Veja o comentário de cada um em `colors.ts`.
 
 ### Estilo
-- Visual calmo, "mapa ilustrado" bege/verde, muito espaço em branco, cantos bem arredondados, sombras quase invisíveis.
-- **Fonte Inter**: títulos de aba em Bold ~26px (`Events`, `People`), itens em SemiBold ~16px, texto secundário Regular ~14px em `muted`.
+- Visual calmo, mapa claro, muito espaço em branco, cantos bem arredondados, sombras quase invisíveis (sombra em navy).
+- **Fontes** (`fonts` em `src/theme/typography.ts`; nunca use `fontWeight`):
+  - **Roboto Slab** → títulos e todo texto em negrito: `fonts.bold` (700) e `fonts.semibold` (600). Ex.: títulos de aba Bold ~26px (`Events`, `People`), itens SemiBold ~16px.
+  - **Roboto** → o resto: `fonts.regular` (texto secundário ~14px em `muted`) e `fonts.medium`.
 - **Topo**: botão quadrado branco de agenda (48×48, raio 16), campo "Search campus" com borda fina (raio 20), botão de configurações; abaixo, botão "adicionar amigo".
 - **Barra de filtros "voadora"** (estilo Instagram): pílula flutuante com sombra, por cima do mapa e da aba. 4 itens: Events, Resources, Food, Friends. Em foco = pílula `activeTab` com borda + label Bold `ink`; ligado em segundo plano = apagado + ×.
 - **A aba vai até o fim da tela, por trás da barra.** O MapScreen mede a barra e passa o espaço coberto via `BottomClearanceContext` (`components/sheet/bottomClearance.ts`); `FilterSheet` soma isso às alturas e `SheetScrollView` deixa esse espaço no fim da lista. **Use sempre `SheetScrollView`** — senão o último item fica atrás da barra.
@@ -103,7 +105,7 @@ figma-designs/               # PNGs do Figma (design oficial)
 src/
   config.ts                  # INVITE_BASE_URL (domínio provisório dos links de convite)
   types/index.ts             # Building, ClassSession, Friend, UserProfile, FriendRequest, Person, CampusEvent...
-  theme/                     # colors.ts (+ tint(), mixHex(), coursePalette), typography.ts (Inter), mapStyle.ts
+  theme/                     # colors.ts (+ tint(), mixHex(), coursePalette), typography.ts (Roboto / Roboto Slab), mapStyle.ts
     ThemeProvider.tsx        #   modo claro/escuro: useAppTheme() → { c, isDark, courseBg(), courseText() }
   services/auth/             # "backend" de contas (hoje falso) — ver seção Contas
     authService.ts           #   interface AuthService + mockAuthService (sessão no AsyncStorage)

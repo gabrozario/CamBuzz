@@ -35,7 +35,7 @@ export function CampusDetailsHeader({ buildingName, onBack }: HeaderProps) {
 function getStatusColor(status: OccupancyStatus, colors: Palette): string {
   switch (status) {
     case 'Busy':
-      return '#A05A42'; // Tom terracota/avermelhado do Figma
+      return colors.error; // terracota (lotado)
     case 'Moderate':
       return colors.gold;
     case 'Quiet':

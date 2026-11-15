@@ -43,7 +43,7 @@ export function EventDetailsHeader({ entry, onBack }: HeaderProps) {
 
 /** Corpo rolável do detalhe de um evento (tela "Event details" do Figma). */
 export function EventDetails({ entry }: { entry: EventEntry }) {
-  const { colors, tint } = useAppTheme();
+  const { colors, tint, legible } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
   const { event, match } = entry;
 
@@ -73,9 +73,9 @@ export function EventDetails({ entry }: { entry: EventEntry }) {
       {/* Com o filtro People ligado: quem pode ir junto e quando vocês coincidem */}
       {entry.friends.map((f) => (
         <View key={f.person.id} style={[styles.fitCard, { backgroundColor: tint(f.person.color, 0.1) }]}>
-          <Users size={20} color={f.person.color} strokeWidth={1.8} />
+          <Users size={20} color={legible(f.person.color)} strokeWidth={1.8} />
           <View style={styles.fitText}>
-            <Text style={[styles.fitTitle, { color: f.person.color }]}>{f.person.shortName} can go too</Text>
+            <Text style={[styles.fitTitle, { color: legible(f.person.color) }]}>{f.person.shortName} can go too</Text>
             <Text style={styles.fitSub}>
               Together {formatTime(f.from)} – {formatTime(f.until)} · {f.minutesTogether} min
             </Text>

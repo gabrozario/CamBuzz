@@ -22,7 +22,8 @@ interface Props {
  * + a legenda das linhas no MESMO cartão, quando há algum caminho no mapa.
  */
 export function MyRouteCard({ value, onChange, entries }: Props) {
-  const { colors } = useAppTheme();
+  const { colors, readableOn } = useAppTheme();
+  const onMe = readableOn(colors.me);
   const styles = useThemedStyles(makeStyles);
   const hasLegend = entries.length > 0;
 
@@ -30,14 +31,14 @@ export function MyRouteCard({ value, onChange, entries }: Props) {
     <View style={styles.card}>
       <Pressable
         onPress={() => onChange(!value)}
-        style={({ pressed }) => [styles.toggle, value && { backgroundColor: colors.green }, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.toggle, value && { backgroundColor: colors.me }, pressed && styles.pressed]}
         accessibilityRole="switch"
         accessibilityState={{ checked: value }}
         accessibilityLabel="My Route"
         hitSlop={4}
       >
-        <Route size={16} color={value ? colors.surface : colors.ink} strokeWidth={2} />
-        <Text style={[styles.toggleText, value && { color: colors.surface }]}>My Route</Text>
+        <Route size={16} color={value ? onMe : colors.ink} strokeWidth={2} />
+        <Text style={[styles.toggleText, value && { color: onMe }]}>My Route</Text>
       </Pressable>
 
       {hasLegend && (

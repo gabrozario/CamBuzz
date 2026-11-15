@@ -11,6 +11,7 @@ interface Props {
 /** Card branco embaixo de um prédio: "Clough Commons / You now · Maya 11:30" (Figma "People · You and Maya"). */
 export function SharedBuildingCallout({ shared }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const { legible } = useAppTheme();
   const tracks = useTracksViewChanges([shared.line, shared.color]);
   return (
     <Marker
@@ -22,7 +23,7 @@ export function SharedBuildingCallout({ shared }: Props) {
     >
       <View style={styles.box}>
         <View style={styles.card}>
-          <Text style={[styles.title, { color: shared.color }]} numberOfLines={1}>
+          <Text style={[styles.title, { color: legible(shared.color) }]} numberOfLines={1}>
             {shared.building.shortName}
           </Text>
           <Text style={styles.line} numberOfLines={1}>

@@ -3,7 +3,7 @@
     {
       "id": "libraries",
       "name": "Libraries",
-      "color": "#806C3C",
+      "color": "#8F713D",
       "locations": [
         {
           "id": "culc-lib",
@@ -34,7 +34,7 @@
     {
       "id": "printers",
       "name": "Printers",
-      "color": "#477969",
+      "color": "#EAAA00",
       "locations": [
         {
           "id": "glenn-towers",
@@ -311,7 +311,7 @@
     {
       "id": "recreation",
       "name": "Campus Recreation Center",
-      "color": "#526F8A",
+      "color": "#556678",
       "locations": [
         {
           "id": "crc-weights",

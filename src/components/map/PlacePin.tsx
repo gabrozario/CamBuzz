@@ -39,7 +39,7 @@ export const PLACE_PIN_SIDE_PAD = 8;
  * (área de toque pequena, sem invadir os vizinhos).
  */
 export function PlacePin({ label, color, textColor, selected = false, size = 'normal', dots, dimmed }: Props) {
-  const { colors } = useAppTheme();
+  const { colors, readableOn } = useAppTheme();
   const { width, height } = placePinSize(selected, size);
   const scale = width / VIEW_W;
   const fontSize = (label.length >= 3 ? 9 : 10.5) * scale;
@@ -50,7 +50,7 @@ export function PlacePin({ label, color, textColor, selected = false, size = 'no
         <Path d={PATH} fill={color} stroke={colors.surface} strokeWidth={2} />
       </Svg>
       <View style={[styles.labelBox, { width, height: HEAD * scale }]} pointerEvents="none">
-        <Text style={[styles.label, { fontSize, color: textColor ?? colors.white }]} numberOfLines={1}>
+        <Text style={[styles.label, { fontSize, color: textColor ?? readableOn(color) }]} numberOfLines={1}>
           {label}
         </Text>
       </View>

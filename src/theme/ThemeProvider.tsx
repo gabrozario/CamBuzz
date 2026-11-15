@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { MapStyleElement } from 'react-native-maps';
-import { colors, darkColors, mixHex, type Palette } from './colors';
+import { colors, darkColors, gt, legibleOn, mixHex, readableOn, type Palette } from './colors';
 import { MAP_LOOK } from '../config';
 import { campusMapStyle, campusMapStyleDark, googleCleanMapStyle } from './mapStyle';
 
@@ -32,6 +32,8 @@ export interface AppColors {
   switchOn: string;
   overlay: string; // fundo escurecido atrás dos popups
   weekend: string; // colunas sáb/dom da semana
+  weekendLine: string; // linhas da grade só dentro das colunas sáb/dom
+  gridEdge: string; // borda direita da grade (depois de domingo)
   gridLine: string;
   nowLine: string; // linha vermelha do "agora" na Week View
   success: string; // "Free" nos convites
@@ -39,51 +41,55 @@ export interface AppColors {
 }
 
 const light: AppColors = {
-  page: colors.page,
-  card: colors.surface,
-  cardBorder: '#E6E3D8',
-  text: colors.ink,
-  muted: '#65736D',
-  placeholder: '#78837D',
+  page: colors.page, // diploma
+  card: colors.surface, // branco
+  cardBorder: colors.border,
+  text: colors.ink, // navy
+  muted: colors.muted,
+  placeholder: '#7A8796', // navy 55% + branco
   field: colors.page,
-  fieldBorder: '#E6E3D8',
-  accent: colors.forest,
-  onAccent: colors.surface,
-  accentSoft: colors.greenTint,
-  accentSoftText: colors.forest,
-  mint: colors.mint,
-  switchOff: '#D5DDCF',
-  switchOn: '#83A37C',
-  overlay: 'rgba(35, 58, 67, 0.22)',
-  weekend: '#F2F1E9',
-  gridLine: '#E6E3D8',
-  nowLine: '#D93025',
+  fieldBorder: colors.border,
+  accent: gt.navy,
+  onAccent: gt.white,
+  accentSoft: colors.greenTint, // gold clarinho
+  accentSoftText: gt.navy,
+  mint: gt.buzz,
+  switchOff: '#E1D3B9', // gold 40% + branco
+  switchOn: gt.buzz,
+  overlay: 'rgba(5, 30, 57, 0.28)', // navy
+  weekend: '#FFFDF7', // buzz 3% + branco: amarelinho quase branco, mais claro que o diploma da tela
+  weekendLine: '#ECE3D4', // gold 25% + branco: um pouco mais escura que a coluna, sem contrastar demais
+  gridEdge: '#F1E9DC', // gold 20% + branco
+  gridLine: colors.divider,
+  nowLine: '#D93025', // linha vermelha do "agora" (exceção funcional, igual ao Google Calendar)
   success: colors.green,
   error: colors.error,
 };
 
 const dark: AppColors = {
-  page: '#1E2B28',
-  card: '#293A33',
-  cardBorder: '#46594F',
-  text: '#F4F2E9',
-  muted: '#BDC9BD',
-  placeholder: '#8E9C93',
-  field: '#22322D',
-  fieldBorder: '#3B4E45',
-  accent: '#83A37C',
-  onAccent: '#1E2B28',
-  accentSoft: '#354C3D',
-  accentSoftText: '#C9DDBE',
-  mint: '#4F7F68',
-  switchOff: '#3B4E45',
-  switchOn: '#83A37C',
+  page: gt.navy,
+  card: darkColors.surface,
+  cardBorder: darkColors.border,
+  text: gt.diploma,
+  muted: darkColors.muted,
+  placeholder: darkColors.subtle,
+  field: '#112840', // navy 95% + branco
+  fieldBorder: darkColors.border,
+  accent: gt.buzz,
+  onAccent: gt.navy,
+  accentSoft: darkColors.greenTint,
+  accentSoftText: '#D9C49C', // gold 60% + branco
+  mint: gt.darkGold,
+  switchOff: darkColors.border,
+  switchOn: gt.buzz,
   overlay: 'rgba(0, 0, 0, 0.5)',
-  weekend: '#24332F',
-  gridLine: '#33463E',
+  weekend: '#18304A',
+  weekendLine: darkColors.divider,
+  gridEdge: darkColors.border,
+  gridLine: darkColors.divider,
   nowLine: '#F28B82',
-  success: '#9CC59A',
-  error: '#E0907C',
+  success: gt.buzz,
+  error: darkColors.error,
 };
 
 export type ThemeMode = 'light' | 'dark';
@@ -95,12 +101,16 @@ interface ThemeContextValue {
   colors: Palette;
   /** Paleta das telas Schedule/Settings e popups. */
   c: AppColors;
-  /** Estilo do Google Maps (padrão do Google ou bege no claro — ver MAP_LOOK em config.ts; verde escuro no escuro). */
+  /** Estilo do Google Maps (padrão do Google ou bege no claro — ver MAP_LOOK em config.ts; navy no escuro). */
   mapStyle: MapStyleElement[];
   /** Fundo suave de uma cor (mistura com o `surface` do tema atual). */
   tint: (hex: string, amount?: number) => string;
   /** Cor de dado (amigo, categoria) mais clara no escuro, para aparecer sobre o mapa escuro. */
   vivid: (hex: string) => string;
+  /** Cor de dado (buzz, gold...) ajustada para ser LIDA como texto sobre os cards do tema atual. */
+  legible: (hex: string) => string;
+  /** Texto/ícone (branco ou navy) legível SOBRE um fundo dessa cor (pinos, checkboxes, avatares). */
+  readableOn: (bg: string) => string;
   setMode: (mode: ThemeMode) => void;
   toggle: () => void;
   /** Cor de um curso para fundo de bloco/chip (clarinha no modo claro, escura no escuro). */
@@ -127,10 +137,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       mapStyle: isDark ? campusMapStyleDark : MAP_LOOK === 'google' ? googleCleanMapStyle : campusMapStyle,
       tint: (hex, amount = 0.12) => mixHex(hex, palette.surface, isDark ? Math.min(1, amount * 2.2) : amount),
       vivid: (hex) => (isDark ? mixHex(hex, '#FFFFFF', 0.62) : hex),
+      legible: (hex) => legibleOn(hex, palette.surface),
+      readableOn,
       setMode,
       toggle: () => setMode((m) => (m === 'dark' ? 'light' : 'dark')),
       courseBg: (color) => mixHex(color, c.card, isDark ? 0.35 : 0.16),
-      courseText: (color) => (isDark ? mixHex(color, '#FFFFFF', 0.45) : color),
+      courseText: (color) => legibleOn(isDark ? mixHex(color, '#FFFFFF', 0.45) : color, c.card),
     };
   }, [mode]);
 

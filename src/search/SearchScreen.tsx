@@ -56,7 +56,7 @@ const ICONS: Record<Exclude<SearchIcon, 'friend'>, LucideIcon> = {
  */
 export function SearchScreen({ visible, onClose, onSelect, friendStatus, now, initialQuery = '' }: Props) {
   const insets = useSafeAreaInsets();
-  const { colors } = useAppTheme();
+  const { colors, readableOn } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
   const { friends } = useFriends();
   const { schedule } = useSchedule();
@@ -79,8 +79,8 @@ export function SearchScreen({ visible, onClose, onSelect, friendStatus, now, in
   const renderIcon = (item: SearchItem) => {
     if (item.icon === 'friend') {
       return (
-        <View style={[styles.avatar, { backgroundColor: item.color ?? colors.green }]}>
-          <Text style={styles.avatarText}>{item.title.charAt(0)}</Text>
+        <View style={[styles.avatar, { backgroundColor: item.color ?? colors.me }]}>
+          <Text style={[styles.avatarText, { color: readableOn(item.color ?? colors.me) }]}>{item.title.charAt(0)}</Text>
         </View>
       );
     }

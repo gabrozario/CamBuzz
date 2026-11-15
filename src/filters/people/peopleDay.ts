@@ -12,7 +12,7 @@ export interface PersonDay {
   next?: string;
 }
 
-/** `color` = verde do tema (useAppTheme().colors.green). */
+/** `color` = buzz do tema (useAppTheme().colors.me). */
 export function personFromMe(schedule: Person['schedule'], color: string): Person {
   return { id: 'me', name: 'You', shortName: 'You', color, isMe: true, schedule };
 }

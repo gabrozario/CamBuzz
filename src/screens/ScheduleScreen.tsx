@@ -154,7 +154,7 @@ export function ScheduleScreen({ onOpenMap }: Props) {
           <Text style={styles.mapText}>Campus map</Text>
         </Pressable>
 
-        <Text style={styles.title}>My schedule</Text>
+        <Text style={styles.title}>My Schedule</Text>
         <Text style={styles.subtitle}>
           {mode === 'week' ? 'Your week, at a glance.' : 'Your classes, all in one place.'}
         </Text>

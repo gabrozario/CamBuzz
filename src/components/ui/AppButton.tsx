@@ -5,7 +5,7 @@ import { fonts, useAppTheme, type AppColors } from '../../theme';
 interface Props {
   label: string;
   onPress: () => void;
-  /** primary = verde escuro (Done); soft = verde clarinho (Cancel); mint = "Invite friends" sem ninguém. */
+  /** primary = navy (Done); soft = dourado clarinho (Cancel); mint = buzz, "Invite friends" sem ninguém. */
   variant?: 'primary' | 'soft' | 'mint';
   loading?: boolean;
   disabled?: boolean;
@@ -14,10 +14,10 @@ interface Props {
 
 /** Botão grande e arredondado das telas de agenda/configurações. */
 export function AppButton({ label, onPress, variant = 'primary', loading, disabled, style }: Props) {
-  const { c } = useAppTheme();
+  const { c, readableOn } = useAppTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const bg = variant === 'primary' ? c.accent : variant === 'mint' ? c.mint : c.accentSoft;
-  const fg = variant === 'primary' ? c.onAccent : variant === 'mint' ? '#FFFEFA' : c.accentSoftText;
+  const fg = variant === 'primary' ? c.onAccent : variant === 'mint' ? readableOn(c.mint) : c.accentSoftText;
 
   return (
     <Pressable

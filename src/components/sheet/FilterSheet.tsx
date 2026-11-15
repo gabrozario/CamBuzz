@@ -165,7 +165,7 @@ const makeStyles = (colors: Palette) =>
   handleArea: { paddingTop: 10, paddingBottom: 4 },
   indicator: { alignSelf: 'center', backgroundColor: colors.handle, width: 44, height: 4, borderRadius: 2, marginBottom: 6 },
   shadow: {
-    shadowColor: '#233A43',
+    shadowColor: '#051E39',
     shadowOpacity: 0.1,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: -2 },

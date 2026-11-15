@@ -7,7 +7,7 @@ import { useTracksViewChanges } from './useTracksViewChanges';
 
 interface Props {
   stop: RouteStop;
-  color: string; // cor da pessoa (verde = você)
+  color: string; // cor da pessoa (buzz = você)
   showChip?: boolean;
   /** Mesmo deslocamento do caminho da pessoa (ver DayRouteLayer). */
   offset?: number;
@@ -18,10 +18,10 @@ interface Props {
 /** Marcador numerado de uma aula + chip com horário embaixo. */
 export function StopMarker({ stop, color, showChip = true, offset = 0, isMe = false }: Props) {
   const styles = useThemedStyles(makeStyles);
-  const { colors } = useAppTheme();
+  const { colors, readableOn } = useAppTheme();
   const tracks = useTracksViewChanges([color, showChip]);
   const isNow = stop.status === 'now';
-  // "Você está aqui": azul vivo próprio e por cima de todos os pinos.
+  // "Você está aqui": navy (claro) / diploma (escuro), diferente do buzz do seu caminho, e por cima de todos os pinos.
   const isHere = isNow && isMe;
   const dotColor = isHere ? colors.myLocation : color;
   const isPast = stop.status === 'past';
@@ -44,7 +44,7 @@ export function StopMarker({ stop, color, showChip = true, offset = 0, isMe = fa
         <View style={styles.markerBox}>
           {isNow && <View style={[styles.ring, { backgroundColor: dotColor }, isHere && styles.hereRing]} />}
           <View style={[styles.circle, { backgroundColor: dotColor }, isHere && styles.hereCircle, isPast && styles.past]}>
-            {isNow ? <View style={styles.nowDot} /> : <Text style={styles.number}>{stop.index + 1}</Text>}
+            {isNow ? <View style={[styles.nowDot, { backgroundColor: readableOn(dotColor) }]} /> : <Text style={[styles.number, { color: readableOn(dotColor) }]}>{stop.index + 1}</Text>}
           </View>
         </View>
       </Marker>

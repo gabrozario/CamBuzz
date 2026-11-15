@@ -18,7 +18,7 @@ interface Props {
 
 /** Linha da lista People: checkbox na cor da pessoa, nome, status e "Next: ..." (Figma). */
 export function PersonRow({ day, checked, onToggle, onRemove, draggable = false, dragging = false }: Props) {
-  const { colors, tint } = useAppTheme();
+  const { colors, tint, legible } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
   const { person, status, next } = day;
   return (
@@ -45,7 +45,7 @@ export function PersonRow({ day, checked, onToggle, onRemove, draggable = false,
             {person.name}
           </Text>
           {checked && next ? (
-            <Text style={[styles.next, { color: person.color }]} numberOfLines={1}>
+            <Text style={[styles.next, { color: legible(person.color) }]} numberOfLines={1}>
               {next}
             </Text>
           ) : (
@@ -85,7 +85,7 @@ const makeStyles = (colors: Palette) =>
   pressed: { opacity: 0.75 },
   dragging: {
     backgroundColor: colors.surface,
-    shadowColor: '#233A43',
+    shadowColor: '#051E39',
     shadowOpacity: 0.18,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },

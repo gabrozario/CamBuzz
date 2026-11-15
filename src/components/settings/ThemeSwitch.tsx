@@ -12,7 +12,7 @@ const WIDTH = 54;
 const KNOB = 26;
 const PAD = 3;
 
-/** Interruptor do Figma (Settings): trilho verde-acinzentado; ligado = verde com bolinha "anel" escura. */
+/** Interruptor do Figma (Settings): trilho dourado clarinho; ligado = buzz com bolinha "anel" escura. */
 export function ThemeSwitch({ value, onChange, accessibilityLabel }: Props) {
   const { c, isDark } = useAppTheme();
   const x = useRef(new Animated.Value(value ? 1 : 0)).current;

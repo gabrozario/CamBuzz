@@ -81,7 +81,7 @@ const makeStyles = (colors: Palette) =>
       gap: spacing.xs,
       // Sombra só no iPhone: no Android a "elevation" com fundo transparente deixa uma mancha escura dentro.
       ...Platform.select({
-        ios: { shadowColor: '#233A43', shadowOpacity: 0.16, shadowRadius: 14, shadowOffset: { width: 0, height: 4 } },
+        ios: { shadowColor: '#051E39', shadowOpacity: 0.16, shadowRadius: 14, shadowOffset: { width: 0, height: 4 } },
         default: {},
       }),
     },

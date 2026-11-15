@@ -1,9 +1,9 @@
 import type { MapStyleElement } from 'react-native-maps';
 import { colors, darkColors, type Palette } from './colors';
 
-// Estilo do Google Maps para imitar o mapa "ilustrado" bege/verde do Figma.
+// Estilo do Google Maps para imitar o mapa "ilustrado" cor de diploma/dourado da GT.
 // Esconde pontos comerciais e transporte para deixar o mapa limpo.
-export function makeMapStyle(colors: Palette, buildingStroke = '#CFC7B3'): MapStyleElement[] {
+export function makeMapStyle(colors: Palette, buildingStroke = '#D9C8A8'): MapStyleElement[] {
   return [
   { elementType: 'geometry', stylers: [{ color: colors.mapBackground }] },
   { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
@@ -26,7 +26,7 @@ export function makeMapStyle(colors: Palette, buildingStroke = '#CFC7B3'): MapSt
 
 export const campusMapStyle = makeMapStyle(colors);
 /** Mesmo mapa ilustrado, nas cores do modo escuro. */
-export const campusMapStyleDark = makeMapStyle(darkColors, '#3A4D44');
+export const campusMapStyleDark = makeMapStyle(darkColors, '#2A4058');
 
 /**
  * Visual PADRÃO do Google Maps, só sem comércios, ícones de lugares e transporte

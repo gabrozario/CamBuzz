@@ -169,7 +169,7 @@ export function WeekView({
       {/* Arrastar para os lados troca a semana (o card acompanha o dedo). */}
       <GestureDetector gesture={swipe}>
         <Animated.View style={[styles.card, slideStyle]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
-          {/* Fundo cinza de sábado e domingo (altura toda do card) */}
+          {/* Fundo amarelinho de sábado e domingo (altura toda do card) */}
           {colWidth > 0 && <View style={[styles.weekend, { left: GUTTER + colWidth * 5, width: colWidth * 2 }]} />}
 
           {/* Cabeçalho: Mon 16, Tue 17... (hoje em destaque) */}
@@ -216,6 +216,21 @@ export function WeekView({
                 WEEKDAYS.map((d, i) => (
                   <View key={d} style={[styles.vLine, { left: GUTTER + colWidth * i, height: GRID_HEIGHT }]} />
                 ))}
+
+              {/* Fim de semana: linhas da grade próprias (dourado clarinho, mais escuras que a coluna) */}
+              {colWidth > 0 && (
+                <>
+                  {[...HOURS, 24].map((h) => (
+                    <View
+                      key={`we-${h}`}
+                      style={[styles.weekendHLine, { top: h * HOUR_HEIGHT, left: GUTTER + colWidth * 5 + 1, width: colWidth * 2 - 1 }]}
+                    />
+                  ))}
+                  <View style={[styles.weekendVLine, { left: GUTTER + colWidth * 6, height: GRID_HEIGHT }]} />
+                  {/* Borda direita da grade (depois de domingo): separa a grade do fundo da tela */}
+                  <View style={[styles.edgeLine, { left: width - 1, height: GRID_HEIGHT }]} />
+                </>
+              )}
 
               {/* Blocos */}
               {colWidth > 0 &&
@@ -347,6 +362,9 @@ const makeStyles = (c: AppColors) =>
       marginTop: -6,
     },
     hourLine: { flex: 1, height: 1, backgroundColor: c.gridLine },
+    weekendHLine: { position: 'absolute', height: 1.5, backgroundColor: c.weekendLine },
+    weekendVLine: { position: 'absolute', top: 0, width: 1.5, backgroundColor: c.weekendLine },
+    edgeLine: { position: 'absolute', top: 0, width: 1, backgroundColor: c.gridEdge },
     vLine: {
       position: 'absolute',
       top: 0,

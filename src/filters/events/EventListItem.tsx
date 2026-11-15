@@ -14,7 +14,7 @@ interface Props {
 
 /** Linha da lista de eventos: horário dourado à esquerda, nome/local/categoria, seta à direita. */
 export function EventListItem({ entry, onPress, showDivider }: Props) {
-  const { colors } = useAppTheme();
+  const { colors, legible } = useAppTheme();
   const styles = useThemedStyles(makeStyles);
   const { event, match, number } = entry;
   const [time, ampm] = formatTime(event.start).split(' ');
@@ -56,7 +56,7 @@ export function EventListItem({ entry, onPress, showDivider }: Props) {
                   <View key={f.person.id} style={[styles.dot, { backgroundColor: f.person.color }]} />
                 ))}
               </View>
-              <Text style={[styles.friendsText, { color: entry.friends[0].person.color }]} numberOfLines={1}>
+              <Text style={[styles.friendsText, { color: legible(entry.friends[0].person.color) }]} numberOfLines={1}>
                 {friendsLabel(entry.friends)}
               </Text>
             </View>

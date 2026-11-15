@@ -17,7 +17,7 @@ import { useToast } from '../ui/Toast';
  * Ainda não tem tela no Figma; segue o estilo dos outros popups.
  */
 export function EventInviteModal() {
-  const { c, vivid } = useAppTheme();
+  const { c, vivid, legible } = useAppTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { incomingInvites, conflictsFor, respondToInvite } = useSchedule();
   const { friends } = useFriends();
@@ -75,7 +75,7 @@ export function EventInviteModal() {
     <DialogCard visible onClose={() => {}} showReturn={false}>
       <View style={styles.fromRow}>
         <View style={[styles.avatar, { backgroundColor: mixHex(color, c.card, 0.18) }]}>
-          <Text style={[styles.avatarText, { color }]}>{firstName.charAt(0)}</Text>
+          <Text style={[styles.avatarText, { color: legible(color) }]}>{firstName.charAt(0)}</Text>
         </View>
         <Text style={styles.fromText}>
           <Text style={styles.fromName}>{firstName}</Text> invited you

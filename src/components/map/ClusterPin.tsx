@@ -25,7 +25,6 @@ export function ClusterPin({ coordinate, count, color, onPress }: Props) {
       <PlacePin
         label={String(count)}
         color={fill}
-        textColor={fill === colors.ink ? colors.onInk : colors.white}
         size="large"
       />
     </Marker>

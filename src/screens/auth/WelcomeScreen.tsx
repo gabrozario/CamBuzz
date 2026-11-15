@@ -51,7 +51,7 @@ const makeStyles = (colors: Palette) =>
     borderTopRightRadius: 28,
     paddingHorizontal: 24,
     paddingTop: 28,
-    shadowColor: '#233A43',
+    shadowColor: '#051E39',
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: -2 },

@@ -546,7 +546,7 @@ export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Pr
           {peopleOn ? (
             <PeopleLayer state={people} />
           ) : (
-            myRouteOn && <DayRouteLayer route={userRoute} color={colors.green} highlightNextLeg isMe />
+            myRouteOn && <DayRouteLayer route={userRoute} color={colors.me} highlightNextLeg isMe />
           )}
           {eventsOn && <EventsLayer state={events} />}
           {resourcesOn && <ResourcesLayer state={resources} />}

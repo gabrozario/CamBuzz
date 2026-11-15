@@ -71,7 +71,7 @@ interface Props {
   onRegionChange?: (region: Region) => void;
 }
 
-/** O mapa base do campus, com o estilo bege do Figma (ou verde-escuro no modo escuro). Não sabe nada sobre filtros. */
+/** O mapa base do campus, com o estilo claro (ou navy no modo escuro). Não sabe nada sobre filtros. */
 export function CampusMap({
   ref,
   initialRegion = GT_REGION,
@@ -87,7 +87,7 @@ export function CampusMap({
       ref={ref}
       // Fundo enquanto o mapa carrega (evita um "flash" claro no modo escuro)
       style={[StyleSheet.absoluteFill, { backgroundColor: colors.mapBackground }]}
-      // Android: Google Maps (funciona no Expo Go sem chave) com o estilo bege/verde do Figma.
+      // Android: Google Maps (funciona no Expo Go sem chave) com o estilo do tema.
       // iPhone: Apple Maps — o Google Maps no iOS exige chave de API num app próprio (não roda no Expo Go).
       // O Apple Maps não aceita customMapStyle; lá só trocamos claro/escuro.
       provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}

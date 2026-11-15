@@ -10,13 +10,14 @@ import type {
   RepeatRule,
   TimeOfDay,
 } from '../../types';
+import { gtTones } from '../../theme/colors';
 import { addDays, dayOfMonth, formatDate, weekdayOf } from '../../utils/dates';
 import { formatTime, formatTimeRange, overlaps, toMinutes } from '../../utils/time';
 
 // LÓGICA PURA da agenda (sem React): o que acontece em cada dia, conflitos e disponibilidade de amigos.
 
 /** Cor dos eventos pessoais na agenda (cursos usam coursePalette). */
-export const EVENT_COLOR = '#A0614A';
+export const EVENT_COLOR = gtTones.ochre; // ocre (buzz escurecido): diferente dos cursos
 
 /** Até quantos dias à frente procuramos conflitos de coisas que se repetem. */
 export const CONFLICT_HORIZON_DAYS = 120;

@@ -168,7 +168,7 @@ export function AddFriendModal({ visible, onClose }: Props) {
 const makeStyles = (colors: Palette) =>
   StyleSheet.create({
   flex: { flex: 1 },
-  backdrop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(35, 58, 67, 0.35)' },
+  backdrop: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(5, 30, 57, 0.35)' },
   center: { flex: 1, justifyContent: 'center', paddingHorizontal: 20 },
   card: {
     backgroundColor: colors.surface,
@@ -178,7 +178,7 @@ const makeStyles = (colors: Palette) =>
     paddingHorizontal: 20,
     paddingTop: 22,
     paddingBottom: 24,
-    shadowColor: '#233A43',
+    shadowColor: '#051E39',
     shadowOpacity: 0.15,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 8 },

@@ -32,7 +32,7 @@ function receivedLabel(iso?: string): string {
  * recusado ainda pode ser aceito. Abrir marca tudo como visto (some a bolinha vermelha).
  */
 export function NotificationsModal({ visible, onClose }: Props) {
-  const { c, vivid } = useAppTheme();
+  const { c, vivid, legible } = useAppTheme();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { inbox, markInboxSeen, conflictsFor, respondToInvite } = useSchedule();
   const { friends } = useFriends();
@@ -81,7 +81,7 @@ export function NotificationsModal({ visible, onClose }: Props) {
           <View key={invite.id} style={[styles.item, isNew && styles.itemNew]}>
             <View style={styles.top}>
               <View style={[styles.avatar, { backgroundColor: mixHex(color, c.card, 0.2) }]}>
-                <Text style={[styles.avatarText, { color }]}>{firstName.charAt(0)}</Text>
+                <Text style={[styles.avatarText, { color: legible(color) }]}>{firstName.charAt(0)}</Text>
               </View>
               <View style={styles.text}>
                 <Text style={styles.headline}>

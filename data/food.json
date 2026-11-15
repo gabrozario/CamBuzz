@@ -3,7 +3,7 @@
     {
       "id": "dining",
       "name": "Dining hall",
-      "color": "#806C3C",
+      "color": "#8F713D",
       "locations": [
         {
           "id": "north-ave-dining",
@@ -449,7 +449,7 @@
     {
       "id": "restaurants",
       "name": "Restaurants/Coffees",
-      "color": "#477969",
+      "color": "#EAAA00",
       "locations": [
         {
           "id": "big-chicken",
@@ -1999,7 +1999,7 @@
     {
       "id": "vending",
       "name": "Vending machines",
-      "color": "#526F8A",
+      "color": "#556678",
       "locations": [
         {
           "id": "skiles-vending",
