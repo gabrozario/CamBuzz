@@ -36,3 +36,10 @@ export function sortByStart(classes: ClassSession[]): ClassSession[] {
 export function overlaps(aStart: TimeOfDay, aEnd: TimeOfDay, bStart: TimeOfDay, bEnd: TimeOfDay): boolean {
   return toMinutes(aStart) < toMinutes(bEnd) && toMinutes(bStart) < toMinutes(aEnd);
 }
+
+/** "08:25","09:15" -> "8:25–9:15 AM"; "11:00","12:15" -> "11:00 AM–12:15 PM" (igual ao Figma). */
+export function formatTimeRange(start: TimeOfDay, end: TimeOfDay): string {
+  const a = formatTime(start);
+  const b = formatTime(end);
+  return a.slice(-2) === b.slice(-2) ? `${a.slice(0, -3)}–${b}` : `${a}–${b}`;
+}

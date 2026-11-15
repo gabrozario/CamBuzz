@@ -1,4 +1,4 @@
-import { directory, friends as initialFriends, me } from '../../../data';
+import { directory, friends as initialFriends, me as initialMe } from '../../../data';
 import { friendPalette } from '../../theme';
 import type { DirectoryUser, Friend, FriendRequest, UserProfile } from '../../types';
 import { buildInviteLink, isValidEmail, normalizeEmail, parseInviteLink } from './invite';
@@ -26,12 +26,15 @@ export interface FriendsService {
   acceptInviteLink(link: string): Promise<AddFriendResult>;
   /** Desfaz a amizade (a pessoa some da sua lista e você da dela). */
   removeFriend(friendId: string): Promise<{ ok: true } | { ok: false; error: string }>;
+  /** Settings → "Edit name & email". */
+  updateProfile(changes: Pick<UserProfile, 'name' | 'email'>): Promise<{ ok: true; me: UserProfile } | { ok: false; error: string }>;
 }
 
 // ---------------- Implementação falsa (em memória) ----------------
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+let me: UserProfile = { ...initialMe };
 let friendsState: Friend[] = [...initialFriends];
 let requestsState: FriendRequest[] = [];
 
@@ -108,6 +111,17 @@ export const mockFriendsService: FriendsService = {
     if (!friendsState.some((f) => f.id === friendId)) return { ok: false, error: 'Friend not found.' };
     friendsState = friendsState.filter((f) => f.id !== friendId);
     return { ok: true };
+  },
+
+  async updateProfile({ name, email: rawEmail }) {
+    await wait(400);
+    const email = normalizeEmail(rawEmail);
+    if (!name.trim()) return { ok: false, error: 'Enter your name.' };
+    if (!isValidEmail(email)) return { ok: false, error: 'Enter a valid email address.' };
+    if (allUsers.some((u) => u.email === email)) return { ok: false, error: 'That email belongs to another account.' };
+    // O link de convite (inviteSlug) não muda — assim links já enviados continuam valendo.
+    me = { ...me, name: name.trim(), email };
+    return { ok: true, me };
   },
 };
 

@@ -1,0 +1,121 @@
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { colors, mixHex } from './colors';
+
+/**
+ * Cores das telas que já têm modo escuro (Schedule, Settings e seus popups).
+ * Amostradas de figma-designs/Settings · Light mode / Dark mode.
+ *
+ * Para levar o modo escuro a outra tela: troque `colors.x` por `const c = useAppTheme().c`
+ * e crie os estilos com `useMemo(() => makeStyles(c), [c])` (veja SettingsScreen.tsx).
+ */
+export interface AppColors {
+  page: string; // fundo da tela
+  card: string; // cards, popups, botão "Back"
+  cardBorder: string;
+  text: string; // títulos
+  muted: string; // subtítulos, labels
+  placeholder: string;
+  field: string; // fundo dos campos de texto
+  fieldBorder: string;
+  accent: string; // botões principais (Done, Save changes, +)
+  onAccent: string; // texto sobre accent
+  accentSoft: string; // "Edit name & email", "Cancel", aba selecionada
+  accentSoftText: string;
+  mint: string; // "Invite friends" sem ninguém
+  switchOff: string;
+  switchOn: string;
+  overlay: string; // fundo escurecido atrás dos popups
+  weekend: string; // colunas sáb/dom da semana
+  gridLine: string;
+  success: string; // "Free" nos convites
+  error: string;
+}
+
+const light: AppColors = {
+  page: colors.page,
+  card: colors.surface,
+  cardBorder: '#E6E3D8',
+  text: colors.ink,
+  muted: '#65736D',
+  placeholder: '#78837D',
+  field: colors.page,
+  fieldBorder: '#E6E3D8',
+  accent: colors.forest,
+  onAccent: colors.surface,
+  accentSoft: colors.greenTint,
+  accentSoftText: colors.forest,
+  mint: colors.mint,
+  switchOff: '#D5DDCF',
+  switchOn: '#83A37C',
+  overlay: 'rgba(35, 58, 67, 0.22)',
+  weekend: '#F2F1E9',
+  gridLine: '#E6E3D8',
+  success: colors.green,
+  error: colors.error,
+};
+
+const dark: AppColors = {
+  page: '#1E2B28',
+  card: '#293A33',
+  cardBorder: '#46594F',
+  text: '#F4F2E9',
+  muted: '#BDC9BD',
+  placeholder: '#8E9C93',
+  field: '#22322D',
+  fieldBorder: '#3B4E45',
+  accent: '#83A37C',
+  onAccent: '#1E2B28',
+  accentSoft: '#354C3D',
+  accentSoftText: '#C9DDBE',
+  mint: '#4F7F68',
+  switchOff: '#3B4E45',
+  switchOn: '#83A37C',
+  overlay: 'rgba(0, 0, 0, 0.5)',
+  weekend: '#24332F',
+  gridLine: '#33463E',
+  success: '#9CC59A',
+  error: '#E0907C',
+};
+
+export type ThemeMode = 'light' | 'dark';
+
+interface ThemeContextValue {
+  mode: ThemeMode;
+  isDark: boolean;
+  c: AppColors;
+  setMode: (mode: ThemeMode) => void;
+  toggle: () => void;
+  /** Cor de um curso para fundo de bloco/chip (clarinha no modo claro, escura no escuro). */
+  courseBg: (color: string) => string;
+  /** Cor de um curso para texto (legível nos dois modos). */
+  courseText: (color: string) => string;
+}
+
+const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+/** Guarda o modo claro/escuro escolhido em Settings (em memória; some ao fechar o app). */
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [mode, setMode] = useState<ThemeMode>('light');
+
+  const value = useMemo<ThemeContextValue>(() => {
+    const isDark = mode === 'dark';
+    const c = isDark ? dark : light;
+    return {
+      mode,
+      isDark,
+      c,
+      setMode,
+      toggle: () => setMode((m) => (m === 'dark' ? 'light' : 'dark')),
+      courseBg: (color) => mixHex(color, c.card, isDark ? 0.35 : 0.16),
+      courseText: (color) => (isDark ? mixHex(color, '#FFFFFF', 0.45) : color),
+    };
+  }, [mode]);
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
+export function useAppTheme(): ThemeContextValue {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error('useAppTheme() must be used inside <ThemeProvider> (see App.tsx)');
+  return ctx;
+}
