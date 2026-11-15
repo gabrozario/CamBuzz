@@ -1,0 +1,142 @@
+[
+  {
+    "code": "CS 1301",
+    "title": "Introduction to Computing",
+    "credits": 3,
+    "sections": [
+      { "id": "A", "crn": "80010", "instructor": "Dr. Nadia Brooks", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "12:30", "end": "13:20", "buildingId": "coc", "room": "16" }] },
+      { "id": "B", "crn": "80011", "instructor": "Dr. Ethan Cole", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "09:30", "end": "10:45", "buildingId": "coc", "room": "17" }] }
+    ]
+  },
+  {
+    "code": "CS 1331",
+    "title": "Intro to Object-Oriented Programming",
+    "credits": 3,
+    "sections": [
+      { "id": "A", "crn": "80120", "instructor": "Dr. Adrian Novak", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "08:25", "end": "09:15", "buildingId": "coc", "room": "16" }] },
+      { "id": "B", "crn": "80121", "instructor": "Dr. Julia Chambers", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "15:30", "end": "16:45", "buildingId": "klaus", "room": "1447" }] }
+    ]
+  },
+  {
+    "code": "CS 1332",
+    "title": "Data Structures & Algorithms",
+    "credits": 3,
+    "sections": [
+      { "id": "A", "crn": "80230", "instructor": "Dr. Priscilla Moore", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed"], "start": "11:00", "end": "12:15", "buildingId": "culc", "room": "152" }] },
+      { "id": "B", "crn": "80231", "instructor": "Dr. Samuel Ortiz", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "12:30", "end": "13:45", "buildingId": "culc", "room": "144" }] }
+    ]
+  },
+  {
+    "code": "CS 2110",
+    "title": "Computer Organization",
+    "credits": 4,
+    "sections": [
+      { "id": "C", "crn": "80340", "instructor": "Dr. Henry Vance", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed"], "start": "14:00", "end": "15:15", "buildingId": "klaus", "room": "1443" }] },
+      { "id": "D", "crn": "80341", "instructor": "Dr. Mei Tanaka", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "11:00", "end": "12:15", "buildingId": "klaus", "room": "1456" }] }
+    ]
+  },
+  {
+    "code": "CS 2340",
+    "title": "Objects and Design",
+    "credits": 3,
+    "sections": [
+      { "id": "A", "crn": "80450", "instructor": "Dr. Rachel Kim", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "14:00", "end": "15:15", "buildingId": "culc", "room": "152" }] },
+      { "id": "B", "crn": "80451", "instructor": "Dr. Victor Lang", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "13:00", "end": "13:50", "buildingId": "klaus", "room": "2443" }] }
+    ]
+  },
+  {
+    "code": "MATH 1551",
+    "title": "Differential Calculus",
+    "credits": 2,
+    "sections": [
+      { "id": "A", "crn": "81010", "instructor": "Dr. Elena Ruiz", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "13:00", "end": "13:50", "buildingId": "skiles", "room": "154" }] },
+      { "id": "B", "crn": "81011", "instructor": "Dr. Marcus Webb", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "08:00", "end": "09:15", "buildingId": "skiles", "room": "268" }] }
+    ]
+  },
+  {
+    "code": "MATH 1554",
+    "title": "Linear Algebra",
+    "credits": 4,
+    "sections": [
+      { "id": "A", "crn": "81120", "instructor": "Dr. Sofia Lindqvist", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "09:30", "end": "10:45", "buildingId": "skiles", "room": "249" }] },
+      { "id": "B", "crn": "81121", "instructor": "Dr. Omar Haddad", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "10:00", "end": "10:50", "buildingId": "skiles", "room": "249" }] }
+    ]
+  },
+  {
+    "code": "PHYS 2211",
+    "title": "Intro Physics I",
+    "credits": 4,
+    "sections": [
+      {
+        "id": "M",
+        "crn": "82010",
+        "instructor": "Dr. Laura Bennett",
+        "meetings": [
+          { "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "09:00", "end": "09:50", "buildingId": "howey", "room": "L1" },
+          { "kind": "Lab", "days": ["Mon"], "start": "16:30", "end": "17:45", "buildingId": "instructional-center", "room": "105" }
+        ]
+      },
+      {
+        "id": "N",
+        "crn": "82011",
+        "instructor": "Dr. Kwame Asante",
+        "meetings": [
+          { "kind": "Lecture", "days": ["Tue", "Thu"], "start": "15:30", "end": "16:45", "buildingId": "howey", "room": "L2" },
+          { "kind": "Lab", "days": ["Wed"], "start": "16:30", "end": "17:45", "buildingId": "instructional-center", "room": "107" }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "ENGL 1101",
+    "title": "English Composition I",
+    "credits": 3,
+    "sections": [
+      { "id": "A", "crn": "83010", "instructor": "Dr. Hannah Price", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "15:30", "end": "16:45", "buildingId": "skiles", "room": "101" }] },
+      { "id": "B", "crn": "83011", "instructor": "Dr. Daniel Reyes", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "08:00", "end": "08:50", "buildingId": "skiles", "room": "104" }] }
+    ]
+  },
+  {
+    "code": "PSYC 1101",
+    "title": "General Psychology",
+    "credits": 3,
+    "sections": [
+      { "id": "A", "crn": "84010", "instructor": "Dr. Grace Holloway", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "11:00", "end": "12:15", "buildingId": "instructional-center", "room": "211" }] },
+      { "id": "B", "crn": "84011", "instructor": "Dr. Isaac Moreno", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "15:30", "end": "16:20", "buildingId": "kendeda", "room": "230" }] }
+    ]
+  },
+  {
+    "code": "ECON 2100",
+    "title": "Economic Analysis & Policy",
+    "credits": 3,
+    "sections": [
+      { "id": "A", "crn": "85010", "instructor": "Dr. Fiona Gallagher", "meetings": [{ "kind": "Lecture", "days": ["Mon", "Wed"], "start": "12:30", "end": "13:45", "buildingId": "van-leer", "room": "C241" }] },
+      { "id": "B", "crn": "85011", "instructor": "Dr. Leo Martins", "meetings": [{ "kind": "Lecture", "days": ["Tue", "Thu"], "start": "14:00", "end": "15:15", "buildingId": "van-leer", "room": "C341" }] }
+    ]
+  },
+  {
+    "code": "CHEM 1310",
+    "title": "Principles of General Chemistry",
+    "credits": 4,
+    "sections": [
+      {
+        "id": "A",
+        "crn": "86010",
+        "instructor": "Dr. Ava Thompson",
+        "meetings": [
+          { "kind": "Lecture", "days": ["Tue", "Thu"], "start": "08:00", "end": "09:15", "buildingId": "howey", "room": "L4" },
+          { "kind": "Recitation", "days": ["Fri"], "start": "11:00", "end": "11:50", "buildingId": "culc", "room": "262" }
+        ]
+      },
+      {
+        "id": "B",
+        "crn": "86011",
+        "instructor": "Dr. Benjamin Shaw",
+        "meetings": [
+          { "kind": "Lecture", "days": ["Mon", "Wed", "Fri"], "start": "12:30", "end": "13:20", "buildingId": "howey", "room": "L3" },
+          { "kind": "Recitation", "days": ["Thu"], "start": "16:30", "end": "17:20", "buildingId": "culc", "room": "272" }
+        ]
+      }
+    ]
+  }
+]
