@@ -8,7 +8,9 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthFlow } from './src/screens/auth/AuthFlow';
 import { MapScreen } from './src/screens/MapScreen';
+import { AuthProvider, useAuth } from './src/services/auth/AuthProvider';
 import { FriendsProvider } from './src/services/friends/FriendsProvider';
 import { colors } from './src/theme';
 
@@ -21,10 +23,23 @@ export default function App() {
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
         <StatusBar style="dark" />
-        <FriendsProvider>{fontsLoaded ? <MapScreen /> : <View style={styles.root} />}</FriendsProvider>
+        <AuthProvider>
+          <FriendsProvider>{fontsLoaded ? <Root /> : <View style={styles.root} />}</FriendsProvider>
+        </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
+}
+
+/**
+ * Escolhe a tela inicial: logado (sessão salva) ou convidado → mapa; senão → boas-vindas.
+ * Enquanto lê a sessão salva, mostra só o fundo (é bem rápido).
+ */
+function Root() {
+  const { status } = useAuth();
+  if (status === 'loading') return <View style={styles.root} />;
+  if (status === 'signedIn' || status === 'guest') return <MapScreen />;
+  return <AuthFlow />;
 }
 
 const styles = StyleSheet.create({

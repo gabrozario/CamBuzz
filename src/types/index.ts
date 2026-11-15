@@ -201,5 +201,16 @@ export interface FoodCategory {
   locations: FoodLocation[];
 }
 
+/** Como a pessoa entrou na conta. */
+export type AuthMethod = 'email' | 'google' | 'microsoft';
+
+/** Conta logada (vem do login/cadastro; no futuro, do backend). */
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  method: AuthMethod;
+}
+
 /** Chaves dos filtros da barra inferior. */
 export type FilterKey = 'events' | 'resources' | 'food' | 'people';
