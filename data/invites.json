@@ -1,0 +1,16 @@
+[
+  {
+    "id": "inv-maya-1",
+    "from": { "id": "maya", "name": "Maya Chen" },
+    "event": {
+      "name": "Board games night",
+      "location": "Student Center · Room 320",
+      "buildingId": "student-center",
+      "date": "2026-11-16",
+      "start": "18:30",
+      "end": "20:00",
+      "repeat": "none"
+    },
+    "status": "pending"
+  }
+]

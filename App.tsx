@@ -8,9 +8,13 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { MapScreen } from './src/screens/MapScreen';
+import { ToastProvider } from './src/components/ui/Toast';
+import { AuthFlow } from './src/screens/auth/AuthFlow';
+import { RootScreen } from './src/screens/RootScreen';
+import { AuthProvider, useAuth } from './src/services/auth/AuthProvider';
 import { FriendsProvider } from './src/services/friends/FriendsProvider';
-import { colors } from './src/theme';
+import { ScheduleProvider } from './src/services/schedule/ScheduleProvider';
+import { colors, ThemeProvider } from './src/theme';
 
 export default function App() {
   // Carrega a fonte Inter (a do Figma). Enquanto carrega, mostra só o fundo.
@@ -20,10 +24,34 @@ export default function App() {
     // GestureHandlerRootView é exigido pelo @gorhom/bottom-sheet (usado nas próximas etapas).
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
-        <StatusBar style="dark" />
-        <FriendsProvider>{fontsLoaded ? <MapScreen /> : <View style={styles.root} />}</FriendsProvider>
+        {/* Providers = dados compartilhados entre as telas: tema, conta, amigos, agenda e avisos. */}
+        <ThemeProvider>
+          <AuthProvider>
+            <FriendsProvider>
+              <ScheduleProvider>
+                <ToastProvider>{fontsLoaded ? <Root /> : <View style={styles.root} />}</ToastProvider>
+              </ScheduleProvider>
+            </FriendsProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+/**
+ * Escolhe a tela inicial: logado (sessão salva) ou convidado → app (mapa, agenda, settings);
+ * senão → boas-vindas. Enquanto lê a sessão salva, mostra só o fundo (é bem rápido).
+ */
+function Root() {
+  const { status } = useAuth();
+  if (status === 'loading') return <View style={styles.root} />;
+  if (status === 'signedIn' || status === 'guest') return <RootScreen />;
+  return (
+    <>
+      <StatusBar style="dark" />
+      <AuthFlow />
+    </>
   );
 }
 

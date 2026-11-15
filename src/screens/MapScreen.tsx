@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import type MapView from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { schedule } from '../../data';
 import { BackPill } from '../components/BackPill';
 import { AddFriendModal } from '../components/friends/AddFriendModal';
 import { CampusMap } from '../components/map/CampusMap';
@@ -28,6 +27,7 @@ import { ResourcesSheet } from '../filters/resources/ResourcesSheet';
 import { useResourcesFilter } from '../filters/resources/useResourcesFilter';
 import { useActiveFilters } from '../hooks/useActiveFilters';
 import { enhanceDayRouteWithORS } from '../services/routing/openRouteService';
+import { useSchedule } from '../services/schedule/ScheduleProvider';
 import { colors, spacing } from '../theme';
 import type { FilterKey, LatLng } from '../types';
 import { buildDayRoute, regionFor, type DayRoute } from '../utils/route';
@@ -48,7 +48,14 @@ const FIT_PADDING = { top: 40, right: 40, bottom: 40, left: 40 };
  * aparece por vez (a do filtro em foco), mas as camadas de todos os filtros
  * ligados aparecem juntas — ex.: Events + People = eventos para ir com amigos.
  */
-export function MapScreen() {
+interface Props {
+  /** false quando outra tela (Schedule/Settings) está por cima — o mapa não trata o botão voltar. */
+  focused?: boolean;
+  onOpenSchedule?: () => void;
+  onOpenSettings?: () => void;
+}
+
+export function MapScreen({ focused = true, onOpenSchedule, onOpenSettings }: Props) {
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
   const { active, toggle } = useActiveFilters();
@@ -58,7 +65,9 @@ export function MapScreen() {
   const [addFriendOpen, setAddFriendOpen] = useState(false);
 
   const now = nowTime();
-  const baseUserRoute = useMemo(() => buildDayRoute(schedule.classes, now), [now]);
+  // Suas paradas de hoje vêm da agenda (My schedule): aulas + eventos com prédio.
+  const { todayClasses } = useSchedule();
+  const baseUserRoute = useMemo(() => buildDayRoute(todayClasses, now), [todayClasses, now]);
   const [userRoute, setUserRoute] = useState<DayRoute>(baseUserRoute);
 
   useEffect(() => {
@@ -73,7 +82,6 @@ export function MapScreen() {
       isMounted = false;
     };
   }, [baseUserRoute]);
-
   const stopCoords = useMemo(() => userRoute.stops.map((s) => s.building.coordinate), [userRoute]);
   const initialRegion = useMemo(() => regionFor(stopCoords), [stopCoords]);
 
@@ -210,6 +218,7 @@ export function MapScreen() {
   // Botão "voltar" do Android: detalhe → lista → fecha a aba.
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (!focused) return false;
       if (selectedBuildingDetails) {
         resources.closeDetails();
         return true;
@@ -234,6 +243,7 @@ export function MapScreen() {
     });
     return () => sub.remove();
   }, [
+    focused,
     selectedBuildingDetails,
     selectedResource,
     selectedFood,
@@ -285,9 +295,8 @@ export function MapScreen() {
         <MapTopBar
           topInset={insets.top}
           onAddFriend={() => setAddFriendOpen(true)}
-          // Próxima etapa: telas "My schedule" e "Settings" (já estão no /figma-designs).
-          onOpenSchedule={undefined}
-          onOpenSettings={undefined}
+          onOpenSchedule={onOpenSchedule}
+          onOpenSettings={onOpenSettings}
           leftAccessory={
             selectedEvent ? <BackPill label="All events" onPress={events.clearSelection} /> : undefined
           }

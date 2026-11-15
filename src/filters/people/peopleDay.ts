@@ -30,7 +30,7 @@ export function personFromFriend(f: Friend): Person {
 
 function activityLabel(stop: RouteStop): string {
   const s = stop.session;
-  return s.kind === 'Study session' ? s.title : `${s.course} ${s.kind.toLowerCase()}`;
+  return s.kind === 'Study session' || s.kind === 'Event' ? s.title : `${s.course} ${s.kind.toLowerCase()}`;
 }
 
 /** Calcula caminho e textos de status de uma pessoa para o horário `now`. */

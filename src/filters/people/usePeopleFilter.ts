@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { schedule } from '../../../data';
 import { useFriends } from '../../services/friends/FriendsProvider';
 import { enhanceDayRouteWithORS } from '../../services/routing/openRouteService';
+import { friendSessionsOnDate } from '../../services/schedule/scheduleLogic';
+import { useSchedule } from '../../services/schedule/ScheduleProvider';
 import type { TimeOfDay } from '../../types';
 import { buildPersonDay, personFromFriend, personFromMe, type PersonDay } from './peopleDay';
 
@@ -13,11 +14,17 @@ import { buildPersonDay, personFromFriend, personFromMe, type PersonDay } from '
  */
 export function usePeopleFilter(now: TimeOfDay) {
   const { friends } = useFriends();
+  const { todayClasses, friendEvents, today } = useSchedule();
   const [visibleIds, setVisibleIds] = useState<Set<string>>(() => new Set(['me']));
 
+  // Você: agenda de hoje. Amigos: aulas deles + eventos que aceitaram (ex.: um convite seu).
   const baseDays: PersonDay[] = useMemo(
-    () => [personFromMe(schedule.classes), ...friends.map(personFromFriend)].map((p) => buildPersonDay(p, now)),
-    [friends, now],
+    () =>
+      [
+        personFromMe(todayClasses),
+        ...friends.map((f) => personFromFriend({ ...f, schedule: friendSessionsOnDate(f, friendEvents[f.id] ?? [], today) })),
+      ].map((p) => buildPersonDay(p, now)),
+    [friends, friendEvents, todayClasses, today, now],
   );
 
   const [days, setDays] = useState<PersonDay[]>(baseDays);

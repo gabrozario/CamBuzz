@@ -15,7 +15,7 @@ O usuário insere sua agenda de aulas e, ao abrir o app, vê o mapa da Georgia T
 3. ✅ Filtro **People** (amigos): caminho de cada amigo (uma cor cada), com mostrar/esconder por amigo (Etapa 3)
 4. ✅ Events + People ativos ao mesmo tempo → ver qual evento dá pra ir junto com um amigo (Etapa 3)
 5. ✅ Popup **Add Friends** (link de convite + email) com serviço falso pronto para virar backend (Etapa 3)
-6. ⏳ Telas **My schedule** e **Settings** (Figma: `Schedule · …`, `Settings · …`) — botões do topo já existem, sem tela ainda
+6. ✅ Telas **My schedule** (Week/Block View, Add Course, Add Event, convidar amigos) e **Settings** (conta + modo claro/escuro) (Etapa 4)
 7. ⏳ Busca ("Search campus") — só visual por enquanto
 
 8. ✅ Filtro **Food options**: Dining hall (D1, D2), Restaurants/Coffees (C1–C3), Vending machines (V1–V3); cada local abre o cardápio do dia com nutrição (Figma `Food details · …`)
@@ -77,27 +77,43 @@ Telas exportadas do Figma. Siga-as o mais fielmente possível. Telas principais:
 ## Estrutura de pastas
 
 ```
-App.tsx                      # fontes + providers (gesture handler, safe area) → MapScreen
+App.tsx                      # fontes + providers (gesture handler, safe area, tema, auth, amigos, agenda, toast) → AuthFlow ou RootScreen
 data/                        # DADOS FALSOS (sem backend)
   buildings.json             # ~16 prédios da GT com coordenadas aproximadas
-  schedule.json              # agenda do usuário (5 aulas)
+  schedule.json              # SUA agenda semanal: cursos (section + dias) e eventos pessoais. Segunda 16/11 = 5 aulas do mapa
+  courses.json               # catálogo de cursos e sections (amostra; futuro: gt-scheduler)
+  invites.json               # convite de evento que a Maya te manda na demo (chega ~6 s depois de abrir)
   friends.json               # 3 amigos (Maya, Jordan, Priya): email, slug do convite, cor e agenda
   events.json                # 12 eventos do dia (prédios e barracas ao ar livre)
   me.json                    # o usuário logado (Alex Morgan): nome, email, slug do convite
   directory.json             # outros usuários do app, ainda não amigos (Sam, Chris) — para a demo de adicionar
   food.json                  # Food options: categorias, locais (D1, C1, V1...) e cardápio/nutrição de exemplo
-  index.ts                   # exporta os dados tipados + getBuilding() + DEMO_NOW
+  index.ts                   # exporta os dados tipados + getBuilding() + DEMO_NOW + DEMO_TODAY
 figma-designs/               # PNGs do Figma (design oficial)
 src/
   config.ts                  # INVITE_BASE_URL (domínio provisório dos links de convite)
   types/index.ts             # Building, ClassSession, Friend, UserProfile, FriendRequest, Person, CampusEvent...
-  theme/                     # colors.ts (+ tint()), typography.ts (Inter), mapStyle.ts (estilo do Google Maps)
+  theme/                     # colors.ts (+ tint(), mixHex(), coursePalette), typography.ts (Inter), mapStyle.ts
+    ThemeProvider.tsx        #   modo claro/escuro: useAppTheme() → { c, isDark, courseBg(), courseText() }
+  services/auth/             # "backend" de contas (hoje falso) — ver seção Contas
+    authService.ts           #   interface AuthService + mockAuthService (sessão no AsyncStorage)
+    AuthProvider.tsx         #   contexto React: useAuth() → status, user, logIn, signUp, logOut...
+  screens/auth/              # WelcomeScreen (boas-vindas), AuthFormScreen (login/cadastro), AuthFlow (troca entre elas)
+  components/auth/           # AuthButton, AuthTextField, ProviderLogos (Google/Microsoft), WelcomeIllustration (mapa em SVG)
   services/friends/          # "backend" de amigos (hoje falso) — ver seção Amigos
     friendsService.ts        #   interface FriendsService + mockFriendsService
     FriendsProvider.tsx      #   contexto React: useFriends() em qualquer tela
     invite.ts                #   montar/ler link de convite, validar email
+  services/schedule/         # "backend" da agenda (hoje falso) — ver seção Agenda
+    scheduleLogic.ts         #   LÓGICA pura: o que acontece em cada dia, repetição, conflitos, amigo livre/ocupado
+    scheduleService.ts       #   interface ScheduleService + mockScheduleService (cursos, eventos, convites)
+    catalogService.ts        #   busca de cursos/sections (como trocar pelo gt-scheduler está comentado lá)
+    ScheduleProvider.tsx     #   contexto React: useSchedule() em qualquer tela (o mapa lê todayClasses daqui)
+    confirmConflicts.ts      #   alerta "Overlaps with X — Replace / Keep both / Cancel"
   utils/
-    time.ts                  # toMinutes, formatTime, nowTime, overlaps
+    time.ts                  # toMinutes, formatTime, formatTimeRange, nowTime, overlaps
+    dates.ts                 # datas "YYYY-MM-DD": todayISO, weekdayOf, startOfWeek, formatDate, formatDaysLong...
+    buildingSearch.ts        # reconhece um prédio da GT num texto livre ("Clough Commons 102" → culc)
     route.ts                 # buildDayRoute (paradas + trechos + "next leg"), regionFor, WAYPOINTS
     geo.ts                   # distâncias em metros, ponto mais próximo num caminho, minutos a pé
   hooks/useActiveFilters.ts  # quais filtros estão ligados (Events+People combinam)
@@ -115,7 +131,15 @@ src/
     sheet/FilterSheet.tsx    # aba genérica (bottom sheet) com cabeçalho do Figma — reusar em todo filtro
     sheet/SheetScrollView.tsx  # lista rolável para dentro da aba (SEMPRE use esta, não a BottomSheetScrollView direto)
     MapTopBar.tsx, IconButton.tsx, InfoChip.tsx, RouteLegend.tsx, FilterBar.tsx, BackPill.tsx
-  screens/MapScreen.tsx      # tela principal: junta mapa, camadas, abas, topo, legenda e barra
+    ui/                      # peças com tema (claro/escuro): DialogCard (popup com "‹ Return"), FormField, AppButton, Toast
+    schedule/                # tela My schedule: WeekView, BlockView, AddMenu, AddCourseModal (+SectionOption),
+                             #   AddEventModal (+RepeatSelect, LocationField, InviteFriendsList), EventInviteModal
+    settings/                # EditAccountModal, ThemeSwitch
+  screens/
+    RootScreen.tsx           # "navegação": mapa sempre montado embaixo + Schedule/Settings por cima + popup de convite
+    MapScreen.tsx            # tela principal: junta mapa, camadas, abas, topo, legenda e barra
+    ScheduleScreen.tsx       # My schedule (Week View / Block View, botão +)
+    SettingsScreen.tsx       # Settings (conta, modo escuro)
 ```
 
 ### Como um filtro é montado (modelo: `src/filters/events/`)
@@ -168,6 +192,14 @@ Com os dois filtros ligados, para cada evento do **seu** caminho aplicamos a mes
 Se o evento também cabe no dia do amigo e vocês ficariam lá ao mesmo tempo por ≥ 10 min, ele aparece:
 bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "Together 1:20 – 2:00 PM · 40 min".
 
+## Contas (login / cadastro / convidado)
+- Ao abrir o app, `App.tsx` lê a sessão salva (`useAuth().status`): **logado** → mapa direto; **ninguém** → tela de boas-vindas (Create account / Log in / Continue as guest).
+- **Convidado** vai direto ao mapa, mas não é salvo: na próxima abertura volta a tela de boas-vindas. Convidado não salva agenda.
+- Login/cadastro com **email + senha** ou **Google / Microsoft**. Sessão salva com `@react-native-async-storage/async-storage`.
+- **Settings** tem o botão **Log out** (convidado vê "Log in or sign up"); os dois voltam para a tela de boas-vindas.
+- **Demo (serviço falso):** Google/Microsoft são simulados e entram como Alex Morgan (`data/me.json`). Login por email aceita qualquer senha para contas existentes (`alex.morgan@gatech.edu` ou as criadas no cadastro). O mock **não guarda senhas**.
+- **Para o futuro:** criar `apiAuthService` com as mesmas funções de `AuthService` (servidor confere senha e devolve token); Google/Microsoft reais com `expo-auth-session` (os client IDs ficam em config, nunca segredos no código — e o login real provavelmente exige um development build em vez do Expo Go). Depois, `FriendsProvider` e a agenda devem usar `useAuth().user` no lugar de `data/me.json`, e a agenda passa a ser salva por conta.
+
 ## Amigos (link de convite + email)
 - Cada conta tem **email** e um **link de convite** próprio: `cambuzz.app/friends/<inviteSlug>` (`src/config.ts`, domínio provisório).
 - Popup "Add Friends" (botão de pessoa com "+" no topo, ou "Add friends" na aba People): tocar no link **copia** (expo-clipboard); o ícone ao lado abre o **compartilhar** do Android. Embaixo, o campo de **email** envia um pedido de amizade.
@@ -180,9 +212,26 @@ bolinhas coloridas no pino, "Maya & Priya can go too" na lista, e no detalhe "To
   3. Deep link: `scheme` no `app.json` + `expo-linking` para abrir `cambuzz.app/friends/<slug>` no app e chamar `acceptInviteLink(link)` (já existe e já valida o link).
   4. Aceitar/recusar pedidos recebidos; envio de email de convite pelo servidor.
 
+## Agenda (My schedule) — Etapa 4
+- **Modelo:** `MySchedule` = cursos (`EnrolledCourse`: section, professor, encontros semanais com dias/horário/prédio) + eventos (`PersonalEvent`: dia, horário, `repeat`, local, convites). Cursos só acontecem entre `termStart` e `termEnd`.
+- **O mapa** usa `useSchedule().todayClasses` (aulas + eventos **com prédio** de hoje). Adicionou algo hoje → aparece no caminho do dia.
+- **Add Course:** código → "Find sections" (sugere enquanto digita) → toque na section = entra direto na agenda. Se já tem o curso, troca de section. Section que bate com algo mostra aviso em vermelho.
+- **Add Event:** nome, dia, From/To (seletor nativo `@react-native-community/datetimepicker`), Repeat (uma vez, todo dia, dias úteis, semanal, mensal), local (reconhece prédio → aparece no mapa). Done → se bater com algo: **Replace / Keep both / Cancel**.
+  - *Replace* = o novo ganha: curso x curso → o antigo sai; evento de uma vez → sai; o resto → só os dias em conflito são pulados (`skipDates`).
+  - Conflitos de coisas que se repetem são procurados até 120 dias à frente (`CONFLICT_HORIZON_DAYS`).
+- **Invite friends:** lista os amigos com "Free · …" / "Busy · CS 1332 until 1:20 PM" (puxa a agenda deles; na demo as aulas do `friends.json` valem de seg a sex). Na demo, quem está livre **aceita sozinho ~3,5 s depois** e o evento entra no dia dele (aparece no filtro People).
+- **Convite recebido:** popup "Maya invited you" (Accept/Decline) por cima de qualquer tela; aceitar põe na sua agenda (com a mesma checagem de conflito). Demo: `data/invites.json`.
+- Tocar num curso/evento (Week ou Block View) → detalhes + "Skip <dia>" / "Drop course" / "Delete event".
+- **Tudo em memória** (some ao fechar o app), igual aos amigos. Para o futuro: `apiScheduleService` / `apiCatalogService` com as mesmas funções; catálogo real do gt-scheduler (ver comentário em `catalogService.ts`); notificação push para convites.
+
+## Settings e modo escuro
+- Conta: nome/email vêm de `useFriends().me`; "Edit name & email" chama `updateProfile` (o link de convite não muda).
+- **Modo escuro**: `ThemeProvider` (em memória). Hoje vale para **Schedule, Settings e seus popups**. O **mapa e as abas dos filtros ainda são só claros** — para converter uma tela: `const { c } = useAppTheme()` + `const styles = useMemo(() => makeStyles(c), [c])` (modelo: `SettingsScreen.tsx`). O mapa escuro precisaria de um segundo `customMapStyle`.
+
 ## Convenções
 - Horários são strings `"HH:MM"` 24h; converta com `toMinutes()` para comparar.
-- `DEMO_NOW` em `data/index.ts` fixa o "agora" em 11:15 para a demo ficar sempre igual (ponha `null` para usar o relógio real).
+- `DEMO_NOW` em `data/index.ts` fixa o "agora" em 11:15 e `DEMO_TODAY` fixa "hoje" em segunda, 16/11/2026, para a demo ficar sempre igual (ponha `null` para usar o relógio/data reais).
+- Datas são strings `"YYYY-MM-DD"` (use `src/utils/dates.ts`).
 - Textos da interface em **inglês** (como no Figma); comentários do código podem ser em português.
 - Marcadores customizados no Android: use o hook `useTracksViewChanges([deps])` (liga ao montar/mudar, desliga depois).
 - **Gestos da aba:** arrastar o **cabeçalho** (pegador + título) sobe/desce a aba; arrastar a **lista** só rola a lista (em qualquer altura). Por isso o cabeçalho é o `handleComponent` do bottom-sheet e `enableContentPanningGesture` está desligado no `FilterSheet`.
